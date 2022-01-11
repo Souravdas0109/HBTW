@@ -59,7 +59,7 @@ export const groupPendingActionTableHeaders = [
     width: 100,
   },
   {
-    field: 'requestorFullname',
+    field: 'requestorFullName',
     headerName: 'Requested By',
     width: 100,
   },

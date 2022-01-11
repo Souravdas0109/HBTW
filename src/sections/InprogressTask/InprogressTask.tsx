@@ -17,9 +17,11 @@ import {
   inprogressTaskTableHeaders,
 } from './tableHeader'
 import { reset_myinprogressAction } from '../../redux/Actions/PendingAction/Action'
+import { routes } from '../../util/Constants'
 
 function InprogressTask(props: any) {
   const { myinprogressTasks, reset_myinprogressAction } = props
+  const { DEFAULT, DASHBOARD } = routes
   const history = useHistory()
   const theme = useTheme()
   const classes = useStyles()
@@ -37,8 +39,8 @@ function InprogressTask(props: any) {
     }
   }, [])
   useEffect(() => {
-    if (!myinprogressTasks) history.push('/commercial-webapp/dashboard')
-  }, [myinprogressTasks])
+    if (!myinprogressTasks) history.push(`${DEFAULT}${DASHBOARD}`)
+  }, [myinprogressTasks, history, DEFAULT, DASHBOARD])
   useEffect(() => {
     if (myinprogressTasks) {
       setInprogressTasksDetails(myinprogressTasks[0].tasks)
@@ -123,6 +125,7 @@ function InprogressTask(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',
@@ -163,6 +166,7 @@ function InprogressTask(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',

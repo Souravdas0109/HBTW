@@ -4,45 +4,47 @@ import {
   Box,
   useMediaQuery,
   useTheme,
-} from "@material-ui/core";
-import React from "react";
-import { useHistory } from "react-router-dom";
-import { userTableHeaders } from "./tableheader";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
-import "primereact/resources/primereact.css";
-import { connect } from "react-redux";
-import { set_empID } from "../../redux/Actions/ManageUser/Action";
-import { teal } from "@material-ui/core/colors";
-import { useEffect } from "react";
-import { getAllUsersAPI } from "../../api/Fetch";
-import { useStyles } from "./Styles";
+} from '@material-ui/core'
+import React from 'react'
+import { useHistory } from 'react-router-dom'
+import { userTableHeaders } from './tableheader'
+import { DataTable } from 'primereact/datatable'
+import { Column } from 'primereact/column'
+import 'primereact/resources/primereact.css'
+import { connect } from 'react-redux'
+import { set_empID } from '../../redux/Actions/ManageUser/Action'
+import { teal } from '@material-ui/core/colors'
+import { useEffect } from 'react'
+import { getAllUsersAPI } from '../../api/Fetch'
+import { useStyles } from './Styles'
+import { routes } from '../../util/Constants'
 
 function UserManage(props: any) {
-  const { set_empID } = props;
-  const history = useHistory();
-  const classes = useStyles();
-  const [globalFilter, setGlobalFilter] = React.useState("");
-  const [manageUserData, setManageUserData] = React.useState<any>();
-  const [manageUserLoading, setManageUserLoading] = React.useState(false);
-  const theme = useTheme();
-  const active = useMediaQuery(theme.breakpoints.down("sm"));
+  const { set_empID } = props
+  const history = useHistory()
+  const classes = useStyles()
+  const { DEFAULT, USERCONFIG_USERUPDATE } = routes
+  const [globalFilter, setGlobalFilter] = React.useState('')
+  const [manageUserData, setManageUserData] = React.useState<any>()
+  const [manageUserLoading, setManageUserLoading] = React.useState(false)
+  const theme = useTheme()
+  const active = useMediaQuery(theme.breakpoints.down('sm'))
 
   const handleNameClick = (e: any) => {
-    console.log(e.target.value);
+    console.log(e.target.value)
     const selectedRow = manageUserData.filter(
       (row: any) => row.userId === e.target.value
-    );
-    set_empID(selectedRow);
-    console.log(selectedRow);
-    history.push("/commercial-webapp/userconfig/userupdate");
-  };
+    )
+    set_empID(selectedRow)
+    console.log(selectedRow)
+    history.push(`${DEFAULT}${USERCONFIG_USERUPDATE}`)
+  }
 
   //change start
   useEffect(() => {
     getAllUsersAPI()
       .then((res) => {
-        console.log(res.data.userdetails);
+        console.log(res.data.userdetails)
         const userValues = res.data.userdetails.map((user: any) => {
           return {
             userId: user.user.userId,
@@ -55,52 +57,52 @@ function UserManage(props: any) {
             status: user.user.status,
             roles: user.roles,
             usergroups: user.usergroups,
-          };
-        });
-        console.log(userValues);
-        setManageUserData(userValues);
+          }
+        })
+        console.log(userValues)
+        setManageUserData(userValues)
       })
       .catch((err) => {
-        console.log(err);
-      });
+        console.log(err)
+      })
     return () => {
-      setManageUserData([]);
-    };
-  }, []);
+      setManageUserData([])
+    }
+  }, [])
 
   useEffect(() => {
     if (manageUserData) {
-      setManageUserLoading(false);
+      setManageUserLoading(false)
     } else {
-      setManageUserLoading(true);
+      setManageUserLoading(true)
     }
-  }, [manageUserData]);
+  }, [manageUserData])
 
   const roleTemplate = (rowData: any) => {
-    let roles = "";
+    let roles = ''
     rowData.roles.map((role: any) => {
       if (roles) {
-        roles = roles + ",\n" + role.roleName;
+        roles = roles + ',\n' + role.roleName
       } else {
-        roles = role.roleName;
+        roles = role.roleName
       }
-      return null;
-    });
+      return null
+    })
     // console.log(roles)
-    return <div className={classes.exploreButton}>{roles}</div>;
-  };
+    return <div className={classes.exploreButton}>{roles}</div>
+  }
   const groupTemplate = (rowData: any) => {
-    let groups = "";
+    let groups = ''
     rowData.usergroups.map((group: any) => {
       if (groups) {
-        groups = groups + ",\n" + group.groupName;
+        groups = groups + ',\n' + group.groupName
       } else {
-        groups = group.groupName;
+        groups = group.groupName
       }
-      return null;
-    });
-    return <div className={classes.exploreButton}>{groups}</div>;
-  };
+      return null
+    })
+    return <div className={classes.exploreButton}>{groups}</div>
+  }
   //   const emailTemplate = (rowData: any) => {
   //     return (
   //       <a href={`mailto:${rowData.emailId}`} className={classes.links}>
@@ -117,8 +119,8 @@ function UserManage(props: any) {
       >
         {rowData.userId}
       </button>
-    );
-  };
+    )
+  }
 
   //end
 
@@ -141,17 +143,17 @@ function UserManage(props: any) {
           <Grid item sm={12} xs={12}>
             <Box
               sx={{
-                display: "flex",
-                flexDirection: "row",
-                justifyContent: "space-between",
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'space-between',
                 p: 2,
-                width: "100%",
-                flexWrap: "wrap",
+                width: '100%',
+                flexWrap: 'wrap',
               }}
             >
               <Box
                 sx={{
-                  display: "flex",
+                  display: 'flex',
                   flexGrow: 1,
                 }}
               >
@@ -159,23 +161,23 @@ function UserManage(props: any) {
               </Box>
               <Box
                 sx={{
-                  display: "flex",
+                  display: 'flex',
                 }}
               >
                 <input
                   type="text"
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
-                  placeholder={" Search User details "}
+                  placeholder={' Search User details '}
                   style={{
-                    width: "200px",
+                    width: '200px',
                   }}
                 />
               </Box>
             </Box>
             <Box
               sx={{
-                textAlign: "center",
+                textAlign: 'center',
                 p: 2,
               }}
             >
@@ -186,7 +188,7 @@ function UserManage(props: any) {
                   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                   rows={10}
                   style={{
-                    width: "100%",
+                    width: '100%',
                   }}
                   scrollable
                   scrollHeight="500px"
@@ -202,23 +204,23 @@ function UserManage(props: any) {
                         field={column.field}
                         header={column.headerName}
                         bodyStyle={{
-                          fontSize: "12px",
+                          fontSize: '12px',
                           width: column.width,
                         }}
                         headerStyle={{
-                          fontSize: "12px",
+                          fontSize: '12px',
                           width: column.width,
                           backgroundColor: teal[900],
-                          color: "white",
+                          color: 'white',
                         }}
                         body={
-                          (column.field === "roles" && roleTemplate) ||
-                          (column.field === "userId" && userIdTemplate) ||
-                          (column.field === "usergroups" && groupTemplate)
+                          (column.field === 'roles' && roleTemplate) ||
+                          (column.field === 'userId' && userIdTemplate) ||
+                          (column.field === 'usergroups' && groupTemplate)
                         }
                         sortable
                       />
-                    );
+                    )
                   })}
                 </DataTable>
               ) : (
@@ -228,7 +230,7 @@ function UserManage(props: any) {
                   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
                   rows={10}
                   style={{
-                    width: "100%",
+                    width: '100%',
                   }}
                   scrollable
                   scrollHeight="500px"
@@ -244,23 +246,23 @@ function UserManage(props: any) {
                         field={column.field}
                         header={column.headerName}
                         bodyStyle={{
-                          fontSize: "12px",
+                          fontSize: '12px',
                           width: column.width,
                         }}
                         headerStyle={{
-                          fontSize: "12px",
+                          fontSize: '12px',
                           width: column.width,
                           backgroundColor: teal[900],
-                          color: "white",
+                          color: 'white',
                         }}
                         body={
-                          (column.field === "roles" && roleTemplate) ||
-                          (column.field === "userId" && userIdTemplate) ||
-                          (column.field === "usergroups" && groupTemplate)
+                          (column.field === 'roles' && roleTemplate) ||
+                          (column.field === 'userId' && userIdTemplate) ||
+                          (column.field === 'usergroups' && groupTemplate)
                         }
                         sortable
                       />
-                    );
+                    )
                   })}
                 </DataTable>
               )}
@@ -269,13 +271,13 @@ function UserManage(props: any) {
         </Grid>
       </div>
     </div>
-  );
+  )
 }
 
 const matchDispatchToProps = (dispatch: any) => {
   return {
     set_empID: (empid: any) => dispatch(set_empID(empid)),
-  };
-};
+  }
+}
 
-export default connect(null, matchDispatchToProps)(UserManage);
+export default connect(null, matchDispatchToProps)(UserManage)

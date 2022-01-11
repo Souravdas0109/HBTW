@@ -15,6 +15,7 @@ import IconExpandMore from '@material-ui/icons/ExpandMore'
 import React from 'react'
 import { useStyles } from '../../pages/Home/Styles'
 import { connect } from 'react-redux'
+import { routes } from '../../util/Constants'
 
 interface NavigationProps {
   menuItems: Array<any>
@@ -28,7 +29,20 @@ interface NavigationProps {
 
 const NavigationDrawer = (props: NavigationProps) => {
   const classes = useStyles()
-  const base = '/commercial-webapp'
+  const {
+    DEFAULT,
+    USERCONFIG_USERMANAGE,
+    USERCONFIG_USERGROUP,
+    USERCONFIG_USERUPDATE,
+    USERCONFIG_GROUPCREATE,
+    USERCONFIG_GROUPUPDATE,
+    DASHBOARD,
+    DASHBOARD_PENDINGACTION,
+    DASHBOARD_PENDINGACTIONS_UPDATE,
+    DASHBOARD_UNASSIGNWORKFLOW,
+    DASHBOARD_INPROGRESSTASK,
+    DASHBOARD_MYGROUPPENDINGTASKS,
+  } = routes
   const {
     menuItems,
     open,
@@ -66,9 +80,20 @@ const NavigationDrawer = (props: NavigationProps) => {
                   <ListItem
                     key={menu.appCode}
                     button
-                    onClick={() => handleClick(`${base}${menu.url}`)}
+                    onClick={() => handleClick(`${DEFAULT}${menu.url}`)}
                     className={
-                      location.pathname === `${base}${menu.url}`
+                      location.pathname === `${DEFAULT}${menu.url}` ||
+                      ((location.pathname ===
+                        `${DEFAULT}${DASHBOARD_PENDINGACTION}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_PENDINGACTIONS_UPDATE}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_UNASSIGNWORKFLOW}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_INPROGRESSTASK}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_MYGROUPPENDINGTASKS}`) &&
+                        `${DEFAULT}${menu.url}` === `${DEFAULT}${DASHBOARD}`)
                         ? `${classes.hover} ${classes.active}`
                         : classes.hover
                     }
@@ -110,23 +135,23 @@ const NavigationDrawer = (props: NavigationProps) => {
                         {menu.more.map((task: any) => (
                           <ListItem
                             className={
-                              location.pathname === `${base}${task.url}` ||
+                              location.pathname === `${DEFAULT}${task.url}` ||
                               (location.pathname ===
-                                `${base}/userconfig/userupdate` &&
-                                `${base}${task.url}` ===
-                                  `${base}/userconfig/usermanage`) ||
+                                `${DEFAULT}${USERCONFIG_USERUPDATE}` &&
+                                `${DEFAULT}${task.url}` ===
+                                  `${DEFAULT}${USERCONFIG_USERMANAGE}`) ||
                               ((location.pathname ===
-                                `${base}/userconfig/groupcreate` ||
+                                `${DEFAULT}${USERCONFIG_GROUPCREATE}` ||
                                 location.pathname ===
-                                  `${base}/userconfig/groupupdate`) &&
-                                `${base}${task.url}` ===
-                                  `${base}/userconfig/usergroup`)
+                                  `${DEFAULT}${USERCONFIG_GROUPUPDATE}`) &&
+                                `${DEFAULT}${task.url}` ===
+                                  `${DEFAULT}${USERCONFIG_USERGROUP}`)
                                 ? `${classes.link} ${classes.active}`
                                 : classes.link
                             }
                             button
                             onClick={() => {
-                              handleClick(`${base}${task.url}`)
+                              handleClick(`${DEFAULT}${task.url}`)
                             }}
                             key={task.appmenuId}
                           >

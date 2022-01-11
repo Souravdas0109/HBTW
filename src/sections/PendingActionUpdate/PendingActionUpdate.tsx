@@ -26,11 +26,19 @@ import {
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
   postTaskLogsAPI,
+  getTasklistsAPI,
+  getTasklogsAPI,
+  postFileAttachmentAPI,
+  putRejectTaskAPI,
+  putClaimTaskAPI,
+  putCompleteTaskAPI,
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { constants } from '../UserCreate/DataConstants'
 import { reset_pendingAction } from '../../redux/Actions/PendingAction'
 import { pendingActionUpdateTableHeaders } from './tableHeader'
+import { routes, extensions } from '../../util/Constants'
+
 const Input = styled('input')({
   display: 'none',
 })
@@ -45,11 +53,13 @@ function PendingActionUpdate(props: any) {
     pendingActionDetails,
     reset_pendingAction,
   } = props
+  const { DEFAULT, DASHBOARD_PENDINGACTION, DASHBOARD } = routes
   const history = useHistory()
   const classes = useStyles()
   const theme = useTheme()
   const active = useMediaQuery(theme.breakpoints.down(750))
   const forbutton = useMediaQuery(theme.breakpoints.down(400))
+  const between = useMediaQuery(theme.breakpoints.between(450, 750))
   const width = useMediaQuery(theme.breakpoints.up('md'))
   const dialogwidth = width ? 600 : fieldWidth
 
@@ -65,10 +75,11 @@ function PendingActionUpdate(props: any) {
   const [status, setStatus] = React.useState('')
   const [statusWithValue, setStatusWithValue] = React.useState('')
   const [comments, setComments] = React.useState('')
+  const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(false)
   const viewLogOpen = Boolean(viewLogEl)
-  const [groupData, setGroupData] = React.useState<any>('')
+  const [groupData, setGroupData] = React.useState<Array<any>>([])
   const [groups, setGroups] = React.useState([])
   const [groupInput, setGroupInput] = React.useState([])
   const [groupOpen, setGroupOpen] = React.useState(false)
@@ -80,20 +91,15 @@ function PendingActionUpdate(props: any) {
   const [referenceDocData, setReferenceDocData] = React.useState<any>('')
   const [taskSelected, setTaskSelected] = React.useState<any>('')
   const [taskOpen, setTaskOpen] = React.useState(false)
+  const [viewLogRows, setViewLogRows] = React.useState<Array<any>>([])
   const toast = useRef<any>(null)
 
-  const goBack = () => {
-    reset_pendingAction()
-    history.goBack()
-  }
   useEffect(() => {
-    return () => {
-      reset_pendingAction()
-    }
+    return () => reset_pendingAction()
   }, [])
   useEffect(() => {
     if (!pendingActionDetails) {
-      history.push('/commercial-webapp/pendingactions/pendingactions')
+      history.push(`${DEFAULT}${DASHBOARD_PENDINGACTION}`)
     } else {
       console.log(pendingActionDetails[0])
       setSelectEmployeeID(pendingActionDetails[0])
@@ -134,8 +140,33 @@ function PendingActionUpdate(props: any) {
             console.log(err)
           })
     }
-  }, [rolesArray, empDetails, history])
+  }, [
+    rolesArray,
+    empDetails,
+    history,
+    pendingActionDetails,
+    DASHBOARD_PENDINGACTION,
+    DEFAULT,
+  ])
 
+  useEffect(() => {
+    if (requestedId && requestedId !== '') {
+      getTasklogsAPI &&
+        getTasklogsAPI(requestedId)
+          .then((res) => {
+            console.log(res.data)
+            setViewLogRows([...res.data.tasklogs])
+          })
+          .catch((err) => {
+            setViewLogRows([])
+          })
+    }
+  }, [requestedId])
+
+  const goBack = () => {
+    reset_pendingAction()
+    history.goBack()
+  }
   const customStyles = {
     option: (provided: any, state: any) => ({
       ...provided,
@@ -160,9 +191,27 @@ function PendingActionUpdate(props: any) {
     console.log(requestType)
   }, [requestType])
   const handleFileUpload = (event: any) => {
+    setWrongExtn(false)
     setReferenceDoc(event.target.files[0])
-    if (event.target.files[0]) {
+    const checkextension = event.target.files[0]
+      ? new RegExp(
+          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+          'i'
+        ).test(event.target.files[0].name)
+      : false
+    if (checkextension) {
+      setWrongExtn(false)
+    } else if (event.target.files[0]) {
+      setWrongExtn(true)
+    }
+    if (event.target.files[0] && checkextension) {
+      // let reader = new FileReader();
+      // reader.readAsDataURL(event.target.files[0]);
+
+      // reader.onload = (e: any) => {
+      //   console.log(e.target.result);
       setReferenceDocData(event.target.files[0])
+      // };
     }
   }
   const Option = (props: any) => {
@@ -185,6 +234,29 @@ function PendingActionUpdate(props: any) {
     setRoleNames(selected)
   }
 
+  const postTasklog = (logData: any) => {
+    postTaskLogsAPI &&
+      postTaskLogsAPI(logData)
+        .then((res) => {
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+        .catch((err) => {
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from tasklogapi`,
+            // detail: `${err.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+  }
   const roleSelect1 = (
     <>
       <Select
@@ -199,68 +271,104 @@ function PendingActionUpdate(props: any) {
         hideSelectedOptions={false}
         className={classes.multiSelect}
         styles={roleSelectStyle}
-        isDisabled={
-          UtilityFunctions.isHidden(
-            '8',
-            appFuncList ? appFuncList : [],
-            'mod_role'
-          )
-            ? true
-            : false
-        }
+        // isDisabled={
+        //   UtilityFunctions.isHidden(
+        //     '8',
+        //     appFuncList ? appFuncList : [],
+        //     'mod_role'
+        //   )
+        //     ? true
+        //     : false
+        // }
+        isDisabled={true}
       />
     </>
   )
   React.useEffect(() => {
+    setRequestedId(selectEmployeeID.requestId)
     if (selectEmployeeID) {
-      setRequestedId(selectEmployeeID.requestId)
-      setEmployeeID(selectEmployeeID.userEmployeeId)
-      setFirstName(selectEmployeeID.userFirstName)
-      setMiddleName(selectEmployeeID.userMiddleName)
-      setLastName(selectEmployeeID.userLastName)
-      setEmail(selectEmployeeID.userEmailId)
-      setDesignation(selectEmployeeID.designation)
-      if (selectEmployeeID.status === 'D') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('DELETED')
-      } else if (selectEmployeeID.status === 'W') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('INPROGRESS')
-      } else if (selectEmployeeID.status === 'I') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('INACTIVE')
-      } else {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('ACTIVE')
-      }
+      getTasklistsAPI &&
+        getTasklistsAPI(selectEmployeeID.requestId)
+          .then((res) => {
+            setRequestType(
+              res.data.tasklists[0].requestData.camunda &&
+                res.data.tasklists[0].requestData.camunda.requestorDetails &&
+                res.data.tasklists[0].requestData.camunda.requestorDetails
+                  .requestType
+                ? res.data.tasklists[0].requestData.camunda.requestorDetails
+                    .requestType
+                : 'modify'
+            )
+            setEmployeeID(res.data.tasklists[0].requestData.user.userId)
+            setFirstName(res.data.tasklists[0].requestData.user.firstName)
+            setMiddleName(res.data.tasklists[0].requestData.user.middleName)
+            setLastName(res.data.tasklists[0].requestData.user.lastName)
+            setEmail(res.data.tasklists[0].requestData.user.emailId)
+            setAdditionalInfo(
+              res.data.tasklists[0].requestData.user.additionalInfo
+            )
+            setDesignation(res.data.tasklists[0].requestData.user.designation)
+            if (res.data.tasklists[0].requestData.user.status === 'D') {
+              setStatus(res.data.tasklists[0].requestData.user.status)
+              setStatusWithValue('DELETED')
+            } else if (res.data.tasklists[0].requestData.user.status === 'W') {
+              setStatus(res.data.tasklists[0].requestData.user.status)
+              setStatusWithValue('INPROGRESS')
+            } else if (res.data.tasklists[0].requestData.user.status === 'I') {
+              setStatus(res.data.tasklists[0].requestData.user.status)
+              setStatusWithValue('INACTIVE')
+            } else {
+              setStatus(res.data.tasklists[0].requestData.user.status)
+              setStatusWithValue('ACTIVE')
+            }
+            setRoleNames(
+              res.data.tasklists[0].requestData.roles.map((role: any) => {
+                const roleName =
+                  roles &&
+                  roles
+                    .filter((roleA: any) => roleA.roleId === role.roleId)
+                    .map((r: any) => r.roleName)
+                return {
+                  label: roleName,
+                  value: role.roleId,
+                }
+              })
+            )
+            setGroupInput(
+              res.data.tasklists[0].requestData.usergroups.map((group: any) => {
+                const groupName =
+                  groupData &&
+                  groupData
+                    .filter((grpA: any) => grpA.groupId === group.groupId)
+                    .map((g: any) => g.groupName)
+                return {
+                  label: groupName,
+                  value: group.groupId,
+                  status: group.status,
+                }
+              })
+            )
+            setGroups(
+              res.data.tasklists[0].requestData.usergroups.map((group: any) => {
+                return {
+                  label: group.groupId,
+                  value: group.groupId,
+                  status: group.status,
+                }
+              })
+            )
+          })
+          .catch((err) => {
+            setEmployeeID('')
+            setFirstName('')
+            setMiddleName('')
+            setLastName('')
+            setEmail('')
+            setDesignation('')
+            setStatus('')
+          })
 
-      //   setRoleNames(
-      //     selectEmployeeID.roles.map((role: any) => {
-      //       return {
-      //         label: role.roleId,
-      //         value: role.roleId,
-      //       };
-      //     })
-      //   );
-      //   setGroupInput(
-      //     selectEmployeeID.usergroups.map((group: any) => {
-      //       return {
-      //         label: group.groupId,
-      //         value: group.groupId,
-      //         status: group.status,
-      //       };
-      //     })
-      //   );
-      //   setGroups(
-      //     selectEmployeeID.usergroups.map((group: any) => {
-      //       return {
-      //         label: group.groupId,
-      //         value: group.groupId,
-      //         status: group.status,
-      //       };
-      //     })
-      //   );
-      setComments(selectEmployeeID.comments)
+      // setComments(selectEmployeeID.comments)
     } else {
       setEmployeeID('')
       setFirstName('')
@@ -362,6 +470,7 @@ function PendingActionUpdate(props: any) {
               hideSelectedOptions={false}
               className={classes.multiSelect}
               styles={customStyles}
+              isDisabled={true}
             />
           </Box>
         </Box>
@@ -376,6 +485,7 @@ function PendingActionUpdate(props: any) {
             type="button"
             className={classes.whiteButton}
             onClick={updateGroups}
+            disabled
           >
             Save
           </Button>
@@ -530,12 +640,20 @@ function PendingActionUpdate(props: any) {
   const handleCloseViewLog = () => {
     setViewLogEl(false)
   }
-  const viewLog = (
-    <Dialog open={viewLogOpen} onClose={handleCloseViewLog}>
+
+  const viewAdditionalInfo = (
+    <Dialog
+      open={openAdditional}
+      onClose={() => {
+        setOpenAdditional((prevState) => !prevState)
+      }}
+      fullWidth={true}
+      // maxWidth={'lg'}
+    >
       <Box
         sx={{
-          width: dialogwidth,
-          border: '3px solid green',
+          // width: fieldWidth,
+          // border: '3px solid green',
           borderRadius: 4,
           display: 'flex',
           flexDirection: 'column',
@@ -547,6 +665,119 @@ function PendingActionUpdate(props: any) {
             display: 'flex',
             height: 30,
             flexDirection: 'row',
+            flexGrow: 1,
+            // width: fieldWidth,
+            justifyContent: 'center',
+          }}
+          className={classes.viewLogTitle}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexGrow: 1,
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="subtitle1">Additional Data</Typography>
+          </Box>
+          <Box
+            sx={{
+              paddingRight: 2,
+            }}
+          >
+            <button
+              style={{
+                border: 0,
+                padding: 0,
+                height: 22,
+                width: 22,
+              }}
+              className={classes.closeViewLog}
+              onClick={() => {
+                setOpenAdditional((prevState) => !prevState)
+              }}
+            >
+              <b>X</b>
+            </button>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            p: 2,
+          }}
+        ></Box>
+        <Box
+          sx={{
+            // justifyContent: "center",
+            display: 'flex',
+            // width: fieldWidth,
+            // textAlign: "center"
+          }}
+        >
+          <DataTable
+            value={
+              additionalInfo ? constants.getAdditionalInfo(additionalInfo) : []
+            }
+            // paginator
+            // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            rows={1}
+            style={{
+              fontSize: '12px',
+              //backgroundColor: "#f7f7f7",
+              width: '100%',
+            }}
+            showGridlines
+            className={`p-datatable-sm ${classes.viewlogTable}`}
+            // className={classes.viewlogTable}
+            scrollable
+            // scrollHeight="400px"
+          >
+            {constants.getAdditionalInfoHeader.map((column: any) => {
+              return (
+                <Column
+                  key={column.field}
+                  field={column.field}
+                  header={column.headerName}
+                  bodyStyle={{
+                    fontSize: '12px',
+                    width: column.width,
+                  }}
+                  headerStyle={{
+                    fontSize: '12px',
+                    width: column.width,
+                    backgroundColor: teal[900],
+                    color: 'white',
+                  }}
+                ></Column>
+              )
+            })}
+          </DataTable>
+        </Box>
+      </Box>
+    </Dialog>
+  )
+
+  const viewLog = (
+    <Dialog open={viewLogOpen} onClose={handleCloseViewLog}>
+      <Box
+        sx={{
+          // width: dialogwidth,
+          // border: '3px solid green',
+          borderRadius: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          p: 1,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            height: 30,
+            flexDirection: 'row',
+            flexGrow: 1,
+            // width: fieldWidth,
+            justifyContent: 'center',
           }}
           className={classes.viewLogTitle}
         >
@@ -584,9 +815,8 @@ function PendingActionUpdate(props: any) {
             p: 2,
           }}
         >
-          <Typography variant="body2">
-            Request ID:
-            <b>0112233</b>
+          <Typography variant="body2" style={{ overflowX: 'scroll' }}>
+            Request ID:<b> {requestedId}</b>
           </Typography>
         </Box>
         <Box
@@ -598,18 +828,18 @@ function PendingActionUpdate(props: any) {
           }}
         >
           <DataTable
-            value={constants.viewLogRows}
+            value={viewLogRows}
             paginator
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
             rows={5}
             style={{
               fontSize: '12px',
-              backgroundColor: '#f7f7f7',
-              // width: fieldWidth,
+              // backgroundColor: '#f7f7f7',
+              width: '100%',
             }}
             className={`p-datatable-sm ${classes.viewlogTable}`}
             scrollable
-            scrollHeight="400px"
+            // scrollHeight="400px"
           >
             {constants.viewLogColumns.map((column) => {
               return (
@@ -635,6 +865,551 @@ function PendingActionUpdate(props: any) {
       </Box>
     </Dialog>
   )
+
+  const handleUpdateUserforApprove = (e: any) => {
+    e.preventDefault()
+    const formData = {
+      camunda: {
+        submitFlag: 'Approved',
+        requestorDetails: {
+          emailId: userDetail && userDetail.userdetails[0].user.emailId,
+          requestBy: userDetail && userDetail.userdetails[0].user.userId,
+          requestedDate: new Date().toISOString().split('T')[0],
+          requestType: requestType,
+        },
+        requestorRoles:
+          userDetail &&
+          userDetail.userdetails[0].roles.map((role: any) => {
+            return {
+              roleId: role.roleId,
+            }
+          }),
+      },
+      user: {
+        EmployeeId: employeeID,
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        emailId: email,
+        additionalInfo: additionalInfo,
+        designation: designation.toUpperCase(),
+        status: status,
+      },
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
+    }
+    console.log(formData)
+
+    // axios
+    //   .put(
+    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Cache-Control": "no-cache",
+    //         Authorization: `Bearer ${accessToken.access_token}`,
+    //       },
+    //     }
+    //   )
+    userDetail &&
+      putUserDetailsCamundaAPI(formData)
+        .then((res) => {
+          console.log(res)
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // console.log(rolelog)
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Approved',
+          //   comments: comments,
+          //   attachmentUrl: null,
+          // }
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //         logData.attachmentUrl = null
+          //         postTasklog(logData)
+          //       })
+          // } else {
+          //   console.log(logData)
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+        })
+        .catch((err) => {
+          console.log(err.response)
+          // let statusCode = err.response.status
+          // console.log(statusCode)
+          // alert(err)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from userdetailapi`,
+            // detail: `${err.response.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+          //history.push('/commercial-webapp/dashboard')
+        })
+
+    // const formDataforAttachment: any = {
+    //   requestId: 'SYSTCS175',
+    //   timestamp: '2021-12-12',
+    //   userId: employeeID,
+    //   role: 'ADMIN',
+    //   camundaRequestId: 'C1234567',
+    //   actionTaken: 'New',
+    //   comments: comments,
+    // }
+
+    // const formdata = new FormData()
+    // formdata.append('fileIn', referenceDocData)
+    // formdata.append(
+    //   'postData',
+    //   new Blob([JSON.stringify(formDataforAttachment)], {
+    //     type: 'application/json',
+    //   })
+    // )
+
+    // //start
+    // // axios
+    // //   .post(
+    // //     `https://dev-api.morrisons.com/commercial-user/v1/tasklogs?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+    // //     formdata,
+    // //     {
+    // //       headers: {
+    // //         "Cache-Control": "no-cache",
+    // //         Authorization: `Bearer ${accessToken.access_token}`,
+    // //         "content-type": "application/json",
+    // //       },
+    // //     }
+    // //   )
+    // postTaskLogsAPI(formData)
+    //   .then((res) => {
+    //     console.log(res)
+    //     let statusCode = res.status
+    //     if (statusCode === 200) {
+    //       toast.current.show({
+    //         severity: 'success',
+    //         summary: '',
+    //         detail: res.data.message,
+    //         life: 6000,
+    //         className: 'login-toast',
+    //       })
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err.response)
+    //     let statusCode = err.response.status
+    //     console.log(statusCode)
+    //     // alert(err)
+    //     toast.current.show({
+    //       severity: 'error',
+    //       summary: 'Error!',
+    //       detail: `${err.response.data.errorMessage} ${statusCode}`,
+    //       life: 6000,
+    //       className: 'login-toast',
+    //     })
+    //   })
+  }
+
+  const handleUpdateUserforSubmit = (e: any) => {
+    e.preventDefault()
+    const formData = {
+      camunda: {
+        submitFlag: 'Submit',
+        requestorDetails: {
+          emailId: userDetail && userDetail.userdetails[0].user.emailId,
+          requestBy: userDetail && userDetail.userdetails[0].user.userId,
+          requestedDate: new Date().toISOString().split('T')[0],
+          requestType: requestType,
+        },
+        requestorRoles:
+          userDetail &&
+          userDetail.userdetails[0].roles.map((role: any) => {
+            return {
+              roleId: role.roleId,
+            }
+          }),
+      },
+      user: {
+        EmployeeId: employeeID,
+        firstName: firstName,
+        middleName: middleName,
+        lastName: lastName,
+        emailId: email,
+        additionalInfo: additionalInfo,
+        designation: designation.toUpperCase(),
+        status: status,
+      },
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
+    }
+    console.log(formData)
+
+    // axios
+    //   .put(
+    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+    //     formData,
+    //     {
+    //       headers: {
+    //         "Cache-Control": "no-cache",
+    //         Authorization: `Bearer ${accessToken.access_token}`,
+    //       },
+    //     }
+    //   )
+    userDetail &&
+      putUserDetailsCamundaAPI &&
+      putUserDetailsCamundaAPI(formData)
+        .then((res) => {
+          console.log(res)
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //  requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Submited',
+          //   comments: comments,
+          //   attachmentUrl: null,
+          // }
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   console.log(formdata1)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //       })
+          // } else {
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+        })
+        .catch((err) => {
+          console.log(err.response)
+          // let statusCode = err.response.status
+          // console.log(statusCode)
+          // alert(err)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from userdetailapi`,
+            // detail: `${err.response.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+          //history.push('/commercial-webapp/dashboard')
+        })
+
+    // const formDataforAttachment: any = {
+    //   requestId: 'SYSTCS175',
+    //   timestamp: '2021-12-12',
+    //   userId: employeeID,
+    //   role: 'ADMIN',
+    //   camundaRequestId: 'C1234567',
+    //   actionTaken: 'New',
+    //   comments: comments,
+    // }
+
+    // const formdata = new FormData()
+    // formdata.append('fileIn', referenceDocData)
+    // formdata.append(
+    //   'postData',
+    //   new Blob([JSON.stringify(formDataforAttachment)], {
+    //     type: 'application/json',
+    //   })
+    // )
+
+    // //start
+    // // axios
+    // //   .post(
+    // //     `https://dev-api.morrisons.com/commercial-user/v1/tasklogs?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+    // //     formdata,
+    // //     {
+    // //       headers: {
+    // //         "Cache-Control": "no-cache",
+    // //         Authorization: `Bearer ${accessToken.access_token}`,
+    // //         "content-type": "application/json",
+    // //       },
+    // //     }
+    // //   )
+    // postTaskLogsAPI(formData)
+    //   .then((res) => {
+    //     console.log(res)
+    //     let statusCode = res.status
+    //     if (statusCode === 200) {
+    //       toast.current.show({
+    //         severity: 'success',
+    //         summary: '',
+    //         detail: res.data.message,
+    //         life: 6000,
+    //         className: 'login-toast',
+    //       })
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err.response)
+    //     let statusCode = err.response.status
+    //     console.log(statusCode)
+    //     // alert(err)
+    //     toast.current.show({
+    //       severity: 'error',
+    //       summary: 'Error!',
+    //       detail: `${err.response.data.errorMessage} ${statusCode}`,
+    //       life: 6000,
+    //       className: 'login-toast',
+    //     })
+    //   })
+  }
+  const handleApprove = (e: any) => {
+    e.preventDefault()
+    const formData = {
+      requestorDetails: {
+        emailId: userDetail && userDetail.userdetails[0].user.emailId,
+        requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        requestDate: new Date().toISOString().split('T')[0],
+        requestType: 'Approve',
+      },
+      requestorRoles:
+        userDetail &&
+        userDetail.userdetails[0].roles.map((role: any) => {
+          return {
+            roleId: role.roleId,
+          }
+        }),
+    }
+    console.log(formData)
+    pendingActionDetails &&
+      putCompleteTaskAPI &&
+      putCompleteTaskAPI(formData, pendingActionDetails[0].taskId)
+        .then((res) => {
+          console.log(res)
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            //  detail: res.data.comments,
+            detail: 'Success',
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+        })
+        .catch((err) => {
+          console.log(err.response)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from RejectTaskAPI`,
+            // detail: `${err.response.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+  }
+
+  const handleReassign = (e: any) => {
+    e.preventDefault()
+    const formData = {
+      requestorDetails: {
+        emailId: userDetail && userDetail.userdetails[0].user.emailId,
+        requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        requestDate: new Date().toISOString().split('T')[0],
+        requestType: 'Reassign',
+      },
+      requestorRoles:
+        userDetail &&
+        userDetail.userdetails[0].roles.map((role: any) => {
+          return {
+            roleId: role.roleId,
+          }
+        }),
+    }
+    console.log(formData)
+    pendingActionDetails &&
+      putClaimTaskAPI &&
+      putClaimTaskAPI(formData, pendingActionDetails[0].taskId)
+        .then((res) => {
+          console.log(res)
+          if (res.data.status.toLowerCase() !== 'failed') {
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              //  detail: res.data.comments,
+              detail: 'Success',
+              life: 6000,
+              className: 'login-toast',
+            })
+
+            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          } else {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              detail: `${res.data.comments}`,
+              // detail: `${err.response.data.errorMessage} ${statusCode}`,
+              life: 6000,
+              className: 'login-toast',
+            })
+          }
+        })
+        .catch((err) => {
+          console.log(err.response)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from RejectTaskAPI`,
+            // detail: `${err.response.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+  }
+
+  const handleReject = (e: any) => {
+    e.preventDefault()
+    const formData = {
+      requestorDetails: {
+        emailId: userDetail && userDetail.userdetails[0].user.emailId,
+        requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        requestDate: new Date().toISOString().split('T')[0],
+        requestType: 'Reject',
+      },
+      requestorRoles:
+        userDetail &&
+        userDetail.userdetails[0].roles.map((role: any) => {
+          return {
+            roleId: role.roleId,
+          }
+        }),
+    }
+    console.log(formData)
+    pendingActionDetails &&
+      putRejectTaskAPI &&
+      putRejectTaskAPI(formData, pendingActionDetails[0].taskId)
+        .then((res) => {
+          console.log(res)
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            //  detail: res.data.comments,
+            detail: 'Success',
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+        })
+        .catch((err) => {
+          console.log(err.response)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from RejectTaskAPI`,
+            // detail: `${err.response.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+  }
 
   const createForm = (
     <Box
@@ -676,7 +1451,7 @@ function PendingActionUpdate(props: any) {
             flexGrow: 1,
           }}
         >
-          <Typography variant="h6">Pending Action - {requestedId}</Typography>
+          <Typography variant="h6">Pending Action - </Typography>
         </Box>
 
         <Box
@@ -691,7 +1466,7 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <button className={classes.backButton} onClick={handleOpenViewLog}>
-              View Log ({constants.viewLogRows.length})
+              View Log ({viewLogRows.length})
             </button>
           </Box>
           <Box
@@ -699,7 +1474,7 @@ function PendingActionUpdate(props: any) {
               paddingLeft: 5,
             }}
           >
-            |
+            {' '}
           </Box>
           <Box
             sx={{
@@ -711,6 +1486,9 @@ function PendingActionUpdate(props: any) {
             </button>
           </Box>
         </Box>
+      </Box>
+      <Box sx={{ overflow: 'auto' }} className={classes.inputLabelHead}>
+        <Typography variant="subtitle1">{requestedId}</Typography>
       </Box>
       <form>
         <Box className={classes.eachRow}>
@@ -730,7 +1508,7 @@ function PendingActionUpdate(props: any) {
                   //rows={1}
                   emptyMessage="No data found."
                   style={{
-                    width: 250,
+                    width: 200,
                     fontSize: '12px',
                   }}
                   // className={`p-datatable-sm ${classes.viewlogTable}`}
@@ -747,6 +1525,7 @@ function PendingActionUpdate(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',
@@ -771,7 +1550,7 @@ function PendingActionUpdate(props: any) {
                   //rows={1}
                   emptyMessage="No data found."
                   style={{
-                    width: '330px',
+                    width: !between ? '350px' : '400px',
                     fontSize: '12px',
                   }}
                   // className={`p-datatable-sm ${classes.viewlogTable}`}
@@ -788,6 +1567,7 @@ function PendingActionUpdate(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',
@@ -830,6 +1610,7 @@ function PendingActionUpdate(props: any) {
                       bodyStyle={{
                         fontSize: '12px',
                         width: column.width,
+                        overflowX: 'auto',
                       }}
                       headerStyle={{
                         fontSize: '12px',
@@ -876,13 +1657,14 @@ function PendingActionUpdate(props: any) {
                 defaultValue=""
                 onChange={onrequestTypeChange}
                 required
+                disabled
               >
-                <option disabled value="">
+                {/* <option disabled value="">
                   --- Select Request Type ---
-                </option>
+                </option> */}
                 {constants.requestTypes.map((type) => {
                   return (
-                    type.name.toLowerCase() !== 'new' && (
+                    type.name.toLowerCase() === requestType && (
                       <option value={type.name} key={type.name}>
                         {type.text}
                       </option>
@@ -1034,23 +1816,23 @@ function PendingActionUpdate(props: any) {
               justifyContent: 'space-between',
             }}
           >
-            {/* <Box
+            <Box
               sx={{
                 // flexGrow: 1,
                 display: 'flex',
               }}
-            > */}
-            <Typography variant="subtitle2">
-              <input
-                type="text"
-                placeholder="designation"
-                disabled
-                className={classes.designationField}
-                value={designation}
-                onChange={() => {}}
-              />
-            </Typography>
-            {/* </Box> */}
+            >
+              <Typography variant="subtitle2">
+                <input
+                  type="text"
+                  placeholder="designation"
+                  disabled
+                  className={classes.designationField}
+                  value={designation}
+                  onChange={() => {}}
+                />
+              </Typography>
+            </Box>
             {/* <Box
               sx={{
                 paddingLeft: 5,
@@ -1061,7 +1843,7 @@ function PendingActionUpdate(props: any) {
             >
               {width && <>|</>}
             </Box> */}
-            {/* <Box
+            <Box
               sx={{
                 display: 'flex',
               }}
@@ -1084,7 +1866,7 @@ function PendingActionUpdate(props: any) {
               >
                 Additional Data
               </button>
-            </Box> */}
+            </Box>
           </Box>
         </Box>
         <Box className={classes.eachRow}>
@@ -1193,40 +1975,43 @@ function PendingActionUpdate(props: any) {
               justifyContent: 'space-between',
             }}
           >
-            {/* <Box
+            <Box
               sx={{
                 // flexGrow: 1,
                 display: 'flex',
               }}
-            > */}
-            <Typography variant="subtitle2">
-              {
-                <input
-                  type="text"
-                  value={referenceDoc ? referenceDoc.name : ''}
+            >
+              <Typography variant="subtitle2">
+                {
+                  <input
+                    type="text"
+                    value={referenceDoc ? referenceDoc.name : ''}
+                    // onClick={() =>
+                    //   document.getElementById('selectedFile')!.click()
+                    // }
+                    className={classes.uploadTextfield}
+                    placeholder="No file selected"
+                    readOnly
+                  />
+                }
+                <Input
+                  type="file"
+                  id="selectedFile"
+                  onChange={handleFileUpload}
+                />
+                <button
+                  type="button"
                   onClick={() =>
                     document.getElementById('selectedFile')!.click()
                   }
-                  className={classes.uploadTextfield}
-                  placeholder="No file selected"
-                  readOnly
-                />
-              }
-              <Input
-                type="file"
-                id="selectedFile"
-                onChange={handleFileUpload}
-              />
-              <button
-                type="button"
-                onClick={() => document.getElementById('selectedFile')!.click()}
-                className={classes.uploadButton}
-              >
-                Browse...
-              </button>
-            </Typography>
-            {/* </Box> */}
-            {/* <Box
+                  className={classes.uploadButton}
+                  disabled
+                >
+                  Browse...
+                </button>
+              </Typography>
+            </Box>
+            <Box
               sx={{
                 paddingLeft: 5,
                 paddingRight: 5,
@@ -1234,15 +2019,20 @@ function PendingActionUpdate(props: any) {
                 display: 'flex',
               }}
             >
-              {width && <>|</>}
+              {/* {width && <>|</>}
             </Box>
             <Box
               sx={{
                 display: 'flex',
               }}
             >
-              <button className={classes.backButton}>view(3)</button>
-            </Box> */}
+              <button className={classes.backButton}>view(3)</button> */}
+              {wrongExtn ? (
+                <Typography variant="subtitle2" color={'secondary'}>
+                  Invalid extension
+                </Typography>
+              ) : null}
+            </Box>
           </Box>
         </Box>
         <Box
@@ -1272,7 +2062,8 @@ function PendingActionUpdate(props: any) {
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
-                value={comments}
+                value={pendingActionDetails[0].comments}
+                readOnly
               />
             </Typography>
           </Box>
@@ -1325,6 +2116,7 @@ function PendingActionUpdate(props: any) {
                   : classes.whiteButton
               }
               size="small"
+              onClick={handleReject}
             >
               Reject
             </Button>
@@ -1351,6 +2143,7 @@ function PendingActionUpdate(props: any) {
                   : classes.submitButton
               }
               size="small"
+              onClick={handleUpdateUserforSubmit}
             >
               Submit
             </Button>
@@ -1368,6 +2161,7 @@ function PendingActionUpdate(props: any) {
                   : classes.buttons
               }
               size="small"
+              onClick={handleReassign}
             >
               Reassign
             </Button>
@@ -1385,7 +2179,8 @@ function PendingActionUpdate(props: any) {
                   : classes.buttons
               }
               size="small"
-              // onClick={handleUpdateUser}
+              // onClick={handleUpdateUserforApprove}
+              onClick={handleApprove}
             >
               Approve
             </Button>
@@ -1412,7 +2207,7 @@ function PendingActionUpdate(props: any) {
             {viewLog}
             {viewGroups}
             {manageTasks}
-            {/* {viewAdditionalInfo} */}
+            {viewAdditionalInfo}
           </Grid>
           {/* </Grid> */}
         </Box>

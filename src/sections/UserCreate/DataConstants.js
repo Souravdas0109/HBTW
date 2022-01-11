@@ -3,7 +3,7 @@ export const constants = {
   viewLogRows: [
     {
       timestamp: '15-09-21 11:45',
-      userID: 133456,
+      userId: 133456,
       role: 'Role 0',
       action: 'Action 0',
       attachment: <AttachFileIcon />,
@@ -11,7 +11,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 123456,
+      userId: 123456,
       role: 'Role 1',
       action: 'Action 1',
       attachment: <AttachFileIcon />,
@@ -19,7 +19,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 123457,
+      userId: 123457,
       role: 'Role 2',
       action: 'Action 2',
       attachment: <AttachFileIcon />,
@@ -27,7 +27,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 123458,
+      userId: 123458,
       role: 'Role 3',
       action: 'Action 3',
       attachment: <AttachFileIcon />,
@@ -35,7 +35,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 123459,
+      userId: 123459,
       role: 'Role 4',
       action: 'Action 4',
       attachment: <AttachFileIcon />,
@@ -43,7 +43,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111111,
+      userId: 111111,
       role: 'Role 5',
       action: 'Action 5',
       attachment: '',
@@ -51,7 +51,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111112,
+      userId: 111112,
       role: 'Role 6',
       action: 'Action 6',
       attachment: '',
@@ -59,7 +59,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111113,
+      userId: 111113,
       role: 'Role 7',
       action: 'Action 7',
       attachment: '',
@@ -67,7 +67,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111114,
+      userId: 111114,
       role: 'Role 8',
       action: 'Action 8',
       attachment: '',
@@ -75,7 +75,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111115,
+      userId: 111115,
       role: 'Role 9',
       action: 'Action 9',
       attachment: '',
@@ -83,7 +83,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111116,
+      userId: 111116,
       role: 'Role 10',
       action: 'Action 10',
       attachment: '',
@@ -91,7 +91,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111117,
+      userId: 111117,
       role: 'Role 11',
       action: 'Action 11',
       attachment: '',
@@ -99,7 +99,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111118,
+      userId: 111118,
       role: 'Role 12',
       action: 'Action 12',
       attachment: '',
@@ -107,7 +107,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111119,
+      userId: 111119,
       role: 'Role 13',
       action: 'Action 13',
       attachment: '',
@@ -115,7 +115,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111120,
+      userId: 111120,
       role: 'Role 14',
       action: 'Action 14',
       attachment: '',
@@ -123,7 +123,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111121,
+      userId: 111121,
       role: 'Role 15',
       action: 'Action 15',
       attachment: '',
@@ -131,7 +131,7 @@ export const constants = {
     },
     {
       timestamp: '15-09-21 11:45',
-      userID: 111122,
+      userId: 111122,
       role: 'Role 16',
       action: 'Action 16',
       attachment: '',
@@ -141,16 +141,16 @@ export const constants = {
 
   viewLogColumns: [
     { field: 'timestamp', headerName: 'Timestamp', width: 150 },
-    { field: 'userID', headerName: 'User ID', width: 80 },
-    { field: 'role', headerName: 'Role', width: 70 },
-    { field: 'action', headerName: 'Action', width: 70 },
+    { field: 'userId', headerName: 'User ID', width: 100 },
+    { field: 'role', headerName: 'Role', width: 100 },
+    { field: 'actionTaken', headerName: 'Action', width: 100 },
     {
-      field: 'attachment',
+      field: 'attachmentUrl',
       headerName: 'Attachment',
       type: 'file',
-      width: 80,
+      width: 100,
     },
-    { field: 'comments', headerName: 'Comments', width: 90 },
+    { field: 'comments', headerName: 'Comments', width: 100 },
   ],
 
   requestTypes: [

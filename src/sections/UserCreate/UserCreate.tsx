@@ -39,8 +39,10 @@ import {
   postTaskLogsAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
+  postFileAttachmentAPI,
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
+import { routes, extensions } from '../../util/Constants'
 
 const Input = styled('input')({
   display: 'none',
@@ -50,6 +52,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const classes = useStyles()
   const history = useHistory()
   const theme = useTheme()
+  const { DEFAULT, DASHBOARD } = routes
   const active = useMediaQuery(theme.breakpoints.down(750))
   const forbutton = useMediaQuery(theme.breakpoints.down(400))
   const width = useMediaQuery(theme.breakpoints.up('md'))
@@ -66,10 +69,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [employeeID, setEmployeeID] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [designation, setDesignation] = React.useState('')
-  const [status, setStatus] = React.useState('')
+  const [status, setStatus] = React.useState('W')
   const [comments, setComments] = React.useState('')
-  const [additionalInfo, setAdditionalInfo] = React.useState('')
-  const [submitFlag, setSubmitFlag] = React.useState('')
+  const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(null)
   const viewLogOpen = Boolean(viewLogEl)
@@ -174,8 +176,20 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   }
 
   const handleFileUpload = (event: any) => {
+    setWrongExtn(false)
     setReferenceDoc(event.target.files[0])
-    if (event.target.files[0]) {
+    const checkextension = event.target.files[0]
+      ? new RegExp(
+          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+          'i'
+        ).test(event.target.files[0].name)
+      : false
+    if (checkextension) {
+      setWrongExtn(false)
+    } else if (event.target.files[0]) {
+      setWrongExtn(true)
+    }
+    if (event.target.files[0] && checkextension) {
       // let reader = new FileReader();
       // reader.readAsDataURL(event.target.files[0]);
 
@@ -198,7 +212,30 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const handleRoleChange1 = (selected: any) => {
     console.log(selected)
     setRoleNames(selected)
-    console.log(selected.length)
+  }
+
+  const postTasklog = (logData: any) => {
+    postTaskLogsAPI &&
+      postTaskLogsAPI(logData)
+        .then((res) => {
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+        .catch((err) => {
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from tasklogapi`,
+            // detail: `${err.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
   }
 
   const roleSelect1 = (
@@ -693,27 +730,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         })
       })
   }
-  React.useEffect(() => {
-    let employeedetails
-    if (localStorage && localStorage.getItem('_GresponseV2')) {
-      employeedetails = JSON.parse(
-        (localStorage && localStorage.getItem('_GresponseV2')) || '{}'
-      )
-    }
-    let empid = employeedetails.empId
-    console.log(empid)
-    if (empid === '40011368') {
-      setSubmitFlag('ADMIN')
-    } else {
-      setSubmitFlag('USER')
-    }
-  }, [])
 
   const handleCreateRequestforApprove = (e: any) => {
     e.preventDefault()
     const colleague: any =
       colleagueData && constants.getColleagueDetails(colleagueData)
-    const colleaguestring = `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+    const colleaguestring =
+      colleagueData &&
+      `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
 
     const formData = {
       camunda: {
@@ -742,17 +766,21 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         status: status,
         designation: designation.toUpperCase(),
       },
-      roles: roleNames.map((role: any) => {
-        return {
-          roleId: role.value,
-        }
-      }),
-      usergroups: groups.map((group: any) => {
-        return {
-          groupId: group.value,
-          status: group.status,
-        }
-      }),
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
     }
     console.log(formData)
 
@@ -771,27 +799,74 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          let statusCode = res.status
-          if (statusCode >= 200 && statusCode < 300) {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.comments,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
-          history.push('/commercial-webapp/dashboard')
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // console.log(rolelog)
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Approved',
+          //   comments: comments,
+          //   attachmentUrl: null,
+          // }
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //         logData.attachmentUrl = null
+          //         postTasklog(logData)
+          //       })
+          // } else {
+          //   console.log(logData)
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err.response)
           // let statusCode = err.status
           //console.log(statusCode)
           // alert(err)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            // detail: err.response.data.error,
+            detail: `${err.response.status} from userdetailapi`,
             // detail: `${err.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -852,7 +927,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     e.preventDefault()
     const colleague: any =
       colleagueData && constants.getColleagueDetails(colleagueData)
-    const colleaguestring = `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+    const colleaguestring =
+      colleagueData &&
+      `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
 
     const formData = {
       camunda: {
@@ -881,17 +958,21 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         status: status,
         designation: designation.toUpperCase(),
       },
-      roles: roleNames.map((role: any) => {
-        return {
-          roleId: role.value,
-        }
-      }),
-      usergroups: groups.map((group: any) => {
-        return {
-          groupId: group.value,
-          status: group.status,
-        }
-      }),
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
     }
     console.log(formData)
 
@@ -910,17 +991,61 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          let statusCode = res.status
-          if (statusCode >= 200 && statusCode < 300) {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.status,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
-          history.push('/commercial-webapp/dashboard')
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Submited',
+          //   comments: comments,
+          //   attachmentUrl: null,
+          // }
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   console.log(formdata1)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //       })
+          // } else {
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
           console.log(err)
@@ -930,7 +1055,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            // detail: err.response.data.error,
+            detail: `${err.response.status} from userdetailapi`,
             // detail: `${err.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1264,7 +1389,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               </Typography>
             </Box>
 
-            <Box
+            {/* <Box
               sx={{
                 paddingLeft: 5,
                 paddingRight: 5,
@@ -1273,7 +1398,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }}
             >
               {width && <>|</>}
-            </Box>
+            </Box> */}
 
             <Box
               sx={{
@@ -1324,17 +1449,20 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 defaultValue=""
                 onChange={onstatusChange}
                 required
+                disabled
               >
-                <option disabled value="" className={classes.selectOptions}>
+                {/* <option disabled value="" className={classes.selectOptions}>
                   None
-                </option>
-                {constants.statuses.map((type) => {
-                  return (
-                    <option value={type.statusID} key={type.statusID}>
-                      {type.text}
-                    </option>
-                  )
-                })}
+                </option> */}
+                {constants.statuses
+                  .filter((type) => type.statusID.toLowerCase() === 'w')
+                  .map((type) => {
+                    return (
+                      <option value={type.statusID} key={type.statusID}>
+                        {type.text}
+                      </option>
+                    )
+                  })}
               </select>
             </Typography>
           </Box>
@@ -1478,18 +1606,22 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 display: 'flex',
               }}
             >
-              {width && <>|</>}
+              {/* {width && <>|</>}
             </Box>
             <Box
               sx={{
                 display: 'flex',
               }}
             >
-              <button className={classes.backButton}>view(3)</button>
+              <button className={classes.backButton}>view(3)</button> */}
+              {wrongExtn ? (
+                <Typography variant="subtitle2" color={'secondary'}>
+                  Invalid extension
+                </Typography>
+              ) : null}
             </Box>
           </Box>
         </Box>
-
         <Box
           sx={{
             display: 'flex',

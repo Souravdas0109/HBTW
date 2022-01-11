@@ -13,6 +13,11 @@ const reducer = combineReducers({
   pendingActionReducer: pendingActionReducer,
 })
 
-const store = createStore(reducer, applyMiddleware(logger, thunk))
+let middlewares = [thunk]
+if (process.env.REACT_APP_ENV === `dev`) {
+  middlewares.push(logger)
+}
+
+const store = createStore(reducer, applyMiddleware(...middlewares))
 
 export default store

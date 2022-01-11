@@ -3,15 +3,15 @@ export const UtilityFunctions = {
     if (appfunc !== undefined && appfunc !== []) {
       const val = appfunc.filter(
         (item) => item.appmenuId.toString() === appmenuId
-      );
+      )
       if (val.length > 0) {
         const found = val.findIndex(
           (itemin) => itemin.compName.toLowerCase() === compName.toLowerCase()
-        );
-        if (found > -1 && val[found].accessType.toLowerCase() !== "h") {
-          return false;
-        } else return true;
-      } else return true;
+        )
+        if (found > -1 && val[found].accessType.toLowerCase() !== 'h') {
+          return false
+        } else return true
+      } else return true
     }
   },
-};
+}

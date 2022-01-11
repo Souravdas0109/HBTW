@@ -20,12 +20,14 @@ import { connect } from 'react-redux'
 import { getUserGroupAPI } from '../../api/Fetch'
 import { useStyles, fieldWidth } from './Styles'
 import { set_groupID } from '../../redux/Actions/ManageGroup'
+import { routes } from '../../util/Constants'
 
 function UserGroupManage(props: any) {
   const { set_groupID } = props
   const classes = useStyles()
   const theme = useTheme()
   const history = useHistory()
+  const { DEFAULT, USERCONFIG_GROUPUPDATE, USERCONFIG_GROUPCREATE } = routes
   const active = useMediaQuery(theme.breakpoints.down(700))
   const width = useMediaQuery(theme.breakpoints.up('md'))
   const dialogwidth = width ? 600 : fieldWidth
@@ -44,7 +46,7 @@ function UserGroupManage(props: any) {
     )
     set_groupID(selectedRow)
     console.log(selectedRow)
-    history.push('/commercial-webapp/userconfig/groupupdate')
+    history.push(`${DEFAULT}${USERCONFIG_GROUPUPDATE}`)
   }
 
   useEffect(() => {
@@ -394,7 +396,7 @@ function UserGroupManage(props: any) {
                 <button
                   className={classes.exploreButton}
                   onClick={() =>
-                    history.push('/commercial-webapp/userconfig/groupcreate')
+                    history.push(`${DEFAULT}${USERCONFIG_GROUPCREATE}`)
                   }
                 >
                   Create Group
@@ -451,7 +453,7 @@ function UserGroupManage(props: any) {
                 <button
                   className={classes.exploreButton}
                   onClick={() =>
-                    history.push('/commercial-webapp/userconfig/groupcreate')
+                    history.push(`${DEFAULT}${USERCONFIG_GROUPCREATE}`)
                   }
                 >
                   Create Group

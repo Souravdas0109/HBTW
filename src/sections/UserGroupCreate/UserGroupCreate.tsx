@@ -25,12 +25,16 @@ import {
 } from './DataConstants'
 import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
+import { useHistory } from 'react-router-dom'
+import { routes } from '../../util/Constants'
 
 function UserGroupCreate() {
   const theme = useTheme()
   const { BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY } = config
   const active = useMediaQuery(theme.breakpoints.down(750))
   const classes = useStyles()
+  const history = useHistory()
+  const { DEFAULT, USERCONFIG_USERGROUP } = routes
   const [groupId, setGroupId] = useState('')
   const [groupname, setGroupname] = useState('')
   const [description, setDescription] = useState('')
@@ -404,6 +408,11 @@ function UserGroupCreate() {
       />
     </>
   )
+
+  const goBack = () => {
+    history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
+  }
+
   const ongroupIDChange = (e: any) => {
     setGroupId(e.target.value)
   }
@@ -690,17 +699,15 @@ function UserGroupCreate() {
     putUserGroupAPI(formData, groupId)
       .then((res) => {
         //console.log(res);
-        let statusCode = res.status
         //console.log(res.data.message);
-        if (statusCode === 200) {
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.message,
-            life: 6000,
-            className: 'login-toast',
-          })
-        }
+        toast.current.show({
+          severity: 'success',
+          summary: '',
+          detail: res.data.message,
+          life: 6000,
+          className: 'login-toast',
+        })
+        setTimeout(() => goBack(), 6000)
       })
       .catch((err) => {
         //console.log(err);
@@ -769,8 +776,9 @@ function UserGroupCreate() {
                       }}
                     >
                       <Link
-                        to="/commercial-webapp/userconfig/usergroup"
+                        to="#"
                         className={classes.backButton}
+                        onClick={goBack}
                       >
                         Back
                       </Link>

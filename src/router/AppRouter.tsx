@@ -5,6 +5,7 @@ import Login from '../pages/Login/Login'
 import AuthRoute from './AuthRoute'
 import Home from '../pages/Home/Home'
 import PageNotFound from '../pages/PageNotFound/PageNotFound'
+import { routes } from '../util/Constants'
 
 const Error = () => (
   <div
@@ -19,12 +20,13 @@ const Error = () => (
 )
 
 const AppRouter = () => {
+  const { DEFAULT } = routes
   return (
     <Container>
       <BrowserRouter>
         <Switch>
           <AuthRoute
-            path="/commercial-webapp"
+            path={`${DEFAULT}`}
             component={Home}
             isAuthorized={true}
             arb={false}

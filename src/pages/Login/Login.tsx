@@ -16,9 +16,11 @@ import Config from '../../config/Config'
 import { useStyles } from './Styles'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 import { ServiceResponse } from './Messages'
+import { routes } from '../../util/Constants'
 
 function Login(props: any) {
   const { loginUser, user, isLoading, errorMessage } = props
+  const { DEFAULT, DASHBOARD } = routes
   const theme = useTheme()
   const active = useMediaQuery(theme.breakpoints.down(500))
   const moresmall = useMediaQuery(theme.breakpoints.down(320))
@@ -53,10 +55,10 @@ function Login(props: any) {
   useEffect(() => {
     if (user) {
       if (!isLoading && errorMessage.toLowerCase() !== 'usernotadded')
-        history.push('/commercial-webapp/dashboard')
+        history.push(`${DEFAULT}${DASHBOARD}`)
       else history.push('/login')
     }
-  }, [user, history, errorMessage, isLoading])
+  }, [user, history, errorMessage, isLoading, DEFAULT, DASHBOARD])
 
   const responseGoogleerror = (error: any) => {
     console.log(error)

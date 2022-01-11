@@ -27,7 +27,13 @@ export const useStyles = makeStyles((theme) => {
       [theme.breakpoints.down(750)]: {
         width: 400,
       },
-      [theme.breakpoints.down(500)]: {
+      [theme.breakpoints.down(450)]: {
+        width: 350,
+      },
+      [theme.breakpoints.down(400)]: {
+        width: 250,
+      },
+      [theme.breakpoints.down(300)]: {
         width: 200,
       },
       height: 32,
@@ -76,7 +82,13 @@ export const useStyles = makeStyles((theme) => {
       [theme.breakpoints.down(750)]: {
         width: 400,
       },
-      [theme.breakpoints.down(500)]: {
+      [theme.breakpoints.down(450)]: {
+        width: 350,
+      },
+      [theme.breakpoints.down(400)]: {
+        width: 250,
+      },
+      [theme.breakpoints.down(300)]: {
         width: 200,
       },
     },

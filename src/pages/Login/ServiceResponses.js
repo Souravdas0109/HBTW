@@ -12,4 +12,32 @@ export const ServiceResponses = {
     serviceUnavailable: 'Service not available',
     usernotadded: 'Login failed. User not added to Commercial Web Application.',
   },
+  dashboard: {
+    task: (
+      <div>
+        <div>
+          <strong>My:</strong>
+        </div>
+        <div>
+          <strong>Pending Actions:</strong> User can see the list of task(s)
+          which is not yet started.
+        </div>{' '}
+        <div>
+          <strong>In-progress Task:</strong> User can see the list of task(s)
+          which is started but incomplete.
+        </div>{' '}
+        <div>
+          <strong>Group:</strong>
+        </div>{' '}
+        <div>
+          <strong>Pending Actions:</strong> User can see the list of task(s)
+          which is pending by self and/or others from the same group.
+        </div>{' '}
+        <div>
+          <strong>Unassigned Workflow:</strong> User can see the list of task(s)
+          which is yet to be assigned.
+        </div>
+      </div>
+    ),
+  },
 }

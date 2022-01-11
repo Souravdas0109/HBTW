@@ -26,7 +26,10 @@ export const useStyles = makeStyles((theme) => {
       [theme.breakpoints.down(750)]: {
         width: 400,
       },
-      [theme.breakpoints.down(500)]: {
+      [theme.breakpoints.down(450)]: {
+        width: 350,
+      },
+      [theme.breakpoints.down(400)]: {
         width: 200,
       },
 
@@ -74,7 +77,28 @@ export const useStyles = makeStyles((theme) => {
       [theme.breakpoints.down(750)]: {
         width: 400,
       },
+      [theme.breakpoints.down(450)]: {
+        width: 350,
+      },
+      [theme.breakpoints.down(400)]: {
+        width: 200,
+      },
+    },
+    inputLabelHead: {
+      // [theme.breakpoints.up("sm")]: {
+      //   width: 392,
+      // },
+      // [theme.breakpoints.down("sm")]: {
+      //   width: fieldWidth,
+      // },
+      width: 600,
+      [theme.breakpoints.down(750)]: {
+        width: 400,
+      },
       [theme.breakpoints.down(500)]: {
+        width: 300,
+      },
+      [theme.breakpoints.down(400)]: {
         width: 200,
       },
     },
@@ -153,6 +177,12 @@ export const useStyles = makeStyles((theme) => {
       // backgroundColor: "white",
       cursor: 'pointer',
       fontSize: '18px',
+      [theme.breakpoints.down(300)]: {
+        fontSize: '14px',
+      },
+      [theme.breakpoints.down(400)]: {
+        fontSize: '16px',
+      },
       '&:disabled': {
         color: 'grey',
         cursor: 'default',

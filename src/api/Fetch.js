@@ -33,7 +33,11 @@ const {
   GET_USER_INFO_OTHER,
   USER_V2,
   PRODUCT_HIERARCHY_GET,
+  PUT_CLAIM_TASK_CAMUNDA,
   GET_DASHBOARD_STATUS_CAMUNDA,
+  POST_ATTACHMENT,
+  PUT_COMPLETE_TASK_CAMUNDA,
+  PUT_REJECT_TASK_CAMUNDA,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -76,6 +80,12 @@ export const postTaskLogsAPI = (req) => {
   return serviceRequest(url, 'POST', reqBody)
 }
 
+export const postFileAttachmentAPI = (req, userId) => {
+  let url = `${BASE_URL}${POST_ATTACHMENT}`
+  url = url.replace('{userId}', userId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'POST', reqBody)
+}
 // export const getRangeResetAPI = (rangeResetId) => {
 //   let url = `${RANGE_BASE_URL}${GET_RANGE_RESET}`;
 //   url = url.replace("{rangeResetId}", rangeResetId);
@@ -229,6 +239,27 @@ export const putUserGroupAPI = (req, groupId) => {
   return serviceRequest(url, 'PUT', reqBody)
 }
 
+export const putClaimTaskAPI = (req, taskId) => {
+  let url = `${BASE_URL}${PUT_CLAIM_TASK_CAMUNDA}`
+  url = url.replace('{taskId}', taskId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const putCompleteTaskAPI = (req, taskId) => {
+  let url = `${BASE_URL}${PUT_COMPLETE_TASK_CAMUNDA}`
+  url = url.replace('{taskId}', taskId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const putRejectTaskAPI = (req, taskId) => {
+  let url = `${BASE_URL}${PUT_REJECT_TASK_CAMUNDA}`
+  url = url.replace('{businessKey}', taskId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
 export const getProductHierarchyAPI = (url) => {
   return serviceRequestForProduct(url, 'GET', undefined)
 }
@@ -242,6 +273,24 @@ export const getAllUsersAPI = () => {
 export const getColleagueAPI = (id) => {
   let url = `${BASE_URL_SIT}${GET_USER_INFO_OTHER}`
   url = url.replace('{userId}', id)
+  return serviceRequestBasic(url, 'GET', undefined)
+}
+
+export const getTasklistsAllAPI = (userId) => {
+  let url = `${BASE_URL}${GET_TASKLIST_ALL}`
+  const params = `limit=1000&referenceNumberIn=${userId}`
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getTasklistsAPI = (requestId) => {
+  let url = `${BASE_URL}${GET_TASKLIST_ID}`
+  url = url.replace('{requestId}', requestId)
+  return serviceRequestBasic(url, 'GET', undefined)
+}
+
+export const getTasklogsAPI = (requestId) => {
+  let url = `${BASE_URL}${GET_TASKLOG_ID}`
+  url = url.replace('{requestId}', requestId)
   return serviceRequestBasic(url, 'GET', undefined)
 }
 // export const getItemWeekStoreViewForecastAPI = (

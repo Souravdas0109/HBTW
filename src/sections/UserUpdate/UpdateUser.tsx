@@ -36,8 +36,12 @@ import {
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
   postTaskLogsAPI,
+  getTasklistsAllAPI,
+  getTasklogsAPI,
+  postFileAttachmentAPI,
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
+import { routes, extensions } from '../../util/Constants'
 
 const Input = styled('input')({
   display: 'none',
@@ -48,6 +52,7 @@ function UpdateUser(props: any) {
   const history = useHistory()
   const classes = useStyles()
   const theme = useTheme()
+  const { DEFAULT, DASHBOARD, USERCONFIG_USERMANAGE } = routes
   const active = useMediaQuery(theme.breakpoints.down(750))
   const forbutton = useMediaQuery(theme.breakpoints.down(400))
   const width = useMediaQuery(theme.breakpoints.up('md'))
@@ -66,6 +71,7 @@ function UpdateUser(props: any) {
   const [status, setStatus] = React.useState('')
   const [statusWithValue, setStatusWithValue] = React.useState('')
   const [comments, setComments] = React.useState('')
+  const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(null)
   const viewLogOpen = Boolean(viewLogEl)
@@ -80,14 +86,17 @@ function UpdateUser(props: any) {
   const [referenceDocData, setReferenceDocData] = React.useState<any>('')
   const [taskSelected, setTaskSelected] = React.useState<any>(null)
   const [taskOpen, setTaskOpen] = React.useState(false)
+  const [requestId, setRequestId] = React.useState('')
+  const [viewLogRows, setViewLogRows] = React.useState<Array<any>>([])
   const toast = useRef<any>(null)
 
   useEffect(() => {
     return () => reset_empID()
   }, [])
+
   useEffect(() => {
     if (!empDetails) {
-      history.push('/commercial-webapp/userconfig/usermanage')
+      history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`)
     } else {
       console.log(empDetails[0])
       setSelectEmployeeID(empDetails[0])
@@ -127,8 +136,32 @@ function UpdateUser(props: any) {
           .catch((err) => {
             console.log(err)
           })
+
+      getTasklistsAllAPI &&
+        getTasklistsAllAPI(empDetails[0].userId)
+          .then((res) => {
+            console.log(res.data)
+            setRequestId(res.data.tasklists[0].requestId)
+          })
+          .catch((err) => {
+            setViewLogRows([])
+          })
     }
-  }, [rolesArray, empDetails, history])
+  }, [rolesArray, empDetails, history, USERCONFIG_USERMANAGE, DEFAULT])
+
+  useEffect(() => {
+    if (requestId && requestId !== '') {
+      getTasklogsAPI &&
+        getTasklogsAPI(requestId)
+          .then((res) => {
+            console.log(res.data)
+            setViewLogRows([...res.data.tasklogs])
+          })
+          .catch((err) => {
+            setViewLogRows([])
+          })
+    }
+  }, [requestId])
 
   const goBack = () => {
     reset_empID()
@@ -155,6 +188,30 @@ function UpdateUser(props: any) {
 
   // const handleReset = () => {
   //   setRoleNames([]);
+  const handleFileUpload = (event: any) => {
+    setWrongExtn(false)
+    setReferenceDoc(event.target.files[0])
+    const checkextension = event.target.files[0]
+      ? new RegExp(
+          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+          'i'
+        ).test(event.target.files[0].name)
+      : false
+    if (checkextension) {
+      setWrongExtn(false)
+    } else if (event.target.files[0]) {
+      setWrongExtn(true)
+    }
+    if (event.target.files[0] && checkextension) {
+      // let reader = new FileReader();
+      // reader.readAsDataURL(event.target.files[0]);
+
+      // reader.onload = (e: any) => {
+      //   console.log(e.target.result);
+      setReferenceDocData(event.target.files[0])
+      // };
+    }
+  }
   // };
   const onrequestTypeChange = (e: any) => {
     setRequestType(e.target.value)
@@ -162,12 +219,6 @@ function UpdateUser(props: any) {
   useEffect(() => {
     console.log(requestType)
   }, [requestType])
-  const handleFileUpload = (event: any) => {
-    setReferenceDoc(event.target.files[0])
-    if (event.target.files[0]) {
-      setReferenceDocData(event.target.files[0])
-    }
-  }
 
   const Option = (props: any) => {
     return (
@@ -187,6 +238,30 @@ function UpdateUser(props: any) {
   const handleRoleChange1 = (selected: any) => {
     console.log(selected)
     setRoleNames(selected)
+  }
+
+  const postTasklog = (logData: any) => {
+    postTaskLogsAPI &&
+      postTaskLogsAPI(logData)
+        .then((res) => {
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
+        .catch((err) => {
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: `${err.response.status} from tasklogapi`,
+            // detail: `${err.data.errorMessage} ${statusCode}`,
+            life: 6000,
+            className: 'login-toast',
+          })
+        })
   }
 
   const roleSelect1 = (
@@ -661,8 +736,8 @@ function UpdateUser(props: any) {
     <Dialog open={viewLogOpen} onClose={handleCloseViewLog}>
       <Box
         sx={{
-          width: dialogwidth,
-          border: '3px solid green',
+          // width: dialogwidth,
+          // border: '3px solid green',
           borderRadius: 4,
           display: 'flex',
           flexDirection: 'column',
@@ -674,6 +749,9 @@ function UpdateUser(props: any) {
             display: 'flex',
             height: 30,
             flexDirection: 'row',
+            flexGrow: 1,
+            // width: fieldWidth,
+            justifyContent: 'center',
           }}
           className={classes.viewLogTitle}
         >
@@ -711,9 +789,8 @@ function UpdateUser(props: any) {
             p: 2,
           }}
         >
-          <Typography variant="body2">
-            Request ID:
-            <b>0112233</b>
+          <Typography variant="body2" style={{ overflowX: 'scroll' }}>
+            Request ID:<b> {requestId}</b>
           </Typography>
         </Box>
         <Box
@@ -725,18 +802,18 @@ function UpdateUser(props: any) {
           }}
         >
           <DataTable
-            value={constants.viewLogRows}
+            value={viewLogRows}
             paginator
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
             rows={5}
             style={{
               fontSize: '12px',
-              backgroundColor: '#f7f7f7',
-              // width: fieldWidth,
+              // backgroundColor: '#f7f7f7',
+              width: '100%',
             }}
             className={`p-datatable-sm ${classes.viewlogTable}`}
             scrollable
-            scrollHeight="400px"
+            // scrollHeight="400px"
           >
             {constants.viewLogColumns.map((column) => {
               return (
@@ -792,17 +869,21 @@ function UpdateUser(props: any) {
         designation: designation.toUpperCase(),
         status: status,
       },
-      roles: roleNames.map((role: any) => {
-        return {
-          roleId: role.value,
-        }
-      }),
-      usergroups: groups.map((group: any) => {
-        return {
-          groupId: group.value,
-          status: group.status,
-        }
-      }),
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
     }
     console.log(formData)
 
@@ -821,37 +902,74 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          let statusCode = res.status
-          //console.log(res.data.message);
-          // if (statusCode === 200) {
-          //   toast.current.show({
-          //     severity: "success",
-          //     summary: "",
-          //     detail: res.data.message,
-          //     life: 6000,
-          //   });
-          //   // alert(res)
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // console.log(rolelog)
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //  requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Approved',
+          //   comments: comments,
+          //   attachmentUrl: null,
           // }
-          if (statusCode >= 200 && statusCode < 300) {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.comments,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
-          history.push('/commercial-webapp/dashboard')
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //         logData.attachmentUrl = null
+          //         postTasklog(logData)
+          //       })
+          // } else {
+          //   console.log(logData)
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
           console.log(err.response)
-          let statusCode = err.response.status
-          console.log(statusCode)
+          // let statusCode = err.response.status
+          // console.log(statusCode)
           // alert(err)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            // detail: err.response.data.error,
+            detail: `${err.response.status} from userdetailapi`,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -949,17 +1067,21 @@ function UpdateUser(props: any) {
         designation: designation.toUpperCase(),
         status: status,
       },
-      roles: roleNames.map((role: any) => {
-        return {
-          roleId: role.value,
-        }
-      }),
-      usergroups: groups.map((group: any) => {
-        return {
-          groupId: group.value,
-          status: group.status,
-        }
-      }),
+      roles: roleNames
+        ? roleNames.map((role: any) => {
+            return {
+              roleId: role.value,
+            }
+          })
+        : [],
+      usergroups: groups
+        ? groups.map((group: any) => {
+            return {
+              groupId: group.value,
+              status: group.status,
+            }
+          })
+        : [],
     }
     console.log(formData)
 
@@ -978,37 +1100,71 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          let statusCode = res.status
-          //console.log(res.data.message);
-          // if (statusCode === 200) {
-          //   toast.current.show({
-          //     severity: "success",
-          //     summary: "",
-          //     detail: res.data.message,
-          //     life: 6000,
-          //   });
-          //   // alert(res)
+          // const rolelog =
+          //   userDetail &&
+          //   userDetail.userdetails[0].roles
+          //     .map((role: any) => role.roleId)
+          //     .join(',')
+          // const time = new Date().toISOString()
+          // const datepart = time.split('T')[0]
+          // const timepart = time.split('T')[1].split('.')[0]
+          // const logData = {
+          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
+          //   // timestamp: `${datepart} ${timepart}`,
+          //   timestamp: `${datepart}`,
+          //   userId: userDetail && userDetail.userdetails[0].user.userId,
+          //   role: rolelog,
+          //   camundaRequestId: res.data.businessKey,
+          //   actionTaken: 'Submited',
+          //   comments: comments,
+          //   attachmentUrl: null,
           // }
-          if (statusCode >= 200 && statusCode < 300) {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.comments,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
-          history.push('/commercial-webapp/dashboard')
+          // if (referenceDocData) {
+          //   const formdata1 = new FormData()
+          //   formdata1.append('fileIn', referenceDocData)
+          //   console.log(formdata1)
+          //   userDetail &&
+          //     postFileAttachmentAPI &&
+          //     postFileAttachmentAPI(
+          //       formdata1,
+          //       userDetail.userdetails[0].user.userId
+          //     )
+          //       .then((res) => {
+          //         logData.attachmentUrl = res.data.attachmentUrl
+          //         postTasklog(logData)
+          //       })
+          //       .catch((err) => {
+          //         toast.current.show({
+          //           severity: 'error',
+          //           summary: 'Error!',
+          //           detail: `${err.response.status} from tasklistapi`,
+          //           // detail: `${err.data.errorMessage} ${statusCode}`,
+          //           life: 6000,
+          //           className: 'login-toast',
+          //         })
+          //       })
+          // } else {
+          //   postTasklog(logData)
+          // }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
-          console.log(err.response)
-          let statusCode = err.response.status
-          console.log(statusCode)
+          console.log(err)
+          // let statusCode = err.response.status
+          // console.log(statusCode)
           // alert(err)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            // detail: err.response.data.error,
+            detail: `${err.response.status} from userdetailapi`,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1132,7 +1288,7 @@ function UpdateUser(props: any) {
             }}
           >
             <button className={classes.backButton} onClick={handleOpenViewLog}>
-              View Log ({constants.viewLogRows.length})
+              View Log ({viewLogRows.length})
             </button>
           </Box>
           <Box
@@ -1356,7 +1512,7 @@ function UpdateUser(props: any) {
                 />
               </Typography>
             </Box>
-            <Box
+            {/* <Box
               sx={{
                 paddingLeft: 5,
                 paddingRight: 5,
@@ -1365,7 +1521,7 @@ function UpdateUser(props: any) {
               }}
             >
               {width && <>|</>}
-            </Box>
+            </Box> */}
             <Box
               sx={{
                 display: 'flex',
@@ -1541,14 +1697,19 @@ function UpdateUser(props: any) {
                 display: 'flex',
               }}
             >
-              {width && <>|</>}
+              {/* {width && <>|</>}
             </Box>
             <Box
               sx={{
                 display: 'flex',
               }}
             >
-              <button className={classes.backButton}>view(3)</button>
+              <button className={classes.backButton}>view(3)</button> */}
+              {wrongExtn ? (
+                <Typography variant="subtitle2" color={'secondary'}>
+                  Invalid extension
+                </Typography>
+              ) : null}
             </Box>
           </Box>
         </Box>

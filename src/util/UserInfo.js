@@ -1,48 +1,48 @@
 export const userInfo = {
   getLoggedInUserName: () => {
-    if (localStorage && localStorage.getItem("_Gresponse")) {
+    if (localStorage && localStorage.getItem('_Gresponse')) {
       const userInfo = JSON.parse(
-        localStorage && localStorage.getItem("_Gresponse")
-      );
+        localStorage && localStorage.getItem('_Gresponse')
+      )
       const firstName =
         userInfo && userInfo.profileObj && userInfo.profileObj.givenName
           ? userInfo.profileObj.givenName
-          : "";
+          : ''
       const lastName =
         userInfo && userInfo.profileObj && userInfo.profileObj.familyName
           ? userInfo.profileObj.familyName
-          : "";
-      return firstName + " " + lastName;
+          : ''
+      return firstName + ' ' + lastName
     } else {
-      return "";
+      return ''
     }
   },
   getLoggedInEmpId: () => {
-    if (localStorage && localStorage.getItem("_Colresponse")) {
+    if (localStorage && localStorage.getItem('_Colresponse')) {
       const colinfo = JSON.parse(
-        localStorage && localStorage.getItem("_Colresponse")
-      );
-      return colinfo && colinfo.employeeId;
+        localStorage && localStorage.getItem('_Colresponse')
+      )
+      return colinfo && colinfo.employeeId
     } else {
-      return "";
+      return ''
     }
   },
   getLoggedInAvtarName: () => {
-    if (localStorage && localStorage.getItem("_Gresponse")) {
+    if (localStorage && localStorage.getItem('_Gresponse')) {
       const userInfo = JSON.parse(
-        localStorage && localStorage.getItem("_Gresponse")
-      );
+        localStorage && localStorage.getItem('_Gresponse')
+      )
       const firstName =
         userInfo && userInfo.profileObj && userInfo.profileObj.givenName
           ? userInfo.profileObj.givenName.charAt(0)
-          : "";
+          : ''
       const lastName =
         userInfo && userInfo.profileObj && userInfo.profileObj.familyName
           ? userInfo.profileObj.familyName.charAt(0)
-          : "";
-      return firstName + " " + lastName;
+          : ''
+      return firstName + ' ' + lastName
     } else {
-      return "";
+      return ''
     }
   },
-};
+}

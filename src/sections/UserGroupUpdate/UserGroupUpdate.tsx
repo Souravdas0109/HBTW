@@ -28,11 +28,13 @@ import {
 import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
+import { routes } from '../../util/Constants'
 
 function UserGroupUpdate(props: any) {
   const { groupDetails, reset_groupID } = props
   const theme = useTheme()
   const history = useHistory()
+  const { DEFAULT, USERCONFIG_USERGROUP } = routes
   const { BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY } = config
   const active = useMediaQuery(theme.breakpoints.down(750))
   const classes = useStyles()
@@ -76,7 +78,7 @@ function UserGroupUpdate(props: any) {
 
   React.useEffect(() => {
     if (!groupDetails) {
-      history.push('/commercial-webapp/userconfig/usergroup')
+      history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
     } else {
       console.log(groupDetails[0])
       setSelectGroupID(groupDetails[0])
@@ -696,7 +698,7 @@ function UserGroupUpdate(props: any) {
   )
   const goBack = () => {
     reset_groupID()
-    history.goBack()
+    history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
   }
   // useEffect(() => {
   //   let today = new Date()
@@ -764,17 +766,15 @@ function UserGroupUpdate(props: any) {
     putUserGroupAPI(formData, groupId)
       .then((res) => {
         //console.log(res);
-        let statusCode = res.status
         //console.log(res.data.message);
-        if (statusCode === 200) {
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.message,
-            life: 6000,
-            className: 'login-toast',
-          })
-        }
+        toast.current.show({
+          severity: 'success',
+          summary: '',
+          detail: res.data.message,
+          life: 6000,
+          className: 'login-toast',
+        })
+        setTimeout(() => goBack(), 6000)
       })
       .catch((err) => {
         //console.log(err);
@@ -843,7 +843,8 @@ function UserGroupUpdate(props: any) {
                       }}
                     >
                       <Link
-                        to="/commercial-webapp/userconfig/usergroup"
+                        to="#"
+                        onClick={goBack}
                         className={classes.backButton}
                       >
                         Back

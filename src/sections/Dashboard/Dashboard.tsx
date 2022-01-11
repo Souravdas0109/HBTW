@@ -24,6 +24,7 @@ import {
   set_mypendingAction,
 } from '../../redux/Actions/PendingAction/Action'
 import { getStatusCamundaAPI } from '../../api/Fetch'
+import { ServiceResponse } from '../../pages/Login/Messages'
 
 const useStyles = makeStyles((theme) => ({
   card: {
@@ -54,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
   tabHead: {
     color: theme.palette.primary.main,
-    fontWeight: 'bold',
+    // fontWeight: 'bold',
     marginLeft: theme.spacing(2),
   },
 }))
@@ -145,13 +146,24 @@ function Dashboard(props: any) {
       const newMap1 = userTaskDashboard.map((item) => {
         if (item.value.toLowerCase() === 'usermanagement') {
           item.my.pendingActions =
-            mypendingAction.length > 0 ? mypendingAction[0].count : 0
+            mypendingAction.length > 0 && mypendingAction[0].tasks.length > 0
+              ? mypendingAction[0].tasks.length
+              : 0
           item.my.inProgressTask =
-            myinprogressTasks.length > 0 ? myinprogressTasks[0].count : 0
+            myinprogressTasks.length > 0 &&
+            myinprogressTasks[0].tasks.length > 0
+              ? myinprogressTasks[0].tasks.length
+              : 0
           item.myGroup.pendingActions =
-            mygroupPendingAction.length > 0 ? mygroupPendingAction[0].count : 0
+            mygroupPendingAction.length > 0 &&
+            mygroupPendingAction[0].tasks.length > 0
+              ? mygroupPendingAction[0].tasks.length
+              : 0
           item.myGroup.inProgressTask =
-            mygroupUnassignTasks.length > 0 ? mygroupUnassignTasks[0].count : 0
+            mygroupUnassignTasks.length > 0 &&
+            mygroupUnassignTasks[0].tasks.length > 0
+              ? mygroupUnassignTasks[0].tasks.length
+              : 0
         }
 
         return item
@@ -170,7 +182,7 @@ function Dashboard(props: any) {
     <div style={{ padding: '20px' }}>
       <Typography variant="h6" color="primary" className={classes.tabHead}>
         Task Dashboard{' '}
-        <Tooltip title="User Task Dashboard">
+        <Tooltip title={ServiceResponse.getMessage('dashboard', 'task')}>
           <IconButton>
             <InfoOutlinedIcon />
           </IconButton>

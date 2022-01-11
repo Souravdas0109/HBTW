@@ -15,9 +15,11 @@ import { useStyles } from './Styles'
 import { pendingActionDetails, pendingActionTableHeaders } from './tableHeader'
 import { set_pendingAction } from '../../redux/Actions/PendingAction'
 import { reset_mypendingAction } from '../../redux/Actions/PendingAction/Action'
+import { routes } from '../../util/Constants'
 
 function PendingAction(props: any) {
   const { set_pendingAction, mypendingAction, reset_mypendingAction } = props
+  const { DEFAULT, DASHBOARD_PENDINGACTIONS_UPDATE, DASHBOARD } = routes
   const history = useHistory()
   const theme = useTheme()
   const classes = useStyles()
@@ -28,11 +30,11 @@ function PendingAction(props: any) {
   const handleNameClick = (e: any) => {
     console.log(e.target.value)
     const selectedRow = pendingActionDetails.filter(
-      (row: any) => row.requestId == e.target.value
+      (row: any) => row.requestId === e.target.value
     )
     set_pendingAction(selectedRow)
     console.log(selectedRow)
-    history.push('/commercial-webapp/pendingactions/pendingactionsupdate')
+    history.push(`${DEFAULT}${DASHBOARD_PENDINGACTIONS_UPDATE}`)
   }
   const goBack = () => {
     reset_mypendingAction()
@@ -44,8 +46,8 @@ function PendingAction(props: any) {
     }
   }, [])
   useEffect(() => {
-    if (!mypendingAction) history.push('/commercial-webapp/dashboard')
-  }, [mypendingAction])
+    if (!mypendingAction) history.push(`${DEFAULT}${DASHBOARD}`)
+  }, [mypendingAction, DASHBOARD, DEFAULT, history])
 
   useEffect(() => {
     if (mypendingAction) {
@@ -143,6 +145,7 @@ function PendingAction(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',
@@ -150,9 +153,7 @@ function PendingAction(props: any) {
                           backgroundColor: teal[900],
                           color: 'white',
                         }}
-                        body={
-                          column.field === 'requestedId' && requestIdTemplate
-                        }
+                        body={column.field === 'requestId' && requestIdTemplate}
                         sortable
                       />
                     )
@@ -183,6 +184,7 @@ function PendingAction(props: any) {
                         bodyStyle={{
                           fontSize: '12px',
                           width: column.width,
+                          overflowX: 'auto',
                         }}
                         headerStyle={{
                           fontSize: '12px',
