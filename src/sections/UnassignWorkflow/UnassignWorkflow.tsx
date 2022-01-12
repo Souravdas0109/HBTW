@@ -76,6 +76,7 @@ function UnassignWorkflow(props: any) {
       }
       const taskIds =
         unassignUser && unassignUser.map((item: any) => item.taskId)
+      console.log(taskIds)
 
       for (let i = 0; i < taskIds.length; i++) {
         putClaimTaskAPI &&

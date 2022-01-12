@@ -79,6 +79,7 @@ function UpdateUser(props: any) {
   const [groups, setGroups] = React.useState([])
   const [groupInput, setGroupInput] = React.useState([])
   const [groupOpen, setGroupOpen] = React.useState(false)
+  const [cancelOpen, setCancelOpen] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
   const [roles, setRoles] = React.useState([])
@@ -839,6 +840,104 @@ function UpdateUser(props: any) {
       </Box>
     </Dialog>
   )
+  const handleCancel = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpen((p) => !p)
+  }
+  const viewCancel = (
+    <Dialog open={cancelOpen} onClose={handleCancel}>
+      <Box
+        sx={{
+          //width: dialogwidth,
+          //border: '3px solid green',
+          borderRadius: 4,
+          display: 'flex',
+          flexDirection: 'column',
+          p: 1,
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            height: 30,
+            flexDirection: 'row',
+          }}
+          className={classes.viewLogTitle}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexGrow: 1,
+              justifyContent: 'center',
+            }}
+          >
+            <Typography variant="subtitle1">Are you Sure?</Typography>
+          </Box>
+          <Box
+            sx={{
+              paddingRight: 2,
+            }}
+          >
+            <button
+              style={{
+                border: 0,
+                padding: 0,
+                height: 22,
+                width: 22,
+              }}
+              className={classes.closeViewLog}
+              onClick={handleCancel}
+            >
+              <b>X</b>
+            </button>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            p: 2,
+          }}
+        >
+          <Typography variant="body2" color="primary">
+            All your data will be lost.
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            justifyContent: 'space-between',
+            display: 'flex',
+
+            // textAlign: "center"
+            p: 2,
+          }}
+        >
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={(e) => {
+              e.preventDefault()
+              history.goBack()
+            }}
+          >
+            OK
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            color="primary"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
+  )
 
   const handleUpdateUserforApprove = (e: any) => {
     e.preventDefault()
@@ -902,55 +1001,56 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          // const rolelog =
-          //   userDetail &&
-          //   userDetail.userdetails[0].roles
-          //     .map((role: any) => role.roleId)
-          //     .join(',')
-          // console.log(rolelog)
-          // const time = new Date().toISOString()
-          // const datepart = time.split('T')[0]
-          // const timepart = time.split('T')[1].split('.')[0]
-          // const logData = {
-          //  requestId: userDetail && userDetail.userdetails[0].user.userId,
-          //   // timestamp: `${datepart} ${timepart}`,
-          //   timestamp: `${datepart}`,
-          //   userId: userDetail && userDetail.userdetails[0].user.userId,
-          //   role: rolelog,
-          //   camundaRequestId: res.data.businessKey,
-          //   actionTaken: 'Approved',
-          //   comments: comments,
-          //   attachmentUrl: null,
-          // }
-          // if (referenceDocData) {
-          //   const formdata1 = new FormData()
-          //   formdata1.append('fileIn', referenceDocData)
-          //   userDetail &&
-          //     postFileAttachmentAPI &&
-          //     postFileAttachmentAPI(
-          //       formdata1,
-          //       userDetail.userdetails[0].user.userId
-          //     )
-          //       .then((res) => {
-          //         logData.attachmentUrl = res.data.attachmentUrl
-          //         postTasklog(logData)
-          //       })
-          //       .catch((err) => {
-          //         toast.current.show({
-          //           severity: 'error',
-          //           summary: 'Error!',
-          //           detail: `${err.response.status} from tasklistapi`,
-          //           // detail: `${err.data.errorMessage} ${statusCode}`,
-          //           life: 6000,
-          //           className: 'login-toast',
-          //         })
-          //         logData.attachmentUrl = null
-          //         postTasklog(logData)
-          //       })
-          // } else {
-          //   console.log(logData)
-          //   postTasklog(logData)
-          // }
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          console.log(rolelog)
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: res.data.businessKey,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: res.data.businessKey,
+            actionTaken: 'Approved',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData) {
+            const formdata1 = new FormData()
+            formdata1.append('fileIn', referenceDocData)
+            userDetail &&
+              postFileAttachmentAPI &&
+              postFileAttachmentAPI(
+                formdata1,
+                userDetail.userdetails[0].user.userId
+              )
+                .then((res) => {
+                  logData.attachmentUrl = res.data.attachmentUrl
+                  postTasklog(logData)
+                })
+                .catch((err) => {
+                  toast.current.show({
+                    severity: 'error',
+                    summary: 'Error!',
+                    detail: `${err.response.status} from tasklistapi`,
+                    // detail: `${err.data.errorMessage} ${statusCode}`,
+                    life: 6000,
+                    className: 'login-toast',
+                  })
+                  logData.attachmentUrl = null
+                  postTasklog(logData)
+                })
+          } else {
+            console.log(logData)
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -1100,52 +1200,53 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          // const rolelog =
-          //   userDetail &&
-          //   userDetail.userdetails[0].roles
-          //     .map((role: any) => role.roleId)
-          //     .join(',')
-          // const time = new Date().toISOString()
-          // const datepart = time.split('T')[0]
-          // const timepart = time.split('T')[1].split('.')[0]
-          // const logData = {
-          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
-          //   // timestamp: `${datepart} ${timepart}`,
-          //   timestamp: `${datepart}`,
-          //   userId: userDetail && userDetail.userdetails[0].user.userId,
-          //   role: rolelog,
-          //   camundaRequestId: res.data.businessKey,
-          //   actionTaken: 'Submited',
-          //   comments: comments,
-          //   attachmentUrl: null,
-          // }
-          // if (referenceDocData) {
-          //   const formdata1 = new FormData()
-          //   formdata1.append('fileIn', referenceDocData)
-          //   console.log(formdata1)
-          //   userDetail &&
-          //     postFileAttachmentAPI &&
-          //     postFileAttachmentAPI(
-          //       formdata1,
-          //       userDetail.userdetails[0].user.userId
-          //     )
-          //       .then((res) => {
-          //         logData.attachmentUrl = res.data.attachmentUrl
-          //         postTasklog(logData)
-          //       })
-          //       .catch((err) => {
-          //         toast.current.show({
-          //           severity: 'error',
-          //           summary: 'Error!',
-          //           detail: `${err.response.status} from tasklistapi`,
-          //           // detail: `${err.data.errorMessage} ${statusCode}`,
-          //           life: 6000,
-          //           className: 'login-toast',
-          //         })
-          //       })
-          // } else {
-          //   postTasklog(logData)
-          // }
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: res.data.businessKey,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: res.data.businessKey,
+            actionTaken: 'Submited',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData) {
+            const formdata1 = new FormData()
+            formdata1.append('fileIn', referenceDocData)
+            console.log(formdata1)
+            userDetail &&
+              postFileAttachmentAPI &&
+              postFileAttachmentAPI(
+                formdata1,
+                userDetail.userdetails[0].user.userId
+              )
+                .then((res) => {
+                  logData.attachmentUrl = res.data.attachmentUrl
+                  postTasklog(logData)
+                })
+                .catch((err) => {
+                  toast.current.show({
+                    severity: 'error',
+                    summary: 'Error!',
+                    detail: `${err.response.status} from tasklistapi`,
+                    // detail: `${err.data.errorMessage} ${statusCode}`,
+                    life: 6000,
+                    className: 'login-toast',
+                  })
+                })
+          } else {
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -1776,6 +1877,7 @@ function UpdateUser(props: any) {
                   : classes.whiteButton
               }
               size="small"
+              onClick={handleCancel}
             >
               Cancel
             </Button>
@@ -1883,6 +1985,7 @@ function UpdateUser(props: any) {
             {viewGroups}
             {manageTasks}
             {viewAdditionalInfo}
+            {viewCancel}
           </Grid>
           {/* </Grid> */}
         </Box>
