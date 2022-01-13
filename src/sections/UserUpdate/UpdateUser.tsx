@@ -717,6 +717,7 @@ function UpdateUser(props: any) {
                   bodyStyle={{
                     fontSize: '12px',
                     width: column.width,
+                    overflowX: 'auto',
                   }}
                   headerStyle={{
                     fontSize: '12px',
@@ -825,6 +826,7 @@ function UpdateUser(props: any) {
                   bodyStyle={{
                     fontSize: '12px',
                     width: column.width,
+                    overflowX: 'auto',
                   }}
                   headerStyle={{
                     fontSize: '12px',
