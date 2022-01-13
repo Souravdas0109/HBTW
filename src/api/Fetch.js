@@ -278,7 +278,7 @@ export const getColleagueAPI = (id) => {
 
 export const getTasklistsAllAPI = (userId) => {
   let url = `${BASE_URL}${GET_TASKLIST_ALL}`
-  const params = `limit=1000&referenceNumberIn=${userId}`
+  const params = `limit=1000&referenceNumberIn=${userId}&stateIn=Pending,New`
   return serviceRequest(url, 'GET', undefined, params)
 }
 

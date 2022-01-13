@@ -1059,7 +1059,7 @@ function UpdateUser(props: any) {
             className: 'login-toast',
           })
 
-          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          //setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
           console.log(err.response)

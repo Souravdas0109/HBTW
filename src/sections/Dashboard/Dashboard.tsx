@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
-import { pendingStatusDetails } from './DataConstant'
+// import { pendingStatusDetails } from './DataConstant'
 import { userTaskDashboard } from './DataConstant'
 
 import {
@@ -80,57 +80,59 @@ function Dashboard(props: any) {
     let inprogressTasks: Array<any> = []
     let mygroupPendingTasks: Array<any> = []
     let mygroupUnassignTasks: Array<any> = []
-    // getStatusCamundaAPI &&
-    //   getStatusCamundaAPI()
-    //     .then((res) => {
-    //       const pendingStatusDetails = res.data
+    getStatusCamundaAPI &&
+      getStatusCamundaAPI()
+        .then((res) => {
+          const pendingStatusDetails = res.data
 
-    if (pendingStatusDetails && pendingStatusDetails.status) {
-      pendingTasks =
-        pendingStatusDetails &&
-        pendingStatusDetails.status &&
-        pendingStatusDetails.status.filter(
-          (item: any) => item.details.toLowerCase() === 'mypendingtasks'
-        )
+          if (pendingStatusDetails && pendingStatusDetails.status) {
+            pendingTasks =
+              pendingStatusDetails &&
+              pendingStatusDetails.status &&
+              pendingStatusDetails.status.filter(
+                (item: any) => item.details.toLowerCase() === 'mypendingtasks'
+              )
 
-      inprogressTasks =
-        pendingStatusDetails &&
-        pendingStatusDetails.status &&
-        pendingStatusDetails.status.filter(
-          (item: any) => item.details.toLowerCase() === 'myinprogresstasks'
-        )
-      mygroupPendingTasks =
-        pendingStatusDetails &&
-        pendingStatusDetails.status &&
-        pendingStatusDetails.status.filter(
-          (item: any) => item.details.toLowerCase() === 'mygrouppendingtasks'
-        )
-      mygroupUnassignTasks =
-        pendingStatusDetails &&
-        pendingStatusDetails.status &&
-        pendingStatusDetails.status.filter(
-          (item: any) =>
-            item.details.toLowerCase() === 'mygroupunassignedworkflows'
-        )
+            inprogressTasks =
+              pendingStatusDetails &&
+              pendingStatusDetails.status &&
+              pendingStatusDetails.status.filter(
+                (item: any) =>
+                  item.details.toLowerCase() === 'myinprogresstasks'
+              )
+            mygroupPendingTasks =
+              pendingStatusDetails &&
+              pendingStatusDetails.status &&
+              pendingStatusDetails.status.filter(
+                (item: any) =>
+                  item.details.toLowerCase() === 'mygrouppendingtasks'
+              )
+            mygroupUnassignTasks =
+              pendingStatusDetails &&
+              pendingStatusDetails.status &&
+              pendingStatusDetails.status.filter(
+                (item: any) =>
+                  item.details.toLowerCase() === 'mygroupunassignedworkflows'
+              )
 
-      // console.log(pendingTasks)
-      // console.log(inprogressTasks)
-      // console.log(mygroupPendingTasks)
-      // console.log(mygroupUnassignTasks)
-      set_mypendingAction(pendingTasks)
-      set_myinprogressAction(inprogressTasks)
-      set_mygrouppendingAction(mygroupPendingTasks)
-      set_mygroupunassignAction(mygroupUnassignTasks)
-    }
-    // })
-    // .catch((error) => {
-    //   set_mypendingAction([])
-    //   set_myinprogressAction([])
-    //   set_mygrouppendingAction([])
-    //   set_mygroupunassignAction([])
-    // })
-  }, [pendingStatusDetails])
-  // }, [])
+            // console.log(pendingTasks)
+            // console.log(inprogressTasks)
+            // console.log(mygroupPendingTasks)
+            // console.log(mygroupUnassignTasks)
+            set_mypendingAction(pendingTasks)
+            set_myinprogressAction(inprogressTasks)
+            set_mygrouppendingAction(mygroupPendingTasks)
+            set_mygroupunassignAction(mygroupUnassignTasks)
+          }
+        })
+        .catch((error) => {
+          set_mypendingAction([])
+          set_myinprogressAction([])
+          set_mygrouppendingAction([])
+          set_mygroupunassignAction([])
+        })
+    // }, [pendingStatusDetails])
+  }, [])
 
   useEffect(() => {
     // console.log(mypendingAction)

@@ -24,6 +24,7 @@ import { constants } from './DataConstants'
 // import axios from "axios";
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
+import { FormControl } from '@material-ui/core'
 // import 'primeicons/primeicons.css';
 // import 'primereact/resources/themes/fluent-light/theme.css';
 import 'primereact/resources/themes/saga-green/theme.css'
@@ -82,6 +83,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [cancelOpen, setCancelOpen] = React.useState(false)
   const [openAdditional, setOpenAdditional] = useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
+  const [submitFn, setSubmitFn] = React.useState<any>()
   //integration changes start
   const [roles, setRoles] = useState([])
   const [groupsData, setGroupsData] = useState([])
@@ -893,6 +895,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //       },
     //     }
     //   )
+    // employeeID &&
+    //   roleNames &&
+    //   groups &&
     userDetail &&
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
@@ -1086,6 +1091,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //       },
     //     }
     //   )
+    // employeeID &&
+    //   roleNames &&
+    //   groups &&
     userDetail &&
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
@@ -1346,7 +1354,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 className={classes.inputFields}
                 style={{ backgroundColor: 'white' }}
                 placeholder="Search Employee ID"
-                required
+                required={true}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton onClick={handleSearchEmployee} edge="end">
@@ -1830,6 +1838,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }
               size="small"
               onClick={handleCreateRequestforSubmit}
+              // onClick={() => {
+              //   setSubmitFn(handleCreateRequestforSubmit)
+              // }}
             >
               Submit
             </Button>
@@ -1852,6 +1863,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Button>
 
             <Button
+              type="submit"
               variant="contained"
               color="primary"
               className={
@@ -1864,6 +1876,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   : classes.buttons
               }
               size="small"
+              // onClick={() => setSubmitFn(handleCreateRequestforApprove)}
               onClick={handleCreateRequestforApprove}
             >
               Approve
