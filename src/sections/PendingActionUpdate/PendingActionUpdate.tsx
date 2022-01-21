@@ -35,9 +35,12 @@ import {
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { constants } from '../UserCreate/DataConstants'
+import AttachFileIcon from '@material-ui/icons/AttachFile'
 import { reset_pendingAction } from '../../redux/Actions/PendingAction'
 import { pendingActionUpdateTableHeaders } from './tableHeader'
 import { routes, extensions } from '../../util/Constants'
+import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
+// import { viewLogTemp } from '../Dashboard/DataConstant'
 
 const Input = styled('input')({
   display: 'none',
@@ -69,6 +72,7 @@ function PendingActionUpdate(props: any) {
   const [requestType, setRequestType] = React.useState('')
   const [selectEmployeeID, setSelectEmployeeID] = React.useState<any>('')
   const [requestedId, setRequestedId] = React.useState('')
+  const [taskId, setTaskId] = React.useState('')
   const [employeeID, setEmployeeID] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [designation, setDesignation] = React.useState<any>('')
@@ -79,16 +83,27 @@ function PendingActionUpdate(props: any) {
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(false)
   const viewLogOpen = Boolean(viewLogEl)
+  const [roleAccess, setRoleAccess] = React.useState('')
+  const [groupAccess, setGroupAccess] = React.useState('')
   const [groupData, setGroupData] = React.useState<Array<any>>([])
   const [groups, setGroups] = React.useState([])
   const [groupInput, setGroupInput] = React.useState([])
   const [groupOpen, setGroupOpen] = React.useState(false)
+  const [cancelOpenApprove, setCancelOpenApprove] = React.useState(false)
+  const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
+  const [cancelOpenReassign, setCancelOpenReassign] = React.useState(false)
+  const [cancelOpenReject, setCancelOpenReject] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
+  const [errorRequestType, setErrorRequestType] = React.useState('')
+  const [errorEmployeeId, setErrorEmployeeId] = React.useState('')
+  const [errorStatus, setErrorStatus] = React.useState('')
+  const [errorRoles, setErrorRoles] = React.useState('')
+  const [errorGroups, setErrorGroups] = React.useState('')
   const [roles, setRoles] = React.useState([])
   const [roleNames, setRoleNames] = React.useState([])
   const [tasks, setTasks] = React.useState(taskList)
-  const [referenceDocData, setReferenceDocData] = React.useState<any>('')
+  const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
   const [taskSelected, setTaskSelected] = React.useState<any>('')
   const [taskOpen, setTaskOpen] = React.useState(false)
   const [viewLogRows, setViewLogRows] = React.useState<Array<any>>([])
@@ -160,6 +175,7 @@ function PendingActionUpdate(props: any) {
           .catch((err) => {
             setViewLogRows([])
           })
+      // setViewLogRows(viewLogTemp)
     }
   }, [requestedId])
 
@@ -184,34 +200,56 @@ function PendingActionUpdate(props: any) {
       color: state.isSelected ? 'white' : teal[900],
     }),
   }
+  const onstatusChange = (e: any) => {
+    setStatus(e.target.value)
+    if (e.target.value !== '') setErrorStatus('')
+  }
   const onrequestTypeChange = (e: any) => {
     setRequestType(e.target.value)
   }
   useEffect(() => {
     console.log(requestType)
+    if (requestType.toLowerCase() === 'new') {
+      setGroupAccess('mod_group')
+      setRoleAccess('mod_role')
+    } else if (requestType.toLowerCase() === 'modify') {
+      setGroupAccess('mod_group')
+      setRoleAccess('mod_role')
+    } else if (requestType.toLowerCase() === 'remove') {
+      setGroupAccess('rem_group')
+      setRoleAccess('rem_role')
+    }
   }, [requestType])
   const handleFileUpload = (event: any) => {
     setWrongExtn(false)
-    setReferenceDoc(event.target.files[0])
-    const checkextension = event.target.files[0]
-      ? new RegExp(
-          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
-          'i'
-        ).test(event.target.files[0].name)
-      : false
-    if (checkextension) {
-      setWrongExtn(false)
-    } else if (event.target.files[0]) {
-      setWrongExtn(true)
-    }
-    if (event.target.files[0] && checkextension) {
-      // let reader = new FileReader();
-      // reader.readAsDataURL(event.target.files[0]);
+    // setReferenceDoc(event.target.files[0])
+    for (let i = 0; i < event.target.files.length; i++) {
+      const checkextension = event.target.files[i]
+        ? new RegExp(
+            '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+            'i'
+          ).test(event.target.files[i].name)
+        : false
+      if (!checkextension && event.target.files[i]) {
+        setWrongExtn(true)
+      }
+      if (event.target.files[i] && checkextension) {
+        // let reader = new FileReader();
+        // reader.readAsDataURL(event.target.files[0]);
 
-      // reader.onload = (e: any) => {
-      //   console.log(e.target.result);
-      setReferenceDocData(event.target.files[0])
-      // };
+        // reader.onload = (e: any) => {
+        //   console.log(e.target.result);
+        setReferenceDocData((prevState) => [
+          ...prevState,
+          {
+            name: event.target.files[i].name,
+            data: event.target.files[i],
+            link: URL.createObjectURL(event.target.files[i]),
+          },
+        ])
+        URL.revokeObjectURL(event.target.files[i])
+        // };
+      }
     }
   }
   const Option = (props: any) => {
@@ -232,6 +270,7 @@ function PendingActionUpdate(props: any) {
   const handleRoleChange1 = (selected: any) => {
     console.log(selected)
     setRoleNames(selected)
+    if (selected.length > 0) setErrorRoles('')
   }
 
   const postTasklog = (logData: any) => {
@@ -250,7 +289,8 @@ function PendingActionUpdate(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from tasklogapi`,
+            //detail: `${err.response.status} from tasklogapi`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -271,16 +311,15 @@ function PendingActionUpdate(props: any) {
         hideSelectedOptions={false}
         className={classes.multiSelect}
         styles={roleSelectStyle}
-        // isDisabled={
-        //   UtilityFunctions.isHidden(
-        //     '8',
-        //     appFuncList ? appFuncList : [],
-        //     'mod_role'
-        //   )
-        //     ? true
-        //     : false
-        // }
-        isDisabled={true}
+        isDisabled={
+          UtilityFunctions.isHidden(
+            '8',
+            appFuncList ? appFuncList : [],
+            roleAccess
+          )
+            ? true
+            : false
+        }
       />
     </>
   )
@@ -290,6 +329,7 @@ function PendingActionUpdate(props: any) {
       getTasklistsAPI &&
         getTasklistsAPI(selectEmployeeID.requestId)
           .then((res) => {
+            setTaskId(res.data.tasklists[0].taskId)
             setRequestType(
               res.data.tasklists[0].requestData.camunda &&
                 res.data.tasklists[0].requestData.camunda.requestorDetails &&
@@ -299,7 +339,7 @@ function PendingActionUpdate(props: any) {
                     .requestType
                 : 'modify'
             )
-            setEmployeeID(res.data.tasklists[0].requestData.user.userId)
+            setEmployeeID(res.data.tasklists[0].requestData.user.employeeId)
             setFirstName(res.data.tasklists[0].requestData.user.firstName)
             setMiddleName(res.data.tasklists[0].requestData.user.middleName)
             setLastName(res.data.tasklists[0].requestData.user.lastName)
@@ -366,9 +406,11 @@ function PendingActionUpdate(props: any) {
             setEmail('')
             setDesignation('')
             setStatus('')
+            setRoleNames([])
+            setGroupInput([])
+            setGroups([])
           })
-
-      // setComments(selectEmployeeID.comments)
+      setComments(selectEmployeeID.comments)
     } else {
       setEmployeeID('')
       setFirstName('')
@@ -377,8 +419,11 @@ function PendingActionUpdate(props: any) {
       setEmail('')
       setDesignation('')
       setStatus('')
+      setRoleNames([])
+      setGroupInput([])
+      setGroups([])
     }
-  }, [selectEmployeeID, groupData])
+  }, [selectEmployeeID, groupData, roles])
   const handleOpenGroups = (e: any) => {
     e.preventDefault()
     setGroupOpen(true)
@@ -394,6 +439,7 @@ function PendingActionUpdate(props: any) {
 
   const handleGroupsInput = (selected: any) => {
     setGroupInput(selected)
+    if (selected.length > 0) setErrorGroups('')
   }
   const viewGroups = (
     <Dialog onClose={handleCloseGroups} open={groupOpen}>
@@ -470,7 +516,15 @@ function PendingActionUpdate(props: any) {
               hideSelectedOptions={false}
               className={classes.multiSelect}
               styles={customStyles}
-              isDisabled={true}
+              isDisabled={
+                UtilityFunctions.isHidden(
+                  '8',
+                  appFuncList ? appFuncList : [],
+                  groupAccess
+                )
+                  ? true
+                  : false
+              }
             />
           </Box>
         </Box>
@@ -485,7 +539,15 @@ function PendingActionUpdate(props: any) {
             type="button"
             className={classes.whiteButton}
             onClick={updateGroups}
-            disabled
+            disabled={
+              UtilityFunctions.isHidden(
+                '8',
+                appFuncList ? appFuncList : [],
+                groupAccess
+              )
+                ? true
+                : false
+            }
           >
             Save
           </Button>
@@ -581,7 +643,7 @@ function PendingActionUpdate(props: any) {
               className="p-datatable-sm"
               showGridlines
               scrollable
-              scrollHeight="400px"
+              scrollHeight="flex"
             >
               <Column
                 selectionMode="multiple"
@@ -635,10 +697,24 @@ function PendingActionUpdate(props: any) {
     </Dialog>
   )
   const handleOpenViewLog = (e: any) => {
-    setViewLogEl(e.currentTarget)
+    if (viewLogRows.length > 0) setViewLogEl(e.currentTarget)
   }
   const handleCloseViewLog = () => {
     setViewLogEl(false)
+  }
+
+  const attachmentTemplate = (rowData: any) => {
+    return rowData.attachmentUrl ? (
+      <a
+        href={rowData.attachmentUrl}
+        target="popup"
+        className={classes.backButton}
+      >
+        <AttachFileIcon fontSize="small" />
+      </a>
+    ) : (
+      rowData.attachmentUrl
+    )
   }
 
   const viewAdditionalInfo = (
@@ -648,7 +724,7 @@ function PendingActionUpdate(props: any) {
         setOpenAdditional((prevState) => !prevState)
       }}
       fullWidth={true}
-      // maxWidth={'lg'}
+      maxWidth={false}
     >
       <Box
         sx={{
@@ -731,7 +807,7 @@ function PendingActionUpdate(props: any) {
             className={`p-datatable-sm ${classes.viewlogTable}`}
             // className={classes.viewlogTable}
             scrollable
-            // scrollHeight="400px"
+            scrollHeight="flex"
           >
             {constants.getAdditionalInfoHeader.map((column: any) => {
               return (
@@ -760,7 +836,12 @@ function PendingActionUpdate(props: any) {
   )
 
   const viewLog = (
-    <Dialog open={viewLogOpen} onClose={handleCloseViewLog}>
+    <Dialog
+      open={viewLogOpen}
+      onClose={handleCloseViewLog}
+      fullWidth={true}
+      maxWidth={false}
+    >
       <Box
         sx={{
           // width: dialogwidth,
@@ -816,8 +897,9 @@ function PendingActionUpdate(props: any) {
             p: 2,
           }}
         >
-          <Typography variant="body2" style={{ overflowX: 'scroll' }}>
-            Request ID:<b> {requestedId}</b>
+          <Typography variant="body2" style={{ overflowX: 'auto' }}>
+            {/* Request ID:<b> {requestedId}</b> */}
+            Request ID:<b> {taskId}</b>
           </Typography>
         </Box>
         <Box
@@ -840,7 +922,7 @@ function PendingActionUpdate(props: any) {
             }}
             className={`p-datatable-sm ${classes.viewlogTable}`}
             scrollable
-            // scrollHeight="400px"
+            scrollHeight="flex"
           >
             {constants.viewLogColumns.map((column) => {
               return (
@@ -859,6 +941,7 @@ function PendingActionUpdate(props: any) {
                     backgroundColor: teal[900],
                     color: 'white',
                   }}
+                  body={column.field === 'attachmentUrl' && attachmentTemplate}
                 ></Column>
               )
             })}
@@ -867,9 +950,104 @@ function PendingActionUpdate(props: any) {
       </Box>
     </Dialog>
   )
-
-  const handleUpdateUserforApprove = (e: any) => {
+  const handleCancelApprove = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
     e.preventDefault()
+    setCancelOpenApprove((p) => !p)
+  }
+
+  const handleCancelSubmit = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenSubmit((p) => !p)
+  }
+
+  const handleCancelReassign = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenReassign((p) => !p)
+  }
+
+  const handleCancelReject = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenReject((p) => !p)
+  }
+
+  const checkForm = (btnName: string) => {
+    let flag = 1
+    if (
+      requestType !== 'new' &&
+      requestType !== 'modify' &&
+      requestType !== 'remove'
+    ) {
+      setErrorRequestType('Please select request type')
+      flag = 0
+    }
+    if (employeeID === '') {
+      setErrorEmployeeId('Provide employee id and search')
+      flag = 0
+    }
+    if (status === '') {
+      setErrorStatus('Please select a status')
+    }
+    if (roleNames.length === 0) {
+      setErrorRoles('Please select atleast one role')
+      flag = 0
+    }
+    if (groups.length === 0) {
+      setErrorGroups('Please select atleast one group')
+      flag = 0
+    }
+    if (flag === 1 && btnName === 'approve') {
+      setCancelOpenApprove(true)
+    } else if (flag === 1 && btnName === 'submit') {
+      setCancelOpenSubmit(true)
+    } else if (flag === 1 && btnName === 'reassign') {
+      setCancelOpenReassign(true)
+    } else if (flag === 1 && btnName === 'reject') {
+      setCancelOpenReject(true)
+    }
+    if (flag === 0) {
+      window.scrollTo(0, 0)
+    }
+  }
+  const handleApproveAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('approve')
+    // canSubmit && shoutOut === '' && setCancelOpenApprove(true)
+  }
+
+  const handleSubmitAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('submit')
+    // canSubmit && shoutOut === '' && setCancelOpenSubmit(true)
+  }
+
+  const handleReassignAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('reassign')
+  }
+
+  const handleRejectAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('reject')
+  }
+
+  const handleUpdateUserforApprove = () => {
+    // e.preventDefault()
     const formData = {
       camunda: {
         submitFlag: 'Approved',
@@ -930,55 +1108,57 @@ function PendingActionUpdate(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          // const rolelog =
-          //   userDetail &&
-          //   userDetail.userdetails[0].roles
-          //     .map((role: any) => role.roleId)
-          //     .join(',')
-          // console.log(rolelog)
-          // const time = new Date().toISOString()
-          // const datepart = time.split('T')[0]
-          // const timepart = time.split('T')[1].split('.')[0]
-          // const logData = {
-          //   requestId: userDetail && userDetail.userdetails[0].user.userId,
-          //   // timestamp: `${datepart} ${timepart}`,
-          //   timestamp: `${datepart}`,
-          //   userId: userDetail && userDetail.userdetails[0].user.userId,
-          //   role: rolelog,
-          //   camundaRequestId: res.data.businessKey,
-          //   actionTaken: 'Approved',
-          //   comments: comments,
-          //   attachmentUrl: null,
-          // }
-          // if (referenceDocData) {
-          //   const formdata1 = new FormData()
-          //   formdata1.append('fileIn', referenceDocData)
-          //   userDetail &&
-          //     postFileAttachmentAPI &&
-          //     postFileAttachmentAPI(
-          //       formdata1,
-          //       userDetail.userdetails[0].user.userId
-          //     )
-          //       .then((res) => {
-          //         logData.attachmentUrl = res.data.attachmentUrl
-          //         postTasklog(logData)
-          //       })
-          //       .catch((err) => {
-          //         toast.current.show({
-          //           severity: 'error',
-          //           summary: 'Error!',
-          //           detail: `${err.response.status} from tasklistapi`,
-          //           // detail: `${err.data.errorMessage} ${statusCode}`,
-          //           life: 6000,
-          //           className: 'login-toast',
-          //         })
-          //         logData.attachmentUrl = null
-          //         postTasklog(logData)
-          //       })
-          // } else {
-          //   console.log(logData)
-          //   postTasklog(logData)
-          // }
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          console.log(rolelog)
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: res.data.businessKey,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: res.data.businessKey,
+            actionTaken: 'Approved',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData.length > 0) {
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
+              userDetail &&
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    logData.attachmentUrl = res.data.attachmentUrl
+                    postTasklog(logData)
+                  })
+                  .catch((err) => {
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      // detail: `${err.response.status} from tasklistapi`,
+                      detail: err.response.data.errorMessage,
+                      // detail: `${err.data.errorMessage} ${statusCode}`,
+                      life: 6000,
+                      className: 'login-toast',
+                    })
+                    // logData.attachmentUrl = null
+                    // postTasklog(logData)
+                  })
+              return null
+            })
+          } else {
+            console.log(logData)
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -997,7 +1177,8 @@ function PendingActionUpdate(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from userdetailapi`,
+            //detail: `${err.response.status} from userdetailapi`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1066,8 +1247,8 @@ function PendingActionUpdate(props: any) {
     //   })
   }
 
-  const handleUpdateUserforSubmit = (e: any) => {
-    e.preventDefault()
+  const handleUpdateUserforSubmit = () => {
+    // e.preventDefault()
     const formData = {
       camunda: {
         submitFlag: 'Submit',
@@ -1129,52 +1310,53 @@ function PendingActionUpdate(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          // const rolelog =
-          //   userDetail &&
-          //   userDetail.userdetails[0].roles
-          //     .map((role: any) => role.roleId)
-          //     .join(',')
-          // const time = new Date().toISOString()
-          // const datepart = time.split('T')[0]
-          // const timepart = time.split('T')[1].split('.')[0]
-          // const logData = {
-          //  requestId: userDetail && userDetail.userdetails[0].user.userId,
-          //   // timestamp: `${datepart} ${timepart}`,
-          //   timestamp: `${datepart}`,
-          //   userId: userDetail && userDetail.userdetails[0].user.userId,
-          //   role: rolelog,
-          //   camundaRequestId: res.data.businessKey,
-          //   actionTaken: 'Submited',
-          //   comments: comments,
-          //   attachmentUrl: null,
-          // }
-          // if (referenceDocData) {
-          //   const formdata1 = new FormData()
-          //   formdata1.append('fileIn', referenceDocData)
-          //   console.log(formdata1)
-          //   userDetail &&
-          //     postFileAttachmentAPI &&
-          //     postFileAttachmentAPI(
-          //       formdata1,
-          //       userDetail.userdetails[0].user.userId
-          //     )
-          //       .then((res) => {
-          //         logData.attachmentUrl = res.data.attachmentUrl
-          //         postTasklog(logData)
-          //       })
-          //       .catch((err) => {
-          //         toast.current.show({
-          //           severity: 'error',
-          //           summary: 'Error!',
-          //           detail: `${err.response.status} from tasklistapi`,
-          //           // detail: `${err.data.errorMessage} ${statusCode}`,
-          //           life: 6000,
-          //           className: 'login-toast',
-          //         })
-          //       })
-          // } else {
-          //   postTasklog(logData)
-          // }
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: res.data.businessKey,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: res.data.businessKey,
+            actionTaken: 'Submited',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData.length > 0) {
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
+              userDetail &&
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    logData.attachmentUrl = res.data.attachmentUrl
+                    postTasklog(logData)
+                  })
+                  .catch((err) => {
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      // detail: `${err.response.status} from tasklistapi`,
+                      detail: err.response.data.errorMessage,
+                      // detail: `${err.data.errorMessage} ${statusCode}`,
+                      life: 6000,
+                      className: 'login-toast',
+                    })
+                  })
+              return null
+            })
+          } else {
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -1193,7 +1375,8 @@ function PendingActionUpdate(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from userdetailapi`,
+            //detail: `${err.response.status} from userdetailapi`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1261,8 +1444,7 @@ function PendingActionUpdate(props: any) {
     //     })
     //   })
   }
-  const handleApprove = (e: any) => {
-    e.preventDefault()
+  const handleApprove = () => {
     const formData = {
       requestorDetails: {
         emailId: userDetail && userDetail.userdetails[0].user.emailId,
@@ -1284,11 +1466,58 @@ function PendingActionUpdate(props: any) {
       putCompleteTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: pendingActionDetails[0].requestId,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: pendingActionDetails[0].requestId,
+            actionTaken: 'Approved',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData.length > 0) {
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
+              userDetail &&
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    logData.attachmentUrl = res.data.attachmentUrl
+                    postTasklog(logData)
+                  })
+                  .catch((err) => {
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      //detail: `${err.response.status} from tasklistapi`,
+                      detail: err.response.data.errorMessage,
+                      // detail: `${err.data.errorMessage} ${statusCode}`,
+                      life: 6000,
+                      className: 'login-toast',
+                    })
+                  })
+              return null
+            })
+          } else {
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
-            //  detail: res.data.comments,
-            detail: 'Success',
+            detail: res.data.status,
+            // detail: 'Success',
             life: 6000,
             className: 'login-toast',
           })
@@ -1300,7 +1529,8 @@ function PendingActionUpdate(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from RejectTaskAPI`,
+            //detail: `${err.response.status} from RejectTaskAPI`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1308,13 +1538,14 @@ function PendingActionUpdate(props: any) {
         })
   }
 
-  const handleReassign = (e: any) => {
-    e.preventDefault()
+  const handleReassign = () => {
+    // e.preventDefault()
     const formData = {
       requestorDetails: {
         emailId: userDetail && userDetail.userdetails[0].user.emailId,
         requestBy: userDetail && userDetail.userdetails[0].user.userId,
         requestDate: new Date().toISOString().split('T')[0],
+        // requestType: requestType,
         requestType: 'Reassign',
       },
       requestorRoles:
@@ -1324,6 +1555,7 @@ function PendingActionUpdate(props: any) {
             roleId: role.roleId,
           }
         }),
+      // submitFlag: 'Reassign',
     }
     console.log(formData)
     pendingActionDetails &&
@@ -1331,34 +1563,82 @@ function PendingActionUpdate(props: any) {
       putClaimTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
-          if (res.data.status.toLowerCase() !== 'failed') {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              //  detail: res.data.comments,
-              detail: 'Success',
-              life: 6000,
-              className: 'login-toast',
-            })
-
-            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
-          } else {
-            toast.current.show({
-              severity: 'error',
-              summary: 'Error!',
-              detail: `${res.data.comments}`,
-              // detail: `${err.response.data.errorMessage} ${statusCode}`,
-              life: 6000,
-              className: 'login-toast',
-            })
+          // if (res.data.status.toLowerCase() !== 'failed') {
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: pendingActionDetails[0].requestId,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: pendingActionDetails[0].requestId,
+            actionTaken: 'Reassign',
+            comments: comments,
+            attachmentUrl: null,
           }
+          if (referenceDocData.length > 0) {
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
+              userDetail &&
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    logData.attachmentUrl = res.data.attachmentUrl
+                    postTasklog(logData)
+                  })
+                  .catch((err) => {
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      // detail: `${err.response.status} from tasklistapi`,
+                      detail: err.response.data.errorMessage,
+                      // detail: `${err.data.errorMessage} ${statusCode}`,
+                      life: 6000,
+                      className: 'login-toast',
+                    })
+                  })
+              return null
+            })
+          } else {
+            postTasklog(logData)
+          }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.comments,
+            // detail: 'Success',
+            life: 6000,
+            className: 'login-toast',
+          })
+
+          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          // } else {
+          //   toast.current.show({
+          //     severity: 'error',
+          //     summary: 'Error!',
+          //     detail: `${res.data.comments}`,
+          //     // detail: `${err.response.data.errorMessage} ${statusCode}`,
+          //     life: 6000,
+          //     className: 'login-toast',
+          //   })
+          // }
         })
         .catch((err) => {
           console.log(err.response)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from RejectTaskAPI`,
+            // detail: `${err.response.status} from RejectTaskAPI`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -1366,29 +1646,79 @@ function PendingActionUpdate(props: any) {
         })
   }
 
-  const handleReject = (e: any) => {
-    e.preventDefault()
+  const handleReject = () => {
+    // e.preventDefault()
     const formData = {
       requestorDetails: {
-        emailId: userDetail && userDetail.userdetails[0].user.emailId,
-        requestBy: userDetail && userDetail.userdetails[0].user.userId,
-        requestDate: new Date().toISOString().split('T')[0],
-        requestType: 'Reject',
+        requestorDetails: {
+          emailId: userDetail && userDetail.userdetails[0].user.emailId,
+          requestBy: userDetail && userDetail.userdetails[0].user.userId,
+          requestDate: new Date().toISOString().split('T')[0],
+          requestType: 'Reject',
+        },
+        requestorRoles:
+          userDetail &&
+          userDetail.userdetails[0].roles.map((role: any) => {
+            return {
+              roleId: role.roleId,
+            }
+          }),
       },
-      requestorRoles:
-        userDetail &&
-        userDetail.userdetails[0].roles.map((role: any) => {
-          return {
-            roleId: role.roleId,
-          }
-        }),
+      taskId: pendingActionDetails[0].taskId,
     }
     console.log(formData)
     pendingActionDetails &&
       putRejectTaskAPI &&
-      putRejectTaskAPI(formData, pendingActionDetails[0].taskId)
+      putRejectTaskAPI(formData, pendingActionDetails[0].businessKey)
         .then((res) => {
           console.log(res)
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: pendingActionDetails[0].requestId,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: pendingActionDetails[0].requestId,
+            actionTaken: 'Reject',
+            comments: comments,
+            attachmentUrl: null,
+          }
+          if (referenceDocData.length > 0) {
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
+              userDetail &&
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    logData.attachmentUrl = res.data.attachmentUrl
+                    postTasklog(logData)
+                  })
+                  .catch((err) => {
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      //detail: `${err.response.status} from tasklistapi`,
+                      detail: err.response.data.errorMessage,
+                      // detail: `${err.data.errorMessage} ${statusCode}`,
+                      life: 6000,
+                      className: 'login-toast',
+                    })
+                  })
+              return null
+            })
+          } else {
+            postTasklog(logData)
+          }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -1405,13 +1735,55 @@ function PendingActionUpdate(props: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from RejectTaskAPI`,
+            //detail: `${err.response.status} from RejectTaskAPI`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.response.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
           })
         })
   }
+
+  const viewConfirmApprove = (
+    <ConfirmBox
+      cancelOpen={cancelOpenApprove}
+      handleCancel={handleCancelApprove}
+      // handleProceed={handleUpdateUserforApprove}
+      handleProceed={handleApprove}
+      label1="Are you sure to Approve?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmSubmit = (
+    <ConfirmBox
+      cancelOpen={cancelOpenSubmit}
+      handleCancel={handleCancelSubmit}
+      handleProceed={handleUpdateUserforSubmit}
+      label1="Are you sure to Submit?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmReassign = (
+    <ConfirmBox
+      cancelOpen={cancelOpenReassign}
+      handleCancel={handleCancelReassign}
+      handleProceed={handleReassign}
+      label1="Are you sure to Reassign?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmReject = (
+    <ConfirmBox
+      cancelOpen={cancelOpenReject}
+      handleCancel={handleCancelReject}
+      handleProceed={handleReject}
+      label1="Are you sure to Reject?"
+      label2="Please click Ok to proceed"
+    />
+  )
 
   const createForm = (
     <Box
@@ -1467,7 +1839,11 @@ function PendingActionUpdate(props: any) {
               paddingLeft: 5,
             }}
           >
-            <button className={classes.backButton} onClick={handleOpenViewLog}>
+            <button
+              className={classes.backButton}
+              onClick={handleOpenViewLog}
+              disabled={viewLogRows.length > 0 ? false : true}
+            >
               View Log ({viewLogRows.length})
             </button>
           </Box>
@@ -1516,6 +1892,7 @@ function PendingActionUpdate(props: any) {
                   // className={`p-datatable-sm ${classes.viewlogTable}`}
                   scrollable
                   showGridlines
+                  scrollHeight="flex"
                   //loading={manageUserLoading}
                 >
                   {pendingActionUpdateTableHeaders.map((column) => {
@@ -1558,6 +1935,7 @@ function PendingActionUpdate(props: any) {
                   // className={`p-datatable-sm ${classes.viewlogTable}`}
                   scrollable
                   showGridlines
+                  scrollHeight="flex"
                   //loading={manageUserLoading}
                 >
                   {pendingActionUpdateTableHeaders.map((column) => {
@@ -1601,6 +1979,7 @@ function PendingActionUpdate(props: any) {
                 // className={`p-datatable-sm ${classes.viewlogTable}`}
                 scrollable
                 showGridlines
+                scrollHeight="flex"
                 //loading={manageUserLoading}
               >
                 {pendingActionUpdateTableHeaders.map((column) => {
@@ -1647,7 +2026,16 @@ function PendingActionUpdate(props: any) {
           className={classes.eachRow}
         >
           <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Request Type</Typography>
+            <Typography variant="subtitle2">
+              Request Type &nbsp;
+              <span
+                style={{
+                  color: '#ff0000',
+                }}
+              >
+                *
+              </span>
+            </Typography>
           </Box>
 
           <Box className={classes.inputFieldBox}>
@@ -1677,6 +2065,16 @@ function PendingActionUpdate(props: any) {
             </Typography>
           </Box>
         </Box>
+        {errorRequestType !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorRequestType}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -1703,7 +2101,16 @@ function PendingActionUpdate(props: any) {
             </Typography>
           </Box>
         </Box>
-
+        {errorEmployeeId !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorEmployeeId}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">First Name</Typography>
@@ -1873,12 +2280,21 @@ function PendingActionUpdate(props: any) {
         </Box>
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Status</Typography>
+            <Typography variant="subtitle2">
+              Status &nbsp;
+              <span
+                style={{
+                  color: '#ff0000',
+                }}
+              >
+                *
+              </span>
+            </Typography>
           </Box>
 
           <Box className={classes.inputFieldBox}>
             <Typography variant="subtitle2">
-              <input
+              {/* <input
                 type="text"
                 name="status"
                 id="status"
@@ -1889,21 +2305,130 @@ function PendingActionUpdate(props: any) {
                 // }}
                 value={statusWithValue}
                 onChange={() => {}}
-                disabled
-              />
+                disabled={UtilityFunctions.isHidden(
+                  '8',
+                  appFuncList ? appFuncList : [],
+                  'status'
+                )}
+              /> */}
+              <select
+                name="status"
+                id="status"
+                className={classes.selectField}
+                defaultValue=""
+                onChange={onstatusChange}
+                required
+                // disabled={requestType === 'new' && status === 'W'}
+                disabled={
+                  UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    'status'
+                  ) || requestType === 'new'
+                }
+              >
+                {/* <option disabled value="" className={classes.selectOptions}>
+                  None
+                </option> */}
+                {requestType === 'new'
+                  ? constants.statuses
+                      .filter((type) => type.statusID.toLowerCase() === 'w')
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            // selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : requestType === 'modify'
+                  ? constants.statuses
+                      .filter((type) => type.statusID.toLowerCase() !== 'w')
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : requestType === 'remove'
+                  ? constants.statuses
+                      .filter(
+                        (type) => type.statusID.toLowerCase() !== 'w'
+                        // &&
+                        // type.statusID.toLowerCase() !== 'i'
+                      )
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : constants.statuses.map((type) => {
+                      return (
+                        <option
+                          value={type.statusID}
+                          key={type.statusID}
+                          selected={type.statusID === status ? true : false}
+                        >
+                          {type.text}
+                        </option>
+                      )
+                    })}
+              </select>
             </Typography>
           </Box>
         </Box>
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Role</Typography>
+            <Typography variant="subtitle2">
+              Role &nbsp;
+              <span
+                style={{
+                  color: '#ff0000',
+                }}
+              >
+                *
+              </span>
+            </Typography>
           </Box>
 
           <Box className={classes.inputFieldBox}>{roleSelect1}</Box>
         </Box>
+        {roleNames.length === 0 && errorRoles !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorRoles}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">User Group</Typography>
+            <Typography variant="subtitle2">
+              User Group &nbsp;
+              <span
+                style={{
+                  color: '#ff0000',
+                }}
+              >
+                *
+              </span>
+            </Typography>
           </Box>
 
           <Box className={classes.inputFieldBox}>
@@ -1918,15 +2443,21 @@ function PendingActionUpdate(props: any) {
                   </button>
                 ) : (
                   <button
-                    className={
-                      UtilityFunctions.isHidden(
-                        '8',
-                        appFuncList ? appFuncList : [],
-                        'mod_group'
-                      )
-                        ? classes.hideit
-                        : classes.backButton
-                    }
+                    // className={
+                    //   UtilityFunctions.isHidden(
+                    //     '8',
+                    //     appFuncList ? appFuncList : [],
+                    //     groupAccess
+                    //   )
+                    //     ? classes.hideit
+                    //     : classes.backButton
+                    // }
+                    className={classes.backButton}
+                    disabled={UtilityFunctions.isHidden(
+                      '8',
+                      appFuncList ? appFuncList : [],
+                      groupAccess
+                    )}
                     onClick={handleOpenGroups}
                   >
                     Add
@@ -1940,17 +2471,18 @@ function PendingActionUpdate(props: any) {
                   Add
                 </button>
               )}
-              &nbsp;&nbsp; | &nbsp;&nbsp;
+              &nbsp;&nbsp; &nbsp;&nbsp;
               <button
-                className={
-                  UtilityFunctions.isHidden(
-                    '8',
-                    appFuncList ? appFuncList : [],
-                    'manage_task'
-                  )
-                    ? classes.hideit
-                    : classes.backButton
-                }
+                // className={
+                //   UtilityFunctions.isHidden(
+                //     '8',
+                //     appFuncList ? appFuncList : [],
+                //     'manage_task'
+                //   )
+                //     ? classes.hideit
+                //     : classes.backButton
+                // }
+                className={classes.hideit}
                 onClick={handleOpenTasks}
               >
                 Manage Task ( {tasks.length} )
@@ -1958,6 +2490,16 @@ function PendingActionUpdate(props: any) {
             </Typography>
           </Box>
         </Box>
+        {groups.length === 0 && errorGroups !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorGroups}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">Reference Document</Typography>
@@ -1987,10 +2529,10 @@ function PendingActionUpdate(props: any) {
                 {
                   <input
                     type="text"
-                    value={referenceDoc ? referenceDoc.name : ''}
-                    // onClick={() =>
-                    //   document.getElementById('selectedFile')!.click()
-                    // }
+                    // value={referenceDoc ? referenceDoc.name : ''}
+                    onClick={() =>
+                      document.getElementById('selectedFile')!.click()
+                    }
                     className={classes.uploadTextfield}
                     placeholder="No file selected"
                     readOnly
@@ -1999,6 +2541,7 @@ function PendingActionUpdate(props: any) {
                 <Input
                   type="file"
                   id="selectedFile"
+                  multiple
                   onChange={handleFileUpload}
                 />
                 <button
@@ -2007,7 +2550,6 @@ function PendingActionUpdate(props: any) {
                     document.getElementById('selectedFile')!.click()
                   }
                   className={classes.uploadButton}
-                  disabled
                 >
                   Browse...
                 </button>
@@ -2029,14 +2571,83 @@ function PendingActionUpdate(props: any) {
               }}
             >
               <button className={classes.backButton}>view(3)</button> */}
-              {wrongExtn ? (
-                <Typography variant="subtitle2" color={'secondary'}>
-                  Invalid extension
-                </Typography>
-              ) : null}
             </Box>
           </Box>
         </Box>
+        {wrongExtn && referenceDocData.length > 0 ? (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2" color={'secondary'}>
+                Files with invalid extensions omitted
+              </Typography>
+            </Box>
+          </Box>
+        ) : null}
+        {referenceDocData.length > 0 && (
+          <Box className={classes.eachRow}>
+            {/* <Box
+              sx={{
+                flexDirection: 'column',
+                display: 'flex',
+              }}
+              className={classes.inputFieldBox}
+            > */}
+            {/* {referenceDocData.map((p: any) => (
+                <Box className={classes.inputFieldBox} sx={{}} key={p.name}>
+                  <a href={p.link} target="popup">
+                    {p.name}
+                  </a>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const newone = referenceDocData.filter(
+                        (dat) => dat.name !== p.name
+                      )
+                      setReferenceDocData([...newone])
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>             
+              ))} */}
+            <Box
+              className={!active ? classes.filelist : classes.inputFieldBox}
+              sx={{ overflow: 'auto' }}
+            >
+              <table>
+                <tbody>
+                  {referenceDocData.map((p: any, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>
+                          <Button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              const newone = referenceDocData.filter(
+                                (dat) => dat.name !== p.name
+                              )
+                              setReferenceDocData([...newone])
+                            }}
+                            color="primary"
+                          >
+                            X
+                          </Button>
+                        </td>
+                        <td>
+                          <a href={p.link} target="popup">
+                            {p.name}
+                          </a>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </Box>
+          </Box>
+          // </Box>
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -2064,8 +2675,7 @@ function PendingActionUpdate(props: any) {
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
-                value={pendingActionDetails[0].comments}
-                readOnly
+                value={comments}
               />
             </Typography>
           </Box>
@@ -2088,24 +2698,6 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <Button
-              type="reset"
-              variant="contained"
-              color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'cancel'
-                )
-                  ? classes.hideit
-                  : classes.whiteButton
-              }
-              size="small"
-            >
-              Cancel
-            </Button>
-
-            <Button
               variant="contained"
               color="primary"
               className={
@@ -2118,7 +2710,8 @@ function PendingActionUpdate(props: any) {
                   : classes.whiteButton
               }
               size="small"
-              onClick={handleReject}
+              // onClick={handleReject}
+              onClick={handleRejectAfterDialog}
             >
               Reject
             </Button>
@@ -2145,7 +2738,8 @@ function PendingActionUpdate(props: any) {
                   : classes.submitButton
               }
               size="small"
-              onClick={handleUpdateUserforSubmit}
+              // onClick={handleUpdateUserforSubmit}
+              onClick={handleSubmitAfterDialog}
             >
               Submit
             </Button>
@@ -2163,12 +2757,14 @@ function PendingActionUpdate(props: any) {
                   : classes.buttons
               }
               size="small"
-              onClick={handleReassign}
+              // onClick={handleReassign}
+              onClick={handleReassignAfterDialog}
             >
               Reassign
             </Button>
 
             <Button
+              type="submit"
               variant="contained"
               color="primary"
               className={
@@ -2182,7 +2778,8 @@ function PendingActionUpdate(props: any) {
               }
               size="small"
               // onClick={handleUpdateUserforApprove}
-              onClick={handleApprove}
+              // onClick={handleApprove}
+              onClick={handleApproveAfterDialog}
             >
               Approve
             </Button>
@@ -2206,10 +2803,14 @@ function PendingActionUpdate(props: any) {
             justifyContent="center"
           >
             {createForm}
-            {viewLog}
             {viewGroups}
             {manageTasks}
+            {viewLog}
             {viewAdditionalInfo}
+            {viewConfirmApprove}
+            {viewConfirmSubmit}
+            {viewConfirmReassign}
+            {viewConfirmReject}
           </Grid>
           {/* </Grid> */}
         </Box>

@@ -18,7 +18,7 @@ export const useStyles = makeStyles((theme) => ({
     color: 'blue',
   },
   exploreButton: {
-    color: 'blue',
+    color: theme.palette.primary.main,
     fontSize: '12px',
     fontFamily: theme.typography.fontFamily,
     [theme.breakpoints.down('sm')]: {

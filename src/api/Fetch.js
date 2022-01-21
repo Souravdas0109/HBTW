@@ -5,34 +5,27 @@ import {
   serviceRequest,
   serviceRequestBasic,
   serviceRequestForProduct,
+  serviceRequestForFileUpload,
 } from './ServiceRequest'
 const {
   BASE_URL,
   BASE_URL_SIT,
   API_KEY,
-  PRODUCT_SEARCH_URL,
-  GET_APP_MENU_ID,
   GET_APP_MENU_ALL,
   GET_USER_DETAILS_ID,
   PUT_USER_DETAILS_ID,
   PUT_USER_DETAILS_ID_CAMUNDA,
   GET_USER_DETAILS_ALL,
-  GET_ROLES_ID,
   GET_ROLES_ALL,
-  GET_USER_GROUPS_ID,
   PUT_USER_GROUPS_ID,
   GET_USER_GROUPS_ALL,
   GET_TASKLIST_ID,
-  PUT_TASKLIST_ID,
   GET_TASKLIST_ALL,
   GET_TASKLOG_ID,
-  GET_TASKLOG_ALL,
   POST_TASKLOG_ID,
-  GET_LOCATIONS,
   GET_USER_INFO,
   GET_USER_INFO_OTHER,
   USER_V2,
-  PRODUCT_HIERARCHY_GET,
   PUT_CLAIM_TASK_CAMUNDA,
   GET_DASHBOARD_STATUS_CAMUNDA,
   POST_ATTACHMENT,
@@ -83,8 +76,7 @@ export const postTaskLogsAPI = (req) => {
 export const postFileAttachmentAPI = (req, userId) => {
   let url = `${BASE_URL}${POST_ATTACHMENT}`
   url = url.replace('{userId}', userId)
-  let reqBody = `${JSON.stringify(req)}`
-  return serviceRequest(url, 'POST', reqBody)
+  return serviceRequestForFileUpload(url, 'POST', req)
 }
 // export const getRangeResetAPI = (rangeResetId) => {
 //   let url = `${RANGE_BASE_URL}${GET_RANGE_RESET}`;
@@ -253,9 +245,9 @@ export const putCompleteTaskAPI = (req, taskId) => {
   return serviceRequest(url, 'PUT', reqBody)
 }
 
-export const putRejectTaskAPI = (req, taskId) => {
+export const putRejectTaskAPI = (req, businessKey) => {
   let url = `${BASE_URL}${PUT_REJECT_TASK_CAMUNDA}`
-  url = url.replace('{businessKey}', taskId)
+  url = url.replace('{businessKey}', businessKey)
   let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'PUT', reqBody)
 }

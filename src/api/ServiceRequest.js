@@ -37,6 +37,29 @@ export const serviceRequest = (url, method, payload, params) => {
   })
 }
 
+export const serviceRequestForFileUpload = (url, method, payload, params) => {
+  const accessToken = getAccessToken()
+
+  const headers = {
+    'Cache-Control': 'no-cache',
+    'Content-Type': 'multipart/form-data',
+    Authorization: `Bearer ${accessToken}`,
+  }
+
+  let serviceUrl = `${url}?apikey=${API_KEY}`
+
+  if (params) {
+    serviceUrl += `&${params}`
+  }
+
+  return axios({
+    method: method,
+    url: serviceUrl,
+    headers: headers,
+    data: payload,
+  })
+}
+
 export const serviceRequestBasic = (url, method, payload, params) => {
   const token =
     'dnFhaURSWnpTUWhBNkNQQXkwclNvdHNRQWtSZXBwclg6THhhVk01SllpckJya1FRdQ=='

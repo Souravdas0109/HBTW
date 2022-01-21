@@ -110,7 +110,7 @@ function InprogressTask(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines
@@ -151,7 +151,7 @@ function InprogressTask(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines

@@ -35,6 +35,9 @@ export const useStyles = makeStyles((theme) => {
 
       height: 32,
     },
+    filelist: {
+      width: '100%',
+    },
     selectField: {
       // [theme.breakpoints.up("sm")]: {
       //   width: 392,

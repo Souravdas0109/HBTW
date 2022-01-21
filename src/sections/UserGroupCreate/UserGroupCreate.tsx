@@ -27,6 +27,7 @@ import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { routes } from '../../util/Constants'
+import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 
 function UserGroupCreate() {
   const theme = useTheme()
@@ -39,7 +40,7 @@ function UserGroupCreate() {
   const [groupname, setGroupname] = useState('')
   const [description, setDescription] = useState('')
   const [currentDate, setCurrentDate] = useState('')
-  const [status, setStatus] = useState('')
+  const [status, setStatus] = useState('A')
   const [viewProductEl, setViewProductEl] = useState(null)
   const [locationNames, setLocationNames] = useState([])
   const [viewLocationEl, setViewLocationEl] = useState(null)
@@ -64,6 +65,10 @@ function UserGroupCreate() {
   const [uniquesclsobj, setUniqueSclsObj] = useState<any>([])
   const [payload, setPayload] = useState<any>([])
   const [hierLevel, setHierLevel] = useState<any>('')
+  const [cancelOpenReset, setCancelOpenReset] = React.useState(false)
+  const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
+  const [errorGroupName, setErrorGroupName] = useState('')
+  const [errorStatus, setErrorStatus] = useState('')
   //product changes end ................................................
 
   //product changes start...........................................
@@ -336,11 +341,14 @@ function UserGroupCreate() {
     // console.log(selected);
   }
   const handleReset = () => {
-    setGroupId('')
+    // setGroupId('')
     setGroupname('')
     setDescription('')
     setPayload([])
     setLocationNames([])
+    setStatus('')
+    setErrorGroupName('')
+    setErrorStatus('')
   }
   const Option = (props: any) => {
     return (
@@ -402,7 +410,7 @@ function UserGroupCreate() {
         }}
         value={locationNames}
         closeMenuOnSelect={false}
-        hideSelectedOptions={false}
+        hideSelectedOptions={true}
         className={classes.multiSelect}
         styles={locationCustomStyles}
       />
@@ -417,12 +425,14 @@ function UserGroupCreate() {
     setGroupId(e.target.value)
   }
   const ongroupnameChange = (e: any) => {
+    setErrorGroupName('')
     setGroupname(e.target.value)
   }
   const ondescriptionChange = (e: any) => {
     setDescription(e.target.value)
   }
   const onstatusChange = (e: any) => {
+    setErrorStatus('')
     setStatus(e.target.value)
   }
   const handleOpenViewProduct = (e: any) => {
@@ -468,6 +478,7 @@ function UserGroupCreate() {
               display: 'flex',
               flexGrow: 1,
               justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <Typography variant="subtitle1">Add Product Hierarchies</Typography>
@@ -506,7 +517,9 @@ function UserGroupCreate() {
           >
             {/* {productSelect} */}
             <Box>
-              <label>Hierarchy Level</label>
+              <Typography variant="subtitle1" color="primary">
+                Hierarchy Level
+              </Typography>
             </Box>
             <Box>
               {/* <select
@@ -552,7 +565,9 @@ function UserGroupCreate() {
           }}
         >
           <Box>
-            <label>Search Hierrachies</label>
+            <Typography variant="subtitle1" color="primary">
+              Search Hierrachies
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -566,94 +581,94 @@ function UserGroupCreate() {
       </Box>
     </Dialog>
   )
-  const viewLocation = (
-    <Dialog
-      id="basic-menu"
-      open={viewLocationOpen}
-      onClose={handleCloseViewLocation}
-    >
-      <Box
-        sx={{
-          width: 'auto',
-          height: !active ? 500 : 400,
-          //   border: "3px solid green",
-          //   borderRadius: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          p: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            height: 30,
-            flexDirection: 'row',
-          }}
-          className={classes.viewLogTitle}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="subtitle1">
-              Add Location Hierarchies
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              paddingRight: 2,
-            }}
-          >
-            <button
-              style={{
-                border: 0,
-                padding: 0,
-                height: 22,
-                width: 22,
-              }}
-              className={classes.closeViewLog}
-              onClick={handleCloseViewLocation}
-            >
-              <CloseIcon />
-            </button>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            justifyContent: 'center',
-            display: 'flex',
-            p: 2,
-          }}
-        >
-          <Box className={classes.inputFieldBox}>{locationSelect}</Box>
-        </Box>
-      </Box>
-    </Dialog>
-  )
-  useEffect(() => {
-    let today = new Date()
-    let dd = String(today.getDate())
+  // const viewLocation = (
+  //   <Dialog
+  //     id="basic-menu"
+  //     open={viewLocationOpen}
+  //     onClose={handleCloseViewLocation}
+  //   >
+  //     <Box
+  //       sx={{
+  //         width: 'auto',
+  //         height: !active ? 500 : 400,
+  //         //   border: "3px solid green",
+  //         //   borderRadius: 4,
+  //         display: 'flex',
+  //         flexDirection: 'column',
+  //         p: 1,
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           display: 'flex',
+  //           height: 30,
+  //           flexDirection: 'row',
+  //         }}
+  //         className={classes.viewLogTitle}
+  //       >
+  //         <Box
+  //           sx={{
+  //             display: 'flex',
+  //             flexGrow: 1,
+  //             justifyContent: 'center',
+  //           }}
+  //         >
+  //           <Typography variant="subtitle1">
+  //             Add Location Hierarchies
+  //           </Typography>
+  //         </Box>
+  //         <Box
+  //           sx={{
+  //             paddingRight: 2,
+  //           }}
+  //         >
+  //           <button
+  //             style={{
+  //               border: 0,
+  //               padding: 0,
+  //               height: 22,
+  //               width: 22,
+  //             }}
+  //             className={classes.closeViewLog}
+  //             onClick={handleCloseViewLocation}
+  //           >
+  //             <CloseIcon />
+  //           </button>
+  //         </Box>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           justifyContent: 'center',
+  //           display: 'flex',
+  //           p: 2,
+  //         }}
+  //       >
+  //         <Box className={classes.inputFieldBox}>{locationSelect}</Box>
+  //       </Box>
+  //     </Box>
+  //   </Dialog>
+  // )
+  // useEffect(() => {
+  //   let today = new Date()
+  //   let dd = String(today.getDate())
 
-    let mm = String(today.getMonth() + 1)
-    let yyyy = String(today.getFullYear())
-    if (dd < '10') {
-      dd = '0' + dd
-    }
+  //   let mm = String(today.getMonth() + 1)
+  //   let yyyy = String(today.getFullYear())
+  //   if (dd < '10') {
+  //     dd = '0' + dd
+  //   }
 
-    if (mm < '10') {
-      mm = '0' + mm
-    }
-    let startdate
-    startdate = yyyy + '-' + mm + '-' + dd
-    //console.log(startdate);
-    setCurrentDate(startdate)
-  }, [locationNames])
+  //   if (mm < '10') {
+  //     mm = '0' + mm
+  //   }
+  //   let startdate
+  //   startdate = yyyy + '-' + mm + '-' + dd
+  //   //console.log(startdate);
+  //   setCurrentDate(startdate)
+  // }, [locationNames])
 
-  const handleCreateGroup = (e: any) => {
-    e.preventDefault()
+  const handleCreateGroup = () => {
+    // e.preventDefault()
 
     const formData = {
       groupName: groupname,
@@ -663,7 +678,8 @@ function UserGroupCreate() {
         return {
           hierarchyLevel: location.hierarchyLevel,
           hierarchyId: location.hierarchyId,
-          startDate: location.startDate,
+          hierarchyName: null,
+          startDate: new Date().toISOString().split('T')[0],
           endDate: location.endDate,
         }
       }),
@@ -671,7 +687,8 @@ function UserGroupCreate() {
         return {
           hierarchyLevel: product.hierarchyLevel,
           hierarchyId: product.hierarchyId,
-          startDate: product.startDate,
+          hierarchyName: product.value,
+          startDate: new Date().toISOString().split('T')[0],
           endDate: product.endDate,
         }
       }),
@@ -696,32 +713,102 @@ function UserGroupCreate() {
     //       },
     //     }
     //   )
-    putUserGroupAPI(formData, groupId)
-      .then((res) => {
-        //console.log(res);
-        //console.log(res.data.message);
-        toast.current.show({
-          severity: 'success',
-          summary: '',
-          detail: res.data.message,
-          life: 6000,
-          className: 'login-toast',
+    putUserGroupAPI &&
+      // putUserGroupAPI(formData, groupId)
+      putUserGroupAPI(formData, '')
+        .then((res) => {
+          //console.log(res);
+          //console.log(res.data.message);
+          setGroupId(res.data.message.split('groupId:')[1].trim())
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: 6000,
+            className: 'login-toast',
+          })
+          setTimeout(() => goBack(), 6000)
         })
-        setTimeout(() => goBack(), 6000)
-      })
-      .catch((err) => {
-        //console.log(err);
-        let statusCode = err.response.data.error
-        console.log(statusCode)
-        toast.current.show({
-          severity: 'error',
-          summary: 'Error!',
-          detail: err.response.data.error,
-          life: 6000,
-          className: 'login-toast',
+        .catch((err) => {
+          // //console.log(err);
+          // let statusCode = err.response.data.error
+          // console.log(statusCode)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: err.response.data.errorMessage,
+            life: 6000,
+            className: 'login-toast',
+          })
         })
-      })
   }
+
+  const handleCancelSubmit = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenSubmit((p) => !p)
+  }
+
+  const handleCancelReset = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenReset((p) => !p)
+  }
+
+  const checkForm = (btnName: string) => {
+    let flag = 1
+    if (groupname === '') {
+      setErrorGroupName('Please provide Group Name')
+      flag = 0
+    }
+    // if (status === '') {
+    //   setErrorStatus('Please select a status')
+    // }
+    if (flag === 1 && btnName === 'submit') {
+      setCancelOpenSubmit(true)
+    } else if (flag === 1 && btnName === 'reset') {
+      setCancelOpenReset(true)
+    }
+    if (flag === 0) {
+      window.scrollTo(0, 0)
+    }
+  }
+
+  const handleCreateGroupAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('submit')
+  }
+
+  const handleResetAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('reset')
+  }
+
+  const viewConfirmSubmit = (
+    <ConfirmBox
+      cancelOpen={cancelOpenSubmit}
+      handleCancel={handleCancelSubmit}
+      handleProceed={handleCreateGroup}
+      label1="Are you sure to Submit?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmReset = (
+    <ConfirmBox
+      cancelOpen={cancelOpenReset}
+      handleCancel={handleCancelReset}
+      handleProceed={handleReset}
+      label1="Are you sure to Reset?"
+      label2="Please click Ok to proceed"
+    />
+  )
 
   return (
     <>
@@ -777,8 +864,8 @@ function UserGroupCreate() {
                     >
                       <Link
                         to="#"
-                        className={classes.backButton}
                         onClick={goBack}
+                        className={classes.backButton}
                       >
                         Back
                       </Link>
@@ -816,11 +903,12 @@ function UserGroupCreate() {
                           type="text"
                           name="groupId"
                           id="groupId"
-                          placeholder="eg. 012345"
+                          placeholder="To be autocreated"
                           className={classes.inputFields}
                           onChange={ongroupIDChange}
                           value={groupId}
                           required
+                          disabled
                         />
                       </Typography>
                     </Box>
@@ -858,6 +946,19 @@ function UserGroupCreate() {
                       </Typography>
                     </Box>
                   </Box>
+                  {errorGroupName !== '' && (
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}></Box>
+                      <Box
+                        className={classes.inputFieldBox}
+                        justifyContent="center"
+                      >
+                        <Typography variant="subtitle2" color="error">
+                          {errorGroupName}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
                   <Box
                     sx={{
                       display: 'flex',
@@ -909,13 +1010,13 @@ function UserGroupCreate() {
                           onChange={onstatusChange}
                           required
                         >
-                          <option
+                          {/* <option
                             disabled
                             value=""
                             className={classes.selectOptions}
                           >
                             None
-                          </option>
+                          </option> */}
                           {constants.groupstatuses.map((type) => {
                             return (
                               <option value={type.statusID} key={type.statusID}>
@@ -927,6 +1028,19 @@ function UserGroupCreate() {
                       </Typography>
                     </Box>
                   </Box>
+                  {errorStatus !== '' && (
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}></Box>
+                      <Box
+                        className={classes.inputFieldBox}
+                        justifyContent="center"
+                      >
+                        <Typography variant="subtitle2" color="error">
+                          {errorStatus}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
                   <Box className={classes.eachRow}>
                     <Box className={classes.inputLabel}>
                       <Typography variant="subtitle2">
@@ -973,8 +1087,10 @@ function UserGroupCreate() {
                         Location Hierarchies
                       </Typography>
                     </Box>
-
                     <Box className={classes.inputFieldBox}>
+                      {locationSelect}
+                    </Box>
+                    {/* <Box className={classes.inputFieldBox}>
                       <Typography variant="subtitle1">
                         {locationNames ? (
                           locationNames.length > 0 ? (
@@ -1005,7 +1121,7 @@ function UserGroupCreate() {
                         )}
                       </Typography>
                       {viewLocation}
-                    </Box>
+                    </Box> */}
                   </Box>
                   <Box className={classes.eachRow}>
                     <Box
@@ -1026,7 +1142,8 @@ function UserGroupCreate() {
                           type="reset"
                           variant="contained"
                           className={classes.submitButton}
-                          onClick={handleReset}
+                          // onClick={handleReset}
+                          onClick={handleResetAfterDialog}
                         >
                           Reset
                         </Button>
@@ -1041,7 +1158,8 @@ function UserGroupCreate() {
                           color="primary"
                           type="submit"
                           className={classes.buttons}
-                          onClick={handleCreateGroup}
+                          // onClick={handleCreateGroup}
+                          onClick={handleCreateGroupAfterDialog}
                         >
                           Submit
                         </Button>
@@ -1054,6 +1172,8 @@ function UserGroupCreate() {
           </Grid>
         </Box>
       </Paper>
+      {viewConfirmReset}
+      {viewConfirmSubmit}
     </>
   )
 }

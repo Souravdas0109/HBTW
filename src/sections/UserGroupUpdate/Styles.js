@@ -15,6 +15,28 @@ export const useStyles = makeStyles((theme) => ({
       fontSize: '0.6em',
     },
   },
+  inputFields: {
+    // [theme.breakpoints.up("sm")]: {
+    //   width: 392,
+    // },
+    // [theme.breakpoints.down("sm")]: {
+    //   width: fieldWidth,
+    // },
+    width: 400,
+    [theme.breakpoints.down(750)]: {
+      width: 400,
+    },
+    [theme.breakpoints.down(450)]: {
+      width: 350,
+    },
+    [theme.breakpoints.down(400)]: {
+      width: 250,
+    },
+    [theme.breakpoints.down(300)]: {
+      width: 200,
+    },
+    height: 32,
+  },
   tabHead: {
     color: theme.palette.primary.main,
     fontWeight: 'bold',
@@ -116,7 +138,13 @@ export const useStyles = makeStyles((theme) => ({
     [theme.breakpoints.down(750)]: {
       width: 400,
     },
-    [theme.breakpoints.down(500)]: {
+    [theme.breakpoints.down(450)]: {
+      width: 350,
+    },
+    [theme.breakpoints.down(400)]: {
+      width: 250,
+    },
+    [theme.breakpoints.down(300)]: {
       width: 200,
     },
   },
@@ -129,16 +157,6 @@ export const useStyles = makeStyles((theme) => ({
       width: 200,
     },
     border: '1px solid black',
-  },
-  inputFields: {
-    width: 400,
-    [theme.breakpoints.down(750)]: {
-      width: 400,
-    },
-    [theme.breakpoints.down(500)]: {
-      width: 200,
-    },
-    height: 32,
   },
   selectField: {
     width: '100%',

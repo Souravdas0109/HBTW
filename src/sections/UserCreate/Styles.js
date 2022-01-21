@@ -92,6 +92,9 @@ export const useStyles = makeStyles((theme) => {
         width: 200,
       },
     },
+    filelist: {
+      width: '100%',
+    },
     textArea: {
       // [theme.breakpoints.up("sm")]: {
       //   width: 392,

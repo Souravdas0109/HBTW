@@ -58,7 +58,6 @@ const pendingActionReducer = (state = initpendingactionState, action: any) => {
       return state
     case RESET_MYGROUPUNASSIGN_TASKS:
       return state
-
     default:
       return state
   }

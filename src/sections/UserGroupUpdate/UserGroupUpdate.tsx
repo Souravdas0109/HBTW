@@ -29,6 +29,7 @@ import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
 import { routes } from '../../util/Constants'
+import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 
 function UserGroupUpdate(props: any) {
   const { groupDetails, reset_groupID } = props
@@ -68,6 +69,10 @@ function UserGroupUpdate(props: any) {
   const [payload, setPayload] = useState<any>([])
   const [hierLevel, setHierLevel] = useState<any>('')
   const [selectGroupID, setSelectGroupID] = React.useState<any>('')
+  const [cancelOpenReset, setCancelOpenReset] = React.useState(false)
+  const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
+  const [errorGroupName, setErrorGroupName] = useState('')
+  const [errorStatus, setErrorStatus] = useState('')
   //product changes end ................................................
 
   //product changes start...........................................
@@ -103,10 +108,11 @@ function UserGroupUpdate(props: any) {
           }
         })
       )
+      setStatus(selectGroupID.status)
       setPayload(
         selectGroupID.productHierarchy.map((product: any) => {
           return {
-            label: product.hierarchyId,
+            label: product.hierarchyName,
             value: product.hierarchyId,
             hierarchyId: product.hierarchyId,
             hierarchyLevel: product.hierarchyLevel,
@@ -118,7 +124,20 @@ function UserGroupUpdate(props: any) {
       setHierLevel(
         selectGroupID.productHierarchy.map((product: any) => {
           return {
-            label: product.hierarchyLevel,
+            label:
+              product.hierarchyLevel === 'division'
+                ? 'Division'
+                : product.hierarchyLevel === 'group'
+                ? 'Trading Group'
+                : product.hierarchyLevel === 'category'
+                ? 'Category'
+                : product.hierarchyLevel === 'department'
+                ? 'Product Group'
+                : product.hierarchyLevel === 'class'
+                ? 'Class'
+                : product.hierarchyLevel === 'subclass'
+                ? 'Sub Class'
+                : '',
             value: product.hierarchyLevel,
             // hierarchyId: product.hierarchyId,
             // hierarchyLevel: product.hierarchyLevel,
@@ -364,13 +383,7 @@ function UserGroupUpdate(props: any) {
         label: e[i].label,
         hierarchyLevel: e[i].hierGroup ? e[i].hierGroup : e[i].hierarchyLevel,
         hierarchyId: e[i].id ? e[i].id : e[i].hierarchyId,
-        startDate: new Date()
-          .toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric',
-          })
-          .replace(/ /g, '-'),
+        startDate: new Date().toISOString().split('T')[0],
         endDate: '2099-12-31',
       })
     }
@@ -404,11 +417,14 @@ function UserGroupUpdate(props: any) {
     // console.log(selected);
   }
   const handleReset = () => {
-    setGroupId('')
-    setGroupname('')
+    // setGroupId('')
+    // setGroupname('')
     setDescription('')
     setPayload([])
     setLocationNames([])
+    setStatus('')
+    setErrorGroupName('')
+    setErrorStatus('')
   }
   const Option = (props: any) => {
     return (
@@ -480,12 +496,14 @@ function UserGroupUpdate(props: any) {
     setGroupId(e.target.value)
   }
   const ongroupnameChange = (e: any) => {
+    setErrorGroupName('')
     setGroupname(e.target.value)
   }
   const ondescriptionChange = (e: any) => {
     setDescription(e.target.value)
   }
   const onstatusChange = (e: any) => {
+    setErrorStatus('')
     setStatus(e.target.value)
   }
   const handleOpenViewProduct = (e: any) => {
@@ -531,6 +549,7 @@ function UserGroupUpdate(props: any) {
               display: 'flex',
               flexGrow: 1,
               justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <Typography variant="subtitle1">Add Product Hierarchies</Typography>
@@ -569,7 +588,9 @@ function UserGroupUpdate(props: any) {
           >
             {/* {productSelect} */}
             <Box>
-              <label>Hierarchy Level</label>
+              <Typography variant="subtitle1" color="primary">
+                Hierarchy Level
+              </Typography>
             </Box>
             <Box>
               {/* <select
@@ -615,7 +636,9 @@ function UserGroupUpdate(props: any) {
           }}
         >
           <Box>
-            <label>Search Hierrachies</label>
+            <Typography variant="subtitle1" color="primary">
+              Search Hierrachies
+            </Typography>
           </Box>
           <Box
             sx={{
@@ -629,73 +652,73 @@ function UserGroupUpdate(props: any) {
       </Box>
     </Dialog>
   )
-  const viewLocation = (
-    <Dialog
-      id="basic-menu"
-      open={viewLocationOpen}
-      onClose={handleCloseViewLocation}
-    >
-      <Box
-        sx={{
-          width: 'auto',
-          height: !active ? 500 : 400,
-          //   border: "3px solid green",
-          //   borderRadius: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          p: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            height: 30,
-            flexDirection: 'row',
-          }}
-          className={classes.viewLogTitle}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="subtitle1">
-              Add Location Hierarchies
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              paddingRight: 2,
-            }}
-          >
-            <button
-              style={{
-                border: 0,
-                padding: 0,
-                height: 22,
-                width: 22,
-              }}
-              className={classes.closeViewLog}
-              onClick={handleCloseViewLocation}
-            >
-              <CloseIcon />
-            </button>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            justifyContent: 'center',
-            display: 'flex',
-            p: 2,
-          }}
-        >
-          <Box className={classes.inputFieldBox}>{locationSelect}</Box>
-        </Box>
-      </Box>
-    </Dialog>
-  )
+  // const viewLocation = (
+  //   <Dialog
+  //     id="basic-menu"
+  //     open={viewLocationOpen}
+  //     onClose={handleCloseViewLocation}
+  //   >
+  //     <Box
+  //       sx={{
+  //         width: 'auto',
+  //         height: !active ? 500 : 400,
+  //         //   border: "3px solid green",
+  //         //   borderRadius: 4,
+  //         display: 'flex',
+  //         flexDirection: 'column',
+  //         p: 1,
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           display: 'flex',
+  //           height: 30,
+  //           flexDirection: 'row',
+  //         }}
+  //         className={classes.viewLogTitle}
+  //       >
+  //         <Box
+  //           sx={{
+  //             display: 'flex',
+  //             flexGrow: 1,
+  //             justifyContent: 'center',
+  //           }}
+  //         >
+  //           <Typography variant="subtitle1">
+  //             Add Location Hierarchies
+  //           </Typography>
+  //         </Box>
+  //         <Box
+  //           sx={{
+  //             paddingRight: 2,
+  //           }}
+  //         >
+  //           <button
+  //             style={{
+  //               border: 0,
+  //               padding: 0,
+  //               height: 22,
+  //               width: 22,
+  //             }}
+  //             className={classes.closeViewLog}
+  //             onClick={handleCloseViewLocation}
+  //           >
+  //             <CloseIcon />
+  //           </button>
+  //         </Box>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           justifyContent: 'center',
+  //           display: 'flex',
+  //           p: 2,
+  //         }}
+  //       >
+  //         <Box className={classes.inputFieldBox}>{locationSelect}</Box>
+  //       </Box>
+  //     </Box>
+  //   </Dialog>
+  // )
   const goBack = () => {
     reset_groupID()
     history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
@@ -719,8 +742,8 @@ function UserGroupUpdate(props: any) {
   //   setCurrentDate(startdate)
   // }, [locationNames])
 
-  const handleCreateGroup = (e: any) => {
-    e.preventDefault()
+  const handleCreateGroup = () => {
+    // e.preventDefault()
 
     const formData = {
       groupName: groupname,
@@ -730,6 +753,7 @@ function UserGroupUpdate(props: any) {
         return {
           hierarchyLevel: location.hierarchyLevel,
           hierarchyId: location.hierarchyId,
+          hierarchyName: null,
           startDate: new Date().toISOString().split('T')[0],
           endDate: location.endDate,
         }
@@ -738,6 +762,7 @@ function UserGroupUpdate(props: any) {
         return {
           hierarchyLevel: product.hierarchyLevel,
           hierarchyId: product.hierarchyId,
+          hierarchyName: product.label,
           startDate: new Date().toISOString().split('T')[0],
           endDate: product.endDate,
         }
@@ -763,32 +788,100 @@ function UserGroupUpdate(props: any) {
     //       },
     //     }
     //   )
-    putUserGroupAPI(formData, groupId)
-      .then((res) => {
-        //console.log(res);
-        //console.log(res.data.message);
-        toast.current.show({
-          severity: 'success',
-          summary: '',
-          detail: res.data.message,
-          life: 6000,
-          className: 'login-toast',
+    putUserGroupAPI &&
+      putUserGroupAPI(formData, groupId)
+        .then((res) => {
+          //console.log(res);
+          //console.log(res.data.message);
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: 6000,
+            className: 'login-toast',
+          })
+          setTimeout(() => goBack(), 6000)
         })
-        setTimeout(() => goBack(), 6000)
-      })
-      .catch((err) => {
-        //console.log(err);
-        let statusCode = err.response.data.error
-        console.log(statusCode)
-        toast.current.show({
-          severity: 'error',
-          summary: 'Error!',
-          detail: err.response.data.error,
-          life: 6000,
-          className: 'login-toast',
+        .catch((err) => {
+          //console.log(err);
+          // let statusCode = err.response.data.errorMessage
+          // console.log(statusCode)
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: err.response.data.errorMessage,
+            life: 6000,
+            className: 'login-toast',
+          })
         })
-      })
   }
+
+  const handleCancelSubmit = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenSubmit((p) => !p)
+  }
+
+  const handleCancelReset = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenReset((p) => !p)
+  }
+
+  const checkForm = (btnName: string) => {
+    let flag = 1
+    if (groupname === '') {
+      setErrorGroupName('Please provide Group Name')
+      flag = 0
+    }
+    // if (status === '') {
+    //   setErrorStatus('Please select a status')
+    // }
+    if (flag === 1 && btnName === 'submit') {
+      setCancelOpenSubmit(true)
+    } else if (flag === 1 && btnName === 'reset') {
+      setCancelOpenReset(true)
+    }
+    if (flag === 0) {
+      window.scrollTo(0, 0)
+    }
+  }
+
+  const handleCreateGroupAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('submit')
+  }
+
+  const handleResetAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('reset')
+  }
+
+  const viewConfirmSubmit = (
+    <ConfirmBox
+      cancelOpen={cancelOpenSubmit}
+      handleCancel={handleCancelSubmit}
+      handleProceed={handleCreateGroup}
+      label1="Are you sure to Submit?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmReset = (
+    <ConfirmBox
+      cancelOpen={cancelOpenReset}
+      handleCancel={handleCancelReset}
+      handleProceed={handleReset}
+      label1="Are you sure to Reset?"
+      label2="Please click Ok to proceed"
+    />
+  )
 
   return (
     <>
@@ -888,6 +981,7 @@ function UserGroupUpdate(props: any) {
                           onChange={ongroupIDChange}
                           value={groupId}
                           required
+                          disabled
                         />
                       </Typography>
                     </Box>
@@ -921,10 +1015,24 @@ function UserGroupUpdate(props: any) {
                           onChange={ongroupnameChange}
                           value={groupname}
                           required
+                          disabled
                         />
                       </Typography>
                     </Box>
                   </Box>
+                  {errorGroupName !== '' && (
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}></Box>
+                      <Box
+                        className={classes.inputFieldBox}
+                        justifyContent="center"
+                      >
+                        <Typography variant="subtitle2" color="error">
+                          {errorGroupName}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
                   <Box
                     sx={{
                       display: 'flex',
@@ -976,13 +1084,13 @@ function UserGroupUpdate(props: any) {
                           onChange={onstatusChange}
                           required
                         >
-                          <option
+                          {/* <option
                             disabled
                             value=""
                             className={classes.selectOptions}
                           >
                             None
-                          </option>
+                          </option> */}
                           {constants.groupstatuses.map((type) => {
                             return (
                               <option value={type.statusID} key={type.statusID}>
@@ -994,6 +1102,19 @@ function UserGroupUpdate(props: any) {
                       </Typography>
                     </Box>
                   </Box>
+                  {errorStatus !== '' && (
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}></Box>
+                      <Box
+                        className={classes.inputFieldBox}
+                        justifyContent="center"
+                      >
+                        <Typography variant="subtitle2" color="error">
+                          {errorStatus}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  )}
                   <Box className={classes.eachRow}>
                     <Box className={classes.inputLabel}>
                       <Typography variant="subtitle2">
@@ -1040,8 +1161,10 @@ function UserGroupUpdate(props: any) {
                         Location Hierarchies
                       </Typography>
                     </Box>
-
                     <Box className={classes.inputFieldBox}>
+                      {locationSelect}
+                    </Box>
+                    {/* <Box className={classes.inputFieldBox}>
                       <Typography variant="subtitle1">
                         {locationNames ? (
                           locationNames.length > 0 ? (
@@ -1072,7 +1195,7 @@ function UserGroupUpdate(props: any) {
                         )}
                       </Typography>
                       {viewLocation}
-                    </Box>
+                    </Box> */}
                   </Box>
                   <Box className={classes.eachRow}>
                     <Box
@@ -1093,7 +1216,8 @@ function UserGroupUpdate(props: any) {
                           type="reset"
                           variant="contained"
                           className={classes.submitButton}
-                          onClick={handleReset}
+                          // onClick={handleReset}
+                          onClick={handleResetAfterDialog}
                         >
                           Reset
                         </Button>
@@ -1108,7 +1232,8 @@ function UserGroupUpdate(props: any) {
                           color="primary"
                           type="submit"
                           className={classes.buttons}
-                          onClick={handleCreateGroup}
+                          // onClick={handleCreateGroup}
+                          onClick={handleCreateGroupAfterDialog}
                         >
                           Submit
                         </Button>
@@ -1121,6 +1246,8 @@ function UserGroupUpdate(props: any) {
           </Grid>
         </Box>
       </Paper>
+      {viewConfirmReset}
+      {viewConfirmSubmit}
     </>
   )
 }

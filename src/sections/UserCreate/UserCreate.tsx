@@ -41,9 +41,11 @@ import {
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
   postFileAttachmentAPI,
+  getUserAPI,
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { routes, extensions } from '../../util/Constants'
+import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 
 const Input = styled('input')({
   display: 'none',
@@ -64,26 +66,36 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [firstName, setFirstName] = React.useState('')
   const [lastName, setLastName] = React.useState('')
   const [middleName, setMiddleName] = React.useState('')
-  const [requestType, setRequestType] = React.useState('new')
+  const [requestType, setRequestType] = React.useState('')
+  const [additionalInfo, setAdditionalInfo] = React.useState('')
+  const [shoutOut, setShoutOut] = React.useState('')
   // const [selectEmployeeID, setSelectEmployeeID] = React.useState<any>();
-  const [referenceDocData, setReferenceDocData] = React.useState<any>('')
+  const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
   const [employeeID, setEmployeeID] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [designation, setDesignation] = React.useState('')
-  const [status, setStatus] = React.useState('A')
+  const [status, setStatus] = React.useState('W')
   const [comments, setComments] = React.useState('')
   const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(null)
   const viewLogOpen = Boolean(viewLogEl)
-
+  const [emplAvailable, setEmpAvailable] = React.useState(false)
+  const [roleAccess, setRoleAccess] = React.useState('')
+  const [groupAccess, setGroupAccess] = React.useState('')
   const [groups, setGroups] = React.useState<any>('')
   const [groupInput, setGroupInput] = React.useState<any>()
   const [groupOpen, setGroupOpen] = React.useState(false)
-  const [cancelOpen, setCancelOpen] = React.useState(false)
+  const [cancelOpenApprove, setCancelOpenApprove] = React.useState(false)
+  const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [openAdditional, setOpenAdditional] = useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
   const [submitFn, setSubmitFn] = React.useState<any>()
+  const [errorRequestType, setErrorRequestType] = React.useState('')
+  const [errorEmployeeId, setErrorEmployeeId] = React.useState('')
+  const [errorStatus, setErrorStatus] = React.useState('')
+  const [errorRoles, setErrorRoles] = React.useState('')
+  const [errorGroups, setErrorGroups] = React.useState('')
   //integration changes start
   const [roles, setRoles] = useState([])
   const [groupsData, setGroupsData] = useState([])
@@ -151,6 +163,22 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     }
   }, [rolesArray])
 
+  useEffect(() => {
+    if (status === 'D' && requestType !== 'modify' && requestType !== '') {
+      setErrorRequestType('Only Modify request can be raised for Deleted users')
+    }
+    if (
+      status === 'I' &&
+      requestType !== 'modify' &&
+      requestType !== 'remove' &&
+      requestType !== ''
+    ) {
+      setErrorRequestType(
+        'Only Modify/Remove request can be raised for Inactive users'
+      )
+    }
+  }, [status, requestType])
+
   const Option = (props: any) => {
     return (
       <div>
@@ -176,37 +204,87 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   const handleReset = () => {
     setEmpIdInput('')
+    setFirstName('')
+    setLastName('')
+    setEmail('')
+    setDesignation('')
+    setStatus('W')
+    setRoleNames([])
+    setGroupInput([])
+    setGroups([])
+    setColleagueData('')
   }
 
   const handleFileUpload = (event: any) => {
+    console.log(event.target.files)
     setWrongExtn(false)
-    setReferenceDoc(event.target.files[0])
-    const checkextension = event.target.files[0]
-      ? new RegExp(
-          '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
-          'i'
-        ).test(event.target.files[0].name)
-      : false
-    if (checkextension) {
-      setWrongExtn(false)
-    } else if (event.target.files[0]) {
-      setWrongExtn(true)
-    }
-    if (event.target.files[0] && checkextension) {
-      // let reader = new FileReader();
-      // reader.readAsDataURL(event.target.files[0]);
+    // setReferenceDoc(event.target.files[0])
+    for (let i = 0; i < event.target.files.length; i++) {
+      const checkextension = event.target.files[i]
+        ? new RegExp(
+            '(' + extensions.join('|').replace(/\./g, '\\.') + ')$',
+            'i'
+          ).test(event.target.files[i].name)
+        : false
+      if (!checkextension && event.target.files[i]) {
+        setWrongExtn(true)
+      }
+      if (event.target.files[i] && checkextension) {
+        // let reader = new FileReader();
+        // reader.readAsDataURL(event.target.files[0]);
 
-      // reader.onload = (e: any) => {
-      //   console.log(e.target.result);
-      setReferenceDocData(event.target.files[0])
-      // };
+        // reader.onload = (e: any) => {
+        //   console.log(e.target.result);
+        setReferenceDocData((prevState) => [
+          ...prevState,
+          {
+            name: event.target.files[i].name,
+            data: event.target.files[i],
+            link: URL.createObjectURL(event.target.files[i]),
+          },
+        ])
+        URL.revokeObjectURL(event.target.files[i])
+        // };
+      }
     }
   }
   const onstatusChange = (e: any) => {
     setStatus(e.target.value)
+    if (e.target.value !== '') setErrorStatus('')
   }
   const onrequestTypeChange = (e: any) => {
+    if (e.target.value !== '') setErrorRequestType('')
+    if (e.target.value.toLowerCase() === 'new') {
+      // setStatus('W')
+      setRoleAccess('new_role')
+      setGroupAccess('new_group')
+    }
+    if (e.target.value.toLowerCase() === 'modify') {
+      // setStatus('W')
+      setRoleAccess('mod_role')
+      setGroupAccess('mod_group')
+    }
+    if (e.target.value.toLowerCase() === 'remove') {
+      // setStatus('W')
+      setRoleAccess('rem_role')
+      setGroupAccess('rem_group')
+    }
     setRequestType(e.target.value)
+    checkIt(e.target.value, emplAvailable)
+  }
+
+  const checkIt = (type: string, empAvail: boolean) => {
+    if (empIdInput !== '' && type.toLowerCase() === 'new' && empAvail) {
+      setShoutOut('Cannot create for an already existing Employee')
+    } else if (
+      empIdInput !== '' &&
+      (type.toLowerCase() === 'modify' || type.toLowerCase() === 'remove') &&
+      !empAvail
+    ) {
+      setShoutOut('Cannot modify for a non existing Employee')
+    } else {
+      setShoutOut('')
+    }
   }
   useEffect(() => {
     console.log(requestType)
@@ -215,6 +293,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const handleRoleChange1 = (selected: any) => {
     console.log(selected)
     setRoleNames(selected)
+    if (selected.length > 0) setErrorRoles('')
   }
 
   const postTasklog = (logData: any) => {
@@ -233,7 +312,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
-            detail: `${err.response.status} from tasklogapi`,
+            // detail: `${err.response.status} from tasklogapi`,
+            detail: err.response.data.errorMessage,
             // detail: `${err.data.errorMessage} ${statusCode}`,
             life: 6000,
             className: 'login-toast',
@@ -259,7 +339,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           UtilityFunctions.isHidden(
             '8',
             appFuncList ? appFuncList : [],
-            'new_role'
+            roleAccess
           )
             ? true
             : false
@@ -293,6 +373,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const handleGroupsInput = (selected: any) => {
     console.log(selected)
     setGroupInput(selected)
+    if (selected.length > 0) setErrorGroups('')
   }
 
   const viewGroups = (
@@ -372,6 +453,15 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               hideSelectedOptions={false}
               className={classes.multiSelect}
               styles={customStyles}
+              isDisabled={
+                UtilityFunctions.isHidden(
+                  '8',
+                  appFuncList ? appFuncList : [],
+                  groupAccess
+                )
+                  ? true
+                  : false
+              }
             />
           </Box>
         </Box>
@@ -386,6 +476,15 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             type="button"
             className={classes.whiteButton}
             onClick={updateGroups}
+            disabled={
+              UtilityFunctions.isHidden(
+                '8',
+                appFuncList ? appFuncList : [],
+                groupAccess
+              )
+                ? true
+                : false
+            }
           >
             Save
           </Button>
@@ -455,7 +554,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         setOpenAdditional((prevState) => !prevState)
       }}
       fullWidth={true}
-      // maxWidth={'lg'}
+      maxWidth={false}
     >
       <Box
         sx={{
@@ -524,7 +623,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         >
           <DataTable
             value={
-              colleagueData ? constants.getColleagueDetails(colleagueData) : []
+              colleagueData
+                ? constants.getColleagueDetails(colleagueData)
+                : additionalInfo
+                ? constants.getAdditionalInfo(additionalInfo)
+                : []
             }
             // paginator
             // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
@@ -538,7 +641,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             className={`p-datatable-sm ${classes.viewlogTable}`}
             // className={classes.viewlogTable}
             scrollable
-            // scrollHeight="400px"
+            scrollHeight="flex"
           >
             {constants.getAdditionalInfoHeader.map((column: any) => {
               return (
@@ -567,11 +670,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   )
 
   const viewLog = (
-    <Dialog open={viewLogOpen} onClose={handleCloseViewLog}>
+    <Dialog
+      open={viewLogOpen}
+      onClose={handleCloseViewLog}
+      fullWidth={true}
+      maxWidth={false}
+    >
       <Box
         sx={{
-          width: dialogwidth,
-          border: '3px solid green',
+          // width: dialogwidth,
+          // border: '3px solid green',
           borderRadius: 4,
           display: 'flex',
           flexDirection: 'column',
@@ -645,7 +753,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             }}
             className={`p-datatable-sm ${classes.viewlogTable}`}
             scrollable
-            scrollHeight="400px"
+            scrollHeight="flex"
           >
             {constants.viewLogColumns.map((column) => {
               return (
@@ -672,104 +780,114 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       </Box>
     </Dialog>
   )
-  const handleCancel = (e: any) => {
+  const handleCancelApprove = (e: any) => {
     // let text = 'are you really want to go back? All your Data will be lost.'
     // if (window.confirm(text) === true) {
     //   history.goBack()
     // }
     e.preventDefault()
-    setCancelOpen((p) => !p)
+    setCancelOpenApprove((p) => !p)
   }
-  const viewCancel = (
-    <Dialog open={cancelOpen} onClose={handleCancel}>
-      <Box
-        sx={{
-          //width: dialogwidth,
-          //border: '3px solid green',
-          borderRadius: 4,
-          display: 'flex',
-          flexDirection: 'column',
-          p: 1,
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            height: 30,
-            flexDirection: 'row',
-          }}
-          className={classes.viewLogTitle}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexGrow: 1,
-              justifyContent: 'center',
-            }}
-          >
-            <Typography variant="subtitle1">Are you Sure?</Typography>
-          </Box>
-          <Box
-            sx={{
-              paddingRight: 2,
-            }}
-          >
-            <button
-              style={{
-                border: 0,
-                padding: 0,
-                height: 22,
-                width: 22,
-              }}
-              className={classes.closeViewLog}
-              onClick={handleCancel}
-            >
-              <b>X</b>
-            </button>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            p: 2,
-          }}
-        >
-          <Typography variant="body2" color="primary">
-            All your data will be lost.
-          </Typography>
-        </Box>
-        <Box
-          sx={{
-            justifyContent: 'space-between',
-            display: 'flex',
 
-            // textAlign: "center"
-            p: 2,
-          }}
-        >
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            onClick={(e) => {
-              e.preventDefault()
-              history.goBack()
-            }}
-          >
-            OK
-          </Button>
-          <Button
-            size="small"
-            variant="contained"
-            color="primary"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-        </Box>
-      </Box>
-    </Dialog>
-  )
+  const handleCancelSubmit = (e: any) => {
+    // let text = 'are you really want to go back? All your Data will be lost.'
+    // if (window.confirm(text) === true) {
+    //   history.goBack()
+    // }
+    e.preventDefault()
+    setCancelOpenSubmit((p) => !p)
+  }
+
+  // const viewCancel = (
+  //   <Dialog open={cancelOpen} onClose={handleCancel}>
+  //     <Box
+  //       sx={{
+  //         //width: dialogwidth,
+  //         //border: '3px solid green',
+  //         borderRadius: 4,
+  //         display: 'flex',
+  //         flexDirection: 'column',
+  //         p: 1,
+  //       }}
+  //     >
+  //       <Box
+  //         sx={{
+  //           display: 'flex',
+  //           height: 30,
+  //           flexDirection: 'row',
+  //         }}
+  //         className={classes.viewLogTitle}
+  //       >
+  //         <Box
+  //           sx={{
+  //             display: 'flex',
+  //             flexGrow: 1,
+  //             justifyContent: 'center',
+  //           }}
+  //         >
+  //           <Typography variant="subtitle1">Are you Sure?</Typography>
+  //         </Box>
+  //         <Box
+  //           sx={{
+  //             paddingRight: 2,
+  //           }}
+  //         >
+  //           <button
+  //             style={{
+  //               border: 0,
+  //               padding: 0,
+  //               height: 22,
+  //               width: 22,
+  //             }}
+  //             className={classes.closeViewLog}
+  //             onClick={handleCancel}
+  //           >
+  //             <b>X</b>
+  //           </button>
+  //         </Box>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           display: 'flex',
+  //           p: 2,
+  //         }}
+  //       >
+  //         <Typography variant="body2" color="primary">
+  //           All your data will be lost.
+  //         </Typography>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           justifyContent: 'space-between',
+  //           display: 'flex',
+
+  //           // textAlign: "center"
+  //           p: 2,
+  //         }}
+  //       >
+  //         <Button
+  //           size="small"
+  //           variant="contained"
+  //           color="primary"
+  //           onClick={(e) => {
+  //             e.preventDefault()
+  //             history.goBack()
+  //           }}
+  //         >
+  //           OK
+  //         </Button>
+  //         <Button
+  //           size="small"
+  //           variant="contained"
+  //           color="primary"
+  //           onClick={handleCancel}
+  //         >
+  //           Cancel
+  //         </Button>
+  //       </Box>
+  //     </Box>
+  //   </Dialog>
+  // )
   const goBack = () => {
     history.goBack()
   }
@@ -806,180 +924,291 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //     Authorization: `Basic dnFhaURSWnpTUWhBNkNQQXkwclNvdHNRQWtSZXBwclg6THhhVk01SllpckJya1FRdQ==`,
     //   },
     // })
-    getColleagueAPI(empIdInput)
-      .then((response: any) => {
-        //console.log(response);
-        if (response.status === 200) {
-          let userData = response.data
-          setEmployeeID(empIdInput)
-          setFirstName(userData.FirstName)
-          setLastName(userData.LastName)
-          setEmail(userData.email)
-          setDesignation(userData.jobRole.jobTitle)
-          setColleagueData(userData)
-          //setStatus(userData.employee_status);
-        }
-      })
-      .catch((err) => {
-        //console.log(err);
-        handleReset()
-        toast.current.show({
-          severity: 'error',
-          summary: 'Error!',
-          detail: 'Invalid Employee ID',
-          life: 6000,
-          className: 'login-toast',
-        })
-      })
-  }
-
-  const handleCreateRequestforApprove = (e: any) => {
-    e.preventDefault()
-    const colleague: any =
-      colleagueData && constants.getColleagueDetails(colleagueData)
-    const colleaguestring =
-      colleagueData &&
-      `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
-
-    const formData = {
-      camunda: {
-        submitFlag: 'Approved',
-        requestorDetails: {
-          emailId: userDetail && userDetail.userdetails[0].user.emailId,
-          requestBy: userDetail && userDetail.userdetails[0].user.userId,
-          requestedDate: new Date().toISOString().split('T')[0],
-          requestType: requestType,
-        },
-        requestorRoles:
-          userDetail &&
-          userDetail.userdetails[0].roles.map((role: any) => {
-            return {
-              roleId: role.roleId,
-            }
-          }),
-      },
-      user: {
-        EmployeeId: employeeID,
-        firstName: firstName,
-        middleName: middleName,
-        lastName: lastName,
-        emailId: email,
-        additionalInfo: colleagueData && colleaguestring,
-        status: status,
-        designation: designation.toUpperCase(),
-      },
-      roles: roleNames
-        ? roleNames.map((role: any) => {
-            return {
-              roleId: role.value,
-            }
-          })
-        : [],
-      usergroups: groups
-        ? groups.map((group: any) => {
-            return {
-              groupId: group.value,
-              status: group.status,
-            }
-          })
-        : [],
-    }
-    console.log(formData)
-
-    // axios
-    //   .put(
-    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Cache-Control": "no-cache",
-    //         Authorization: `Bearer ${accessToken.access_token}`,
-    //       },
-    //     }
-    //   )
-    // employeeID &&
-    //   roleNames &&
-    //   groups &&
-    userDetail &&
-      putUserDetailsCamundaAPI(formData)
+    getUserAPI &&
+      getUserAPI(empIdInput)
         .then((res) => {
-          console.log(res)
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          console.log(rolelog)
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Approved',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          if (referenceDocData) {
-            const formdata1 = new FormData()
-            formdata1.append('fileIn', referenceDocData)
-            userDetail &&
-              postFileAttachmentAPI &&
-              postFileAttachmentAPI(
-                formdata1,
-                userDetail.userdetails[0].user.userId
-              )
-                .then((res) => {
-                  logData.attachmentUrl = res.data.attachmentUrl
-                  postTasklog(logData)
-                })
-                .catch((err) => {
-                  toast.current.show({
-                    severity: 'error',
-                    summary: 'Error!',
-                    detail: `${err.response.status} from tasklistapi`,
-                    // detail: `${err.data.errorMessage} ${statusCode}`,
-                    life: 6000,
-                    className: 'login-toast',
-                  })
-                  logData.attachmentUrl = null
-                  postTasklog(logData)
-                })
-          } else {
-            console.log(logData)
-            postTasklog(logData)
-          }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: 6000,
-            className: 'login-toast',
-          })
+          setColleagueData('')
+          setEmpAvailable(true)
+          checkIt(requestType, true)
+          setEmployeeID(res.data.userdetails[0].user.userId)
+          setFirstName(res.data.userdetails[0].user.firstName)
+          setLastName(res.data.userdetails[0].user.lastName)
+          setMiddleName(res.data.userdetails[0].user.middleName)
+          setEmail(res.data.userdetails[0].user.emailId)
+          setDesignation(res.data.userdetails[0].user.designation)
+          setAdditionalInfo(res.data.userdetails[0].user.additionalInfo)
+          setStatus(res.data.userdetails[0].user.status)
 
-          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          setRoleNames(
+            res.data.userdetails[0].roles.map((role: any) => {
+              return {
+                label: role.roleName,
+                value: role.roleId,
+              }
+            })
+          )
+          setGroupInput(
+            res.data.userdetails[0].usergroups.map((group: any) => {
+              return {
+                label: group.groupName,
+                value: group.groupId,
+                status: group.status,
+              }
+            })
+          )
+          setGroups(
+            res.data.userdetails[0].usergroups.map((group: any) => {
+              return {
+                label: group.groupName,
+                value: group.groupId,
+                status: group.status,
+              }
+            })
+          )
+          setErrorRoles('')
+          setErrorGroups('')
+          setErrorRequestType('')
+          setErrorEmployeeId('')
+          setErrorStatus('')
         })
         .catch((err) => {
-          console.log(err.response)
-          // let statusCode = err.status
-          //console.log(statusCode)
-          // alert(err)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: `${err.response.status} from userdetailapi`,
-            // detail: `${err.data.errorMessage} ${statusCode}`,
-            life: 6000,
-            className: 'login-toast',
-          })
-          //history.push('/commercial-webapp/dashboard')
+          setEmpAvailable(false)
+          setErrorRoles('')
+          setErrorGroups('')
+          setErrorRequestType('')
+          setErrorEmployeeId('')
+          setErrorStatus('')
+          getColleagueAPI(empIdInput)
+            .then((response: any) => {
+              //console.log(response);
+              checkIt(requestType, false)
+              let userData = response.data
+              setEmployeeID(empIdInput)
+              setFirstName(userData.FirstName)
+              setLastName(userData.LastName)
+              setEmail(userData.email)
+              setDesignation(userData.jobRole.jobTitle)
+              setColleagueData(userData)
+              setStatus('W')
+              setRoleNames([])
+              setGroupInput([])
+              setGroups([])
+              //setStatus(userData.employee_status);
+            })
+            .catch((err) => {
+              //console.log(err);
+              handleReset()
+              toast.current.show({
+                severity: 'error',
+                summary: 'Error!',
+                detail: 'Invalid Employee ID',
+                life: 6000,
+                className: 'login-toast',
+              })
+            })
         })
+  }
 
+  const checkForm = (btnName: string) => {
+    let flag = 1
+    if (errorRequestType !== '') {
+      flag = 0
+    }
+    if (
+      requestType !== 'new' &&
+      requestType !== 'modify' &&
+      requestType !== 'remove'
+    ) {
+      setErrorRequestType('Please select request type')
+      flag = 0
+    }
+    if (empIdInput === '') {
+      setErrorEmployeeId('Provide employee id and search')
+      flag = 0
+    }
+    if (status === '') {
+      setErrorStatus('Please select a status')
+    }
+    if (roleNames.length === 0) {
+      setErrorRoles('Please select atleast one role')
+      flag = 0
+    }
+    if (groups.length === 0) {
+      setErrorGroups('Please select atleast one group')
+      flag = 0
+    }
+    if (flag === 1 && btnName === 'approve') {
+      shoutOut === '' && setCancelOpenApprove(true)
+    } else if (flag === 1 && btnName === 'submit') {
+      shoutOut === '' && setCancelOpenSubmit(true)
+    }
+    if (flag === 0 || shoutOut !== '') {
+      window.scrollTo(0, 0)
+    }
+  }
+  const handleApproveAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('approve')
+    // canSubmit && shoutOut === '' && setCancelOpenApprove(true)
+  }
+
+  const handleSubmitAfterDialog = (e: any) => {
+    e.preventDefault()
+    checkForm('submit')
+    // canSubmit && shoutOut === '' && setCancelOpenSubmit(true)
+  }
+
+  const handleCreateRequestforApprove = () => {
+    // e.preventDefault()
+    if (shoutOut === '') {
+      const colleague: any =
+        colleagueData && constants.getColleagueDetails(colleagueData)
+      const colleaguestring =
+        colleagueData &&
+        `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+
+      const formData = {
+        camunda: {
+          submitFlag: 'Approved',
+          requestorDetails: {
+            emailId: userDetail && userDetail.userdetails[0].user.emailId,
+            requestBy: userDetail && userDetail.userdetails[0].user.userId,
+            requestDate: new Date().toISOString().split('T')[0],
+            requestType: requestType,
+          },
+          requestorRoles:
+            userDetail &&
+            userDetail.userdetails[0].roles.map((role: any) => {
+              return {
+                roleId: role.roleId,
+              }
+            }),
+        },
+        user: {
+          employeeId: employeeID,
+          firstName: firstName,
+          middleName: middleName,
+          lastName: lastName,
+          emailId: email,
+          additionalInfo:
+            colleagueData !== '' ? colleaguestring : additionalInfo,
+          status: status,
+          designation: designation.toUpperCase(),
+        },
+        roles: roleNames
+          ? roleNames.map((role: any) => {
+              return {
+                roleId: role.value,
+              }
+            })
+          : [],
+        usergroups: groups
+          ? groups.map((group: any) => {
+              return {
+                groupId: group.value,
+                status: group.status,
+              }
+            })
+          : [],
+      }
+      console.log(formData)
+
+      // axios
+      //   .put(
+      //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+      //     formData,
+      //     {
+      //       headers: {
+      //         "Cache-Control": "no-cache",
+      //         Authorization: `Bearer ${accessToken.access_token}`,
+      //       },
+      //     }
+      //   )
+      // employeeID &&
+      //   roleNames &&
+      //   groups &&
+      userDetail &&
+        putUserDetailsCamundaAPI(formData)
+          .then((res) => {
+            console.log(res)
+            const rolelog =
+              userDetail &&
+              userDetail.userdetails[0].roles
+                .map((role: any) => role.roleId)
+                .join(',')
+            console.log(rolelog)
+            const time = new Date().toISOString()
+            const datepart = time.split('T')[0]
+            const timepart = time.split('T')[1].split('.')[0]
+            const logData = {
+              // requestId: userDetail && userDetail.userdetails[0].user.userId,
+              requestId: res.data.businessKey,
+              // timestamp: `${datepart} ${timepart}`,
+              timestamp: `${datepart}`,
+              userId: userDetail && userDetail.userdetails[0].user.userId,
+              role: rolelog,
+              camundaRequestId: res.data.businessKey,
+              actionTaken: 'Approved',
+              comments: comments,
+              attachmentUrl: null,
+            }
+            if (referenceDocData.length > 0) {
+              referenceDocData.map((rf) => {
+                const formdata1 = new FormData()
+                formdata1.append('fileIn', rf.data)
+                userDetail &&
+                  postFileAttachmentAPI &&
+                  postFileAttachmentAPI(formdata1, employeeID)
+                    .then((res) => {
+                      logData.attachmentUrl = res.data.attachmentUrl
+                      postTasklog(logData)
+                    })
+                    .catch((err) => {
+                      toast.current.show({
+                        severity: 'error',
+                        summary: 'Error!',
+                        //detail: `${err.response.status} from tasklistapi`,
+                        detail: err.response.data.errorMessage,
+                        // detail: `${err.data.errorMessage} ${statusCode}`,
+                        life: 6000,
+                        className: 'login-toast',
+                      })
+                      // logData.attachmentUrl = null
+                      // postTasklog(logData)
+                    })
+                return null
+              })
+            } else {
+              console.log(logData)
+              postTasklog(logData)
+            }
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: res.data.comments,
+              life: 6000,
+              className: 'login-toast',
+            })
+
+            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          })
+          .catch((err) => {
+            console.log(err.response)
+            // let statusCode = err.status
+            //console.log(statusCode)
+            // alert(err)
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              //detail: `${err.response.status} from userdetailapi`,
+              detail: err.response.data.errorMessage,
+              // detail: `${err.data.errorMessage} ${statusCode}`,
+              life: 6000,
+              className: 'login-toast',
+            })
+            //history.push('/commercial-webapp/dashboard')
+          })
+    }
     // const formDataforAttachment: any = {
     //   requestId: 'SYSTCS109',
     //   timestamp: '2021-12-12',
@@ -1029,150 +1258,153 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //   })
   }
 
-  const handleCreateRequestforSubmit = (e: any) => {
-    e.preventDefault()
-    const colleague: any =
-      colleagueData && constants.getColleagueDetails(colleagueData)
-    const colleaguestring =
-      colleagueData &&
-      `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+  const handleCreateRequestforSubmit = () => {
+    // e.preventDefault()
+    if (shoutOut === '') {
+      const colleague: any =
+        colleagueData && constants.getColleagueDetails(colleagueData)
+      const colleaguestring =
+        colleagueData &&
+        `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
 
-    const formData = {
-      camunda: {
-        submitFlag: 'Submit',
-        requestorDetails: {
-          emailId: userDetail && userDetail.userdetails[0].user.emailId,
-          requestBy: userDetail && userDetail.userdetails[0].user.userId,
-          requestedDate: new Date().toISOString().split('T')[0],
-          requestType: requestType,
+      const formData = {
+        camunda: {
+          submitFlag: 'Submit',
+          requestorDetails: {
+            emailId: userDetail && userDetail.userdetails[0].user.emailId,
+            requestBy: userDetail && userDetail.userdetails[0].user.userId,
+            requestDate: new Date().toISOString().split('T')[0],
+            requestType: requestType,
+          },
+          requestorRoles:
+            userDetail &&
+            userDetail.userdetails[0].roles.map((role: any) => {
+              return {
+                roleId: role.roleId,
+              }
+            }),
         },
-        requestorRoles:
-          userDetail &&
-          userDetail.userdetails[0].roles.map((role: any) => {
-            return {
-              roleId: role.roleId,
+        user: {
+          employeeId: employeeID,
+          firstName: firstName,
+          middleName: middleName,
+          lastName: lastName,
+          emailId: email,
+          additionalInfo:
+            colleagueData !== '' ? colleaguestring : additionalInfo,
+          status: status,
+          designation: designation.toUpperCase(),
+        },
+        roles: roleNames
+          ? roleNames.map((role: any) => {
+              return {
+                roleId: role.value,
+              }
+            })
+          : [],
+        usergroups: groups
+          ? groups.map((group: any) => {
+              return {
+                groupId: group.value,
+                status: group.status,
+              }
+            })
+          : [],
+      }
+      console.log(formData)
+
+      // axios
+      //   .put(
+      //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+      //     formData,
+      //     {
+      //       headers: {
+      //         "Cache-Control": "no-cache",
+      //         Authorization: `Bearer ${accessToken.access_token}`,
+      //       },
+      //     }
+      //   )
+      // employeeID &&
+      //   roleNames &&
+      //   groups &&
+      userDetail &&
+        putUserDetailsCamundaAPI(formData)
+          .then((res) => {
+            console.log(res)
+            const rolelog =
+              userDetail &&
+              userDetail.userdetails[0].roles
+                .map((role: any) => role.roleId)
+                .join(',')
+            const time = new Date().toISOString()
+            const datepart = time.split('T')[0]
+            const timepart = time.split('T')[1].split('.')[0]
+            const logData = {
+              // requestId: userDetail && userDetail.userdetails[0].user.userId,
+              requestId: res.data.businessKey,
+              // timestamp: `${datepart} ${timepart}`,
+              timestamp: `${datepart}`,
+              userId: userDetail && userDetail.userdetails[0].user.userId,
+              role: rolelog,
+              camundaRequestId: res.data.businessKey,
+              actionTaken: 'Submited',
+              comments: comments,
+              attachmentUrl: null,
             }
-          }),
-      },
-      user: {
-        EmployeeId: employeeID,
-        firstName: firstName,
-        middleName: middleName,
-        lastName: lastName,
-        emailId: email,
-        additionalInfo: colleagueData && colleaguestring,
-        status: status,
-        designation: designation.toUpperCase(),
-      },
-      roles: roleNames
-        ? roleNames.map((role: any) => {
-            return {
-              roleId: role.value,
+            if (referenceDocData.length > 0) {
+              referenceDocData.map((rf) => {
+                const formdata1 = new FormData()
+                formdata1.append('fileIn', rf.data)
+                userDetail &&
+                  postFileAttachmentAPI &&
+                  postFileAttachmentAPI(formdata1, employeeID)
+                    .then((res) => {
+                      logData.attachmentUrl = res.data.attachmentUrl
+                      postTasklog(logData)
+                    })
+                    .catch((err) => {
+                      toast.current.show({
+                        severity: 'error',
+                        summary: 'Error!',
+                        // detail: `${err.response.status} from tasklistapi`,
+                        detail: err.response.data.errorMessage,
+                        // detail: `${err.data.errorMessage} ${statusCode}`,
+                        life: 6000,
+                        className: 'login-toast',
+                      })
+                    })
+                return null
+              })
+            } else {
+              postTasklog(logData)
             }
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: res.data.comments,
+              life: 6000,
+              className: 'login-toast',
+            })
+
+            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
           })
-        : [],
-      usergroups: groups
-        ? groups.map((group: any) => {
-            return {
-              groupId: group.value,
-              status: group.status,
-            }
+          .catch((err) => {
+            console.log(err)
+            // let statusCode = err.status
+            //console.log(statusCode)
+            // alert(err)
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              // detail: `${err.response.status} from userdetailapi`,
+              detail: err.response.data.errorMessage,
+              // detail: `${err.data.errorMessage} ${statusCode}`,
+              life: 6000,
+              className: 'login-toast',
+            })
+            // history.push('/commercial-webapp/dashboard')
           })
-        : [],
     }
-    console.log(formData)
-
-    // axios
-    //   .put(
-    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Cache-Control": "no-cache",
-    //         Authorization: `Bearer ${accessToken.access_token}`,
-    //       },
-    //     }
-    //   )
-    // employeeID &&
-    //   roleNames &&
-    //   groups &&
-    userDetail &&
-      putUserDetailsCamundaAPI(formData)
-        .then((res) => {
-          console.log(res)
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Submited',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          if (referenceDocData) {
-            const formdata1 = new FormData()
-            formdata1.append('fileIn', referenceDocData)
-            console.log(formdata1)
-            userDetail &&
-              postFileAttachmentAPI &&
-              postFileAttachmentAPI(
-                formdata1,
-                userDetail.userdetails[0].user.userId
-              )
-                .then((res) => {
-                  logData.attachmentUrl = res.data.attachmentUrl
-                  postTasklog(logData)
-                })
-                .catch((err) => {
-                  toast.current.show({
-                    severity: 'error',
-                    summary: 'Error!',
-                    detail: `${err.response.status} from tasklistapi`,
-                    // detail: `${err.data.errorMessage} ${statusCode}`,
-                    life: 6000,
-                    className: 'login-toast',
-                  })
-                })
-          } else {
-            postTasklog(logData)
-          }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: 6000,
-            className: 'login-toast',
-          })
-
-          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
-        })
-        .catch((err) => {
-          console.log(err)
-          // let statusCode = err.status
-          //console.log(statusCode)
-          // alert(err)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: `${err.response.status} from userdetailapi`,
-            // detail: `${err.data.errorMessage} ${statusCode}`,
-            life: 6000,
-            className: 'login-toast',
-          })
-          // history.push('/commercial-webapp/dashboard')
-        })
-
     // const formDataforAttachment: any = {
     //   requestId: 'SYSTCS109',
     //   timestamp: '2021-12-12',
@@ -1221,6 +1453,26 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //     })
     //   })
   }
+
+  const viewConfirmApprove = (
+    <ConfirmBox
+      cancelOpen={cancelOpenApprove}
+      handleCancel={handleCancelApprove}
+      handleProceed={handleCreateRequestforApprove}
+      label1="Are you sure to Approve?"
+      label2="Please click Ok to proceed"
+    />
+  )
+
+  const viewConfirmSubmit = (
+    <ConfirmBox
+      cancelOpen={cancelOpenSubmit}
+      handleCancel={handleCancelSubmit}
+      handleProceed={handleCreateRequestforSubmit}
+      label1="Are you sure to Submit?"
+      label2="Please click Ok to proceed"
+    />
+  )
 
   const createForm = (
     <Box
@@ -1305,7 +1557,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           className={classes.eachRow}
         >
           <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Request Type</Typography>
+            <Typography variant="subtitle2">
+              Request Type &nbsp;
+              <span
+                style={{
+                  color: '#ff0000',
+                }}
+              >
+                *
+              </span>
+            </Typography>
           </Box>
 
           <Box className={classes.inputFieldBox}>
@@ -1317,11 +1578,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 defaultValue=""
                 onChange={onrequestTypeChange}
                 required
-                disabled
+                // disabled
               >
-                {/* <option disabled value="">
+                <option disabled value="">
                   --- Select Request Type ---
-                </option> */}
+                </option>
                 {constants.requestTypes.map((type) => {
                   return (
                     <option value={type.name} key={type.name}>
@@ -1333,6 +1594,26 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Typography>
           </Box>
         </Box>
+        {shoutOut !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {shoutOut}
+              </Typography>
+            </Box>
+          </Box>
+        )}
+        {errorRequestType !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorRequestType}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -1352,7 +1633,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               {/* {typeAheadSearch} */}
               <OutlinedInput
                 value={empIdInput}
-                onChange={(e) => setEmpIdInput(e.target.value)}
+                onChange={(e) => {
+                  if (e.target.value === '') {
+                    setEmpAvailable(false)
+                  }
+                  setEmpIdInput(e.target.value)
+                  setErrorEmployeeId('')
+                }}
                 className={classes.inputFields}
                 style={{ backgroundColor: 'white' }}
                 placeholder="Search Employee ID"
@@ -1368,7 +1655,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Typography>
           </Box>
         </Box>
-
+        {errorEmployeeId !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorEmployeeId}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">First Name</Typography>
@@ -1525,7 +1821,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={colleagueData ? false : true}
+                disabled={colleagueData || additionalInfo ? false : true}
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
@@ -1559,25 +1855,89 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 defaultValue=""
                 onChange={onstatusChange}
                 required
-                // disabled
+                // disabled={requestType === 'new' && status === 'W'}
+                disabled={
+                  UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    'status'
+                  ) || requestType === 'new'
+                }
               >
                 {/* <option disabled value="" className={classes.selectOptions}>
                   None
                 </option> */}
-                {constants.statuses
-                  // .filter((type) => type.statusID.toLowerCase() === 'w')
-                  .map((type) => {
-                    return (
-                      <option value={type.statusID} key={type.statusID}>
-                        {type.text}
-                      </option>
-                    )
-                  })}
+                {requestType === 'new'
+                  ? constants.statuses
+                      .filter((type) => type.statusID.toLowerCase() === 'w')
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            // selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : requestType === 'modify'
+                  ? constants.statuses
+                      .filter((type) => type.statusID.toLowerCase() !== 'w')
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : requestType === 'remove'
+                  ? constants.statuses
+                      .filter(
+                        (type) => type.statusID.toLowerCase() !== 'w'
+                        // &&
+                        // type.statusID.toLowerCase() !== 'i'
+                      )
+                      .map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })
+                  : constants.statuses.map((type) => {
+                      return (
+                        <option
+                          value={type.statusID}
+                          key={type.statusID}
+                          selected={type.statusID === status ? true : false}
+                        >
+                          {type.text}
+                        </option>
+                      )
+                    })}
               </select>
             </Typography>
           </Box>
         </Box>
-
+        {errorStatus !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorStatus}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -1594,6 +1954,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
           <Box className={classes.inputFieldBox}>{roleSelect1}</Box>
         </Box>
+        {roleNames.length === 0 && errorRoles !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorRoles}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -1620,15 +1990,21 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   </button>
                 ) : (
                   <button
-                    className={
-                      UtilityFunctions.isHidden(
-                        '8',
-                        appFuncList ? appFuncList : [],
-                        'new_group'
-                      )
-                        ? classes.hideit
-                        : classes.backButton
-                    }
+                    // className={
+                    //   UtilityFunctions.isHidden(
+                    //     '8',
+                    //     appFuncList ? appFuncList : [],
+                    //     groupAccess
+                    //   )
+                    //     ? classes.hideit
+                    //     : classes.backButton
+                    // }
+                    className={classes.backButton}
+                    disabled={UtilityFunctions.isHidden(
+                      '8',
+                      appFuncList ? appFuncList : [],
+                      groupAccess
+                    )}
                     onClick={handleOpenGroups}
                   >
                     Add
@@ -1653,7 +2029,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Typography>
           </Box>
         </Box>
-
+        {groups.length === 0 && errorGroups !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorGroups}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">Reference Document</Typography>
@@ -1683,7 +2068,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 {
                   <input
                     type="text"
-                    value={referenceDoc ? referenceDoc.name : ''}
+                    // value={referenceDoc ? referenceDoc.name : ''}
                     onClick={() =>
                       document.getElementById('selectedFile')!.click()
                     }
@@ -1695,6 +2080,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 <Input
                   type="file"
                   id="selectedFile"
+                  multiple
                   onChange={handleFileUpload}
                 />
                 <button
@@ -1724,14 +2110,83 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }}
             >
               <button className={classes.backButton}>view(3)</button> */}
-              {wrongExtn ? (
-                <Typography variant="subtitle2" color={'secondary'}>
-                  Invalid extension
-                </Typography>
-              ) : null}
             </Box>
           </Box>
         </Box>
+        {wrongExtn && referenceDocData.length > 0 ? (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2" color={'secondary'}>
+                Files with invalid extensions omitted
+              </Typography>
+            </Box>
+          </Box>
+        ) : null}
+        {referenceDocData.length > 0 && (
+          <Box className={classes.eachRow}>
+            {/* <Box
+              sx={{
+                flexDirection: 'column',
+                display: 'flex',
+              }}
+              className={classes.inputFieldBox}
+            > */}
+            {/* {referenceDocData.map((p: any) => (
+                <Box className={classes.inputFieldBox} sx={{}} key={p.name}>
+                  <a href={p.link} target="popup">
+                    {p.name}
+                  </a>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const newone = referenceDocData.filter(
+                        (dat) => dat.name !== p.name
+                      )
+                      setReferenceDocData([...newone])
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>             
+              ))} */}
+            <Box
+              className={!active ? classes.filelist : classes.inputFieldBox}
+              sx={{ overflow: 'auto' }}
+            >
+              <table>
+                <tbody>
+                  {referenceDocData.map((p: any, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>
+                          <Button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              const newone = referenceDocData.filter(
+                                (dat) => dat.name !== p.name
+                              )
+                              setReferenceDocData([...newone])
+                            }}
+                            color="primary"
+                          >
+                            X
+                          </Button>
+                        </td>
+                        <td>
+                          <a href={p.link} target="popup">
+                            {p.name}
+                          </a>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </Box>
+          </Box>
+          // </Box>
+        )}
         <Box
           sx={{
             display: 'flex',
@@ -1782,36 +2237,18 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             }}
           >
             <Button
-              type="reset"
               variant="contained"
               color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'cancel'
-                )
-                  ? classes.hideit
-                  : classes.whiteButton
-              }
-              size="small"
-              onClick={handleCancel}
-            >
-              Cancel
-            </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'reject'
-                )
-                  ? classes.hideit
-                  : classes.whiteButton
-              }
+              // className={
+              //   UtilityFunctions.isHidden(
+              //     '8',
+              //     appFuncList ? appFuncList : [],
+              //     'reject'
+              //   )
+              //     ? classes.hideit
+              //     : classes.whiteButton
+              // }
+              className={classes.hideit}
               size="small"
             >
               Reject
@@ -1839,7 +2276,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   : classes.submitButton
               }
               size="small"
-              onClick={handleCreateRequestforSubmit}
+              // onClick={handleCreateRequestforSubmit}
+              onClick={handleSubmitAfterDialog}
               // onClick={() => {
               //   setSubmitFn(handleCreateRequestforSubmit)
               // }}
@@ -1850,15 +2288,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             <Button
               variant="contained"
               color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'reassign'
-                )
-                  ? classes.hideit
-                  : classes.buttons
-              }
+              // className={
+              //   UtilityFunctions.isHidden(
+              //     '8',
+              //     appFuncList ? appFuncList : [],
+              //     'reassign'
+              //   )
+              //     ? classes.hideit
+              //     : classes.buttons
+              // }
+              className={classes.hideit}
               size="small"
             >
               Reassign
@@ -1879,7 +2318,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }
               size="small"
               // onClick={() => setSubmitFn(handleCreateRequestforApprove)}
-              onClick={handleCreateRequestforApprove}
+              // onClick={handleCreateRequestforApprove}
+              onClick={handleApproveAfterDialog}
             >
               Approve
             </Button>
@@ -1904,10 +2344,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             justifyContent="center"
           >
             {createForm}
-            {viewLog}
             {viewGroups}
+            {viewLog}
             {viewAdditionalInfo}
-            {viewCancel}
+            {viewConfirmApprove}
+            {viewConfirmSubmit}
           </Grid>
           {/* </Grid> */}
         </Box>

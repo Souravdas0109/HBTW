@@ -150,7 +150,7 @@ export const constants = {
       type: 'file',
       width: 100,
     },
-    { field: 'comments', headerName: 'Comments', width: 100 },
+    { field: 'comments', headerName: 'Comments', width: 200 },
   ],
 
   requestTypes: [
@@ -170,12 +170,12 @@ export const constants = {
 
   statuses: [
     {
-      statusID: 'A',
-      text: 'ACTIVE',
-    },
-    {
       statusID: 'W',
       text: 'INPROGRESS',
+    },
+    {
+      statusID: 'A',
+      text: 'ACTIVE',
     },
     {
       statusID: 'I',

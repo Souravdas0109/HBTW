@@ -191,7 +191,7 @@ function UserManage(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines
@@ -233,7 +233,7 @@ function UserManage(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines

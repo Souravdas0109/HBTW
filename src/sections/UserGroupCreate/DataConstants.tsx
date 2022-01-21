@@ -7,6 +7,7 @@ export interface LocationhierarchyTypes {
   readonly label: string
   readonly hierarchyLevel: string
   readonly hierarchyId: string
+  readonly hierarchyName: string | null
   readonly startDate: string
   readonly endDate: string
 }
@@ -17,6 +18,7 @@ export const locationTypes: LocationhierarchyTypes[] = [
     label: 'Online',
     hierarchyLevel: 'channel',
     hierarchyId: 'Online',
+    hierarchyName: null,
     startDate: formattedDate(),
     endDate: '2099-12-31',
   },
@@ -25,6 +27,7 @@ export const locationTypes: LocationhierarchyTypes[] = [
     label: 'Wholesale',
     hierarchyLevel: 'channel',
     hierarchyId: 'Wholesale',
+    hierarchyName: null,
     startDate: formattedDate(),
     endDate: '2099-01-01',
   },
@@ -33,6 +36,7 @@ export const locationTypes: LocationhierarchyTypes[] = [
     label: 'Retail',
     hierarchyLevel: 'channel',
     hierarchyId: 'Retail',
+    hierarchyName: null,
     startDate: formattedDate(),
     endDate: '2099-01-01',
   },

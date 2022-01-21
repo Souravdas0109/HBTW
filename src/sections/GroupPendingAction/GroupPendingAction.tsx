@@ -73,6 +73,7 @@ function GroupPendingAction(props: any) {
               roleId: role.roleId,
             }
           }),
+        // submitFlag: 'Assign',
       }
       const taskIds =
         unassignUser && unassignUser.map((item: any) => item.taskId)
@@ -82,29 +83,30 @@ function GroupPendingAction(props: any) {
           putClaimTaskAPI(assignPayload, taskIds[i])
             .then((res) => {
               console.log(res.data)
-              if (res.data.status.toLowerCase() !== 'failed') {
-                toast.current.show({
-                  severity: 'success',
-                  summary: taskIds[i],
-                  detail: res.data.comments,
-                  life: 6000,
-                  className: 'login-toast',
-                })
-              } else {
-                toast.current.show({
-                  severity: 'error',
-                  summary: 'Error!',
-                  detail: res.data.comments,
-                  life: 6000,
-                  className: 'login-toast',
-                })
-              }
+              // if (res.data.status.toLowerCase() !== 'failed') {
+              toast.current.show({
+                severity: 'success',
+                summary: taskIds[i],
+                detail: res.data.comments,
+                life: 6000,
+                className: 'login-toast',
+              })
+              // } else {
+              //   toast.current.show({
+              //     severity: 'error',
+              //     summary: 'Error!',
+              //     detail: res.data.comments,
+              //     life: 6000,
+              //     className: 'login-toast',
+              //   })
+              // }
             })
             .catch((err) => {
               toast.current.show({
                 severity: 'error',
                 summary: 'Error!',
-                detail: 'Server error. Cant assign tasks',
+                // detail: `${err.response.status} from tasklistapi`,
+                detail: err.response.data.errorMessage,
                 life: 6000,
                 className: 'login-toast',
               })
@@ -180,7 +182,7 @@ function GroupPendingAction(props: any) {
                     selection={unassignUser}
                     onSelectionChange={(e) => setUnassignUser(e.value)}
                     scrollable
-                    scrollHeight="500px"
+                    scrollHeight="flex"
                     globalFilter={globalFilter}
                     emptyMessage="No users found."
                     showGridlines
@@ -231,7 +233,7 @@ function GroupPendingAction(props: any) {
                     selection={unassignUser}
                     onSelectionChange={(e) => setUnassignUser(e.value)}
                     scrollable
-                    scrollHeight="500px"
+                    scrollHeight="flex"
                     globalFilter={globalFilter}
                     emptyMessage="No users found."
                     showGridlines

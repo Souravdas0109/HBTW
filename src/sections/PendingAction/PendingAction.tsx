@@ -130,7 +130,7 @@ function PendingAction(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines
@@ -169,7 +169,7 @@ function PendingAction(props: any) {
                     width: '100%',
                   }}
                   scrollable
-                  scrollHeight="500px"
+                  scrollHeight="flex"
                   globalFilter={globalFilter}
                   emptyMessage="No users found."
                   showGridlines
