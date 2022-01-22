@@ -8,7 +8,7 @@ import {
 } from '@material-ui/core'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useHistory } from 'react-router-dom'
 import { teal } from '@material-ui/core/colors'
 import { connect } from 'react-redux'
@@ -21,6 +21,7 @@ import {
 import { reset_mygrouppendingAction } from '../../redux/Actions/PendingAction/Action'
 import { routes } from '../../util/Constants'
 import { putClaimTaskAPI } from '../../api/Fetch'
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
 function GroupPendingAction(props: any) {
   const { reset_mygrouppendingAction, mygroupPendingAction, userDetail } = props
@@ -33,6 +34,10 @@ function GroupPendingAction(props: any) {
   const toast = useRef<any>(null)
   const [myGroupPendingActionDetails, setMyGroupPendingActionDetails] =
     useState([])
+
+  //
+  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  //
   const active = useMediaQuery(theme.breakpoints.down('sm'))
 
   const goBack = () => {
@@ -58,6 +63,7 @@ function GroupPendingAction(props: any) {
   }, [unassignUser])
 
   const handleAssign = () => {
+    setIsProgressLoader(true)
     if (unassignUser.length > 0) {
       const assignPayload = {
         requestorDetails: {
@@ -83,33 +89,39 @@ function GroupPendingAction(props: any) {
           putClaimTaskAPI(assignPayload, taskIds[i])
             .then((res) => {
               console.log(res.data)
-              // if (res.data.status.toLowerCase() !== 'failed') {
-              toast.current.show({
-                severity: 'success',
-                summary: taskIds[i],
-                detail: res.data.comments,
-                life: 6000,
-                className: 'login-toast',
-              })
-              // } else {
-              //   toast.current.show({
-              //     severity: 'error',
-              //     summary: 'Error!',
-              //     detail: res.data.comments,
-              //     life: 6000,
-              //     className: 'login-toast',
-              //   })
-              // }
+              setIsProgressLoader(false)
+              if (res && isProgressLoader === false) {
+                // if (res.data.status.toLowerCase() !== 'failed') {
+                toast.current.show({
+                  severity: 'success',
+                  summary: taskIds[i],
+                  detail: res.data.comments,
+                  life: 6000,
+                  className: 'login-toast',
+                })
+                // } else {
+                //   toast.current.show({
+                //     severity: 'error',
+                //     summary: 'Error!',
+                //     detail: res.data.comments,
+                //     life: 6000,
+                //     className: 'login-toast',
+                //   })
+                // }
+              }
             })
             .catch((err) => {
-              toast.current.show({
-                severity: 'error',
-                summary: 'Error!',
-                // detail: `${err.response.status} from tasklistapi`,
-                detail: err.response.data.errorMessage,
-                life: 6000,
-                className: 'login-toast',
-              })
+              setIsProgressLoader(false)
+              if (err.response && isProgressLoader === false) {
+                toast.current.show({
+                  severity: 'error',
+                  summary: 'Error!',
+                  // detail: `${err.response.status} from tasklistapi`,
+                  detail: err.response.data.errorMessage,
+                  life: 6000,
+                  className: 'login-toast',
+                })
+              }
             })
       }
     }
@@ -296,6 +308,9 @@ function GroupPendingAction(props: any) {
               </Box>
             </Grid>
           </Grid>
+          <div>
+            <LoadingComponent showLoader={isProgressLoader} />
+          </div>
         </div>
       </div>
     </>

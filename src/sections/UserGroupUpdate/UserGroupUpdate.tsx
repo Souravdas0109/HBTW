@@ -30,6 +30,7 @@ import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
 import { routes } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
 function UserGroupUpdate(props: any) {
   const { groupDetails, reset_groupID } = props
@@ -73,6 +74,9 @@ function UserGroupUpdate(props: any) {
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [errorGroupName, setErrorGroupName] = useState('')
   const [errorStatus, setErrorStatus] = useState('')
+  //
+  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  //
   //product changes end ................................................
 
   //product changes start...........................................
@@ -744,7 +748,7 @@ function UserGroupUpdate(props: any) {
 
   const handleCreateGroup = () => {
     // e.preventDefault()
-
+    setIsProgressLoader(true)
     const formData = {
       groupName: groupname,
       groupDesc: description,
@@ -793,26 +797,32 @@ function UserGroupUpdate(props: any) {
         .then((res) => {
           //console.log(res);
           //console.log(res.data.message);
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.message,
-            life: 6000,
-            className: 'login-toast',
-          })
-          setTimeout(() => goBack(), 6000)
+          setIsProgressLoader(false)
+          if (res && isProgressLoader === false) {
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: res.data.message,
+              life: 6000,
+              className: 'login-toast',
+            })
+            setTimeout(() => goBack(), 6000)
+          }
         })
         .catch((err) => {
           //console.log(err);
           // let statusCode = err.response.data.errorMessage
           // console.log(statusCode)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: err.response.data.errorMessage,
-            life: 6000,
-            className: 'login-toast',
-          })
+          setIsProgressLoader(false)
+          if (err.response && isProgressLoader === false) {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              detail: err.response.data.errorMessage,
+              life: 6000,
+              className: 'login-toast',
+            })
+          }
         })
   }
 
@@ -1244,6 +1254,9 @@ function UserGroupUpdate(props: any) {
               </Box>
             </Grid>
           </Grid>
+          <div>
+            <LoadingComponent showLoader={isProgressLoader} />
+          </div>
         </Box>
       </Paper>
       {viewConfirmReset}

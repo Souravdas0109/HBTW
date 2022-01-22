@@ -44,6 +44,7 @@ import {
 import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { routes, extensions } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
 const Input = styled('input')({
   display: 'none',
@@ -101,6 +102,9 @@ function UpdateUser(props: any) {
   const [taskId, setTaskId] = React.useState('')
   const [viewLogRows, setViewLogRows] = React.useState<Array<any>>([])
   const toast = useRef<any>(null)
+  //
+  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  //
 
   useEffect(() => {
     return () => reset_empID()
@@ -1012,6 +1016,7 @@ function UpdateUser(props: any) {
 
   const handleUpdateUserforApprove = () => {
     // e.preventDefault()
+    setIsProgressLoader(true)
     const formData = {
       camunda: {
         submitFlag: 'Approved',
@@ -1072,81 +1077,87 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          console.log(rolelog)
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Approved',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          if (referenceDocData.length > 0) {
-            referenceDocData.map((rf) => {
-              const formdata1 = new FormData()
-              formdata1.append('fileIn', rf.data)
+          setIsProgressLoader(false)
+          if (res && isProgressLoader === false) {
+            const rolelog =
               userDetail &&
-                postFileAttachmentAPI &&
-                postFileAttachmentAPI(formdata1, employeeID)
-                  .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
-                  })
-                  .catch((err) => {
-                    toast.current.show({
-                      severity: 'error',
-                      summary: 'Error!',
-                      //detail: `${err.response.status} from tasklistapi`,
-                      detail: err.response.data.errorMessage,
-                      // detail: `${err.data.errorMessage} ${statusCode}`,
-                      life: 6000,
-                      className: 'login-toast',
+              userDetail.userdetails[0].roles
+                .map((role: any) => role.roleId)
+                .join(',')
+            console.log(rolelog)
+            const time = new Date().toISOString()
+            const datepart = time.split('T')[0]
+            const timepart = time.split('T')[1].split('.')[0]
+            const logData = {
+              // requestId: userDetail && userDetail.userdetails[0].user.userId,
+              requestId: res.data.businessKey,
+              // timestamp: `${datepart} ${timepart}`,
+              timestamp: `${datepart}`,
+              userId: userDetail && userDetail.userdetails[0].user.userId,
+              role: rolelog,
+              camundaRequestId: res.data.businessKey,
+              actionTaken: 'Approved',
+              comments: comments,
+              attachmentUrl: null,
+            }
+            if (referenceDocData.length > 0) {
+              referenceDocData.map((rf) => {
+                const formdata1 = new FormData()
+                formdata1.append('fileIn', rf.data)
+                userDetail &&
+                  postFileAttachmentAPI &&
+                  postFileAttachmentAPI(formdata1, employeeID)
+                    .then((res) => {
+                      logData.attachmentUrl = res.data.attachmentUrl
+                      postTasklog(logData)
                     })
-                    // logData.attachmentUrl = null
-                    // postTasklog(logData)
-                  })
-              return null
+                    .catch((err) => {
+                      toast.current.show({
+                        severity: 'error',
+                        summary: 'Error!',
+                        //detail: `${err.response.status} from tasklistapi`,
+                        detail: err.response.data.errorMessage,
+                        // detail: `${err.data.errorMessage} ${statusCode}`,
+                        life: 6000,
+                        className: 'login-toast',
+                      })
+                      // logData.attachmentUrl = null
+                      // postTasklog(logData)
+                    })
+                return null
+              })
+            } else {
+              console.log(logData)
+              postTasklog(logData)
+            }
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: res.data.comments,
+              life: 6000,
+              className: 'login-toast',
             })
-          } else {
-            console.log(logData)
-            postTasklog(logData)
-          }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: 6000,
-            className: 'login-toast',
-          })
 
-          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          }
         })
         .catch((err) => {
           console.log(err.response)
           // let statusCode = err.response.status
           // console.log(statusCode)
           // alert(err)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            //detail: `${err.response.status} from userdetailapi`,
-            detail: err.response.data.errorMessage,
-            // detail: `${err.response.data.errorMessage} ${statusCode}`,
-            life: 6000,
-            className: 'login-toast',
-          })
+          setIsProgressLoader(false)
+          if (err.response && isProgressLoader === false) {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              //detail: `${err.response.status} from userdetailapi`,
+              detail: err.response.data.errorMessage,
+              // detail: `${err.response.data.errorMessage} ${statusCode}`,
+              life: 6000,
+              className: 'login-toast',
+            })
+          }
           //history.push('/commercial-webapp/dashboard')
         })
 
@@ -1213,6 +1224,7 @@ function UpdateUser(props: any) {
 
   const handleUpdateUserforSubmit = () => {
     // e.preventDefault()
+    setIsProgressLoader(true)
     const formData = {
       camunda: {
         submitFlag: 'Submit',
@@ -1274,77 +1286,83 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Submited',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          if (referenceDocData.length > 0) {
-            referenceDocData.map((rf) => {
-              const formdata1 = new FormData()
-              formdata1.append('fileIn', rf.data)
+          setIsProgressLoader(false)
+          if (res && isProgressLoader === false) {
+            const rolelog =
               userDetail &&
-                postFileAttachmentAPI &&
-                postFileAttachmentAPI(formdata1, employeeID)
-                  .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
-                  })
-                  .catch((err) => {
-                    toast.current.show({
-                      severity: 'error',
-                      summary: 'Error!',
-                      // detail: `${err.response.status} from tasklistapi`,
-                      detail: err.response.data.errorMessage,
-                      // detail: `${err.data.errorMessage} ${statusCode}`,
-                      life: 6000,
-                      className: 'login-toast',
+              userDetail.userdetails[0].roles
+                .map((role: any) => role.roleId)
+                .join(',')
+            const time = new Date().toISOString()
+            const datepart = time.split('T')[0]
+            const timepart = time.split('T')[1].split('.')[0]
+            const logData = {
+              // requestId: userDetail && userDetail.userdetails[0].user.userId,
+              requestId: res.data.businessKey,
+              // timestamp: `${datepart} ${timepart}`,
+              timestamp: `${datepart}`,
+              userId: userDetail && userDetail.userdetails[0].user.userId,
+              role: rolelog,
+              camundaRequestId: res.data.businessKey,
+              actionTaken: 'Submited',
+              comments: comments,
+              attachmentUrl: null,
+            }
+            if (referenceDocData.length > 0) {
+              referenceDocData.map((rf) => {
+                const formdata1 = new FormData()
+                formdata1.append('fileIn', rf.data)
+                userDetail &&
+                  postFileAttachmentAPI &&
+                  postFileAttachmentAPI(formdata1, employeeID)
+                    .then((res) => {
+                      logData.attachmentUrl = res.data.attachmentUrl
+                      postTasklog(logData)
                     })
-                  })
-              return null
+                    .catch((err) => {
+                      toast.current.show({
+                        severity: 'error',
+                        summary: 'Error!',
+                        // detail: `${err.response.status} from tasklistapi`,
+                        detail: err.response.data.errorMessage,
+                        // detail: `${err.data.errorMessage} ${statusCode}`,
+                        life: 6000,
+                        className: 'login-toast',
+                      })
+                    })
+                return null
+              })
+            } else {
+              postTasklog(logData)
+            }
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: res.data.comments,
+              life: 6000,
+              className: 'login-toast',
             })
-          } else {
-            postTasklog(logData)
-          }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: 6000,
-            className: 'login-toast',
-          })
 
-          setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+            setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          }
         })
         .catch((err) => {
           console.log(err)
           // let statusCode = err.response.status
           // console.log(statusCode)
           // alert(err)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            //detail: `${err.response.status} from userdetailapi`,
-            detail: err.response.data.errorMessage,
-            // detail: `${err.response.data.errorMessage} ${statusCode}`,
-            life: 6000,
-            className: 'login-toast',
-          })
+          setIsProgressLoader(false)
+          if (err.response && isProgressLoader === false) {
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              //detail: `${err.response.status} from userdetailapi`,
+              detail: err.response.data.errorMessage,
+              // detail: `${err.response.data.errorMessage} ${statusCode}`,
+              life: 6000,
+              className: 'login-toast',
+            })
+          }
           //history.push('/commercial-webapp/dashboard')
         })
 
@@ -2305,6 +2323,9 @@ function UpdateUser(props: any) {
             {viewConfirmApprove}
             {viewConfirmSubmit}
           </Grid>
+          <div>
+            <LoadingComponent showLoader={isProgressLoader} />
+          </div>
           {/* </Grid> */}
         </Box>
       </Paper>
