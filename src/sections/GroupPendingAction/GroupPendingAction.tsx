@@ -19,7 +19,7 @@ import {
   groupPendingActionTableHeaders,
 } from './tableHeaders'
 import { reset_mygrouppendingAction } from '../../redux/Actions/PendingAction/Action'
-import { routes } from '../../util/Constants'
+import { routes, life } from '../../util/Constants'
 import { putClaimTaskAPI } from '../../api/Fetch'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
@@ -34,7 +34,6 @@ function GroupPendingAction(props: any) {
   const toast = useRef<any>(null)
   const [myGroupPendingActionDetails, setMyGroupPendingActionDetails] =
     useState([])
-
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   //
@@ -89,39 +88,35 @@ function GroupPendingAction(props: any) {
           putClaimTaskAPI(assignPayload, taskIds[i])
             .then((res) => {
               console.log(res.data)
+              // if (res.data.status.toLowerCase() !== 'failed') {
               setIsProgressLoader(false)
-              if (res && isProgressLoader === false) {
-                // if (res.data.status.toLowerCase() !== 'failed') {
-                toast.current.show({
-                  severity: 'success',
-                  summary: taskIds[i],
-                  detail: res.data.comments,
-                  life: 6000,
-                  className: 'login-toast',
-                })
-                // } else {
-                //   toast.current.show({
-                //     severity: 'error',
-                //     summary: 'Error!',
-                //     detail: res.data.comments,
-                //     life: 6000,
-                //     className: 'login-toast',
-                //   })
-                // }
-              }
+              toast.current.show({
+                severity: 'success',
+                summary: taskIds[i],
+                detail: res.data.comments,
+                life: life,
+                className: 'login-toast',
+              })
+              // } else {
+              //   toast.current.show({
+              //     severity: 'error',
+              //     summary: 'Error!',
+              //     detail: res.data.comments,
+              //     life: 6000,
+              //     className: 'login-toast',
+              //   })
+              // }
             })
             .catch((err) => {
               setIsProgressLoader(false)
-              if (err.response && isProgressLoader === false) {
-                toast.current.show({
-                  severity: 'error',
-                  summary: 'Error!',
-                  // detail: `${err.response.status} from tasklistapi`,
-                  detail: err.response.data.errorMessage,
-                  life: 6000,
-                  className: 'login-toast',
-                })
-              }
+              toast.current.show({
+                severity: 'error',
+                summary: 'Error!',
+                // detail: `${err.response.status} from tasklistapi`,
+                detail: err.response.data.errorMessage,
+                life: life,
+                className: 'login-toast',
+              })
             })
       }
     }
@@ -308,9 +303,7 @@ function GroupPendingAction(props: any) {
               </Box>
             </Grid>
           </Grid>
-          <div>
-            <LoadingComponent showLoader={isProgressLoader} />
-          </div>
+          <LoadingComponent showLoader={isProgressLoader} />
         </div>
       </div>
     </>

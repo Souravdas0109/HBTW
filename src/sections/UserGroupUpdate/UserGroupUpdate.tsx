@@ -28,7 +28,7 @@ import {
 import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
-import { routes } from '../../util/Constants'
+import { routes, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
@@ -53,6 +53,7 @@ function UserGroupUpdate(props: any) {
   // const BASE = "https://pre-api.morrisons.com";
   const [error, setError] = useState('')
   const [disabled, setDisabled] = useState(true)
+  const [disabled1, setDisabled1] = useState(false)
   const [selected, setSelected] = useState<any>([])
   const [data, setData] = useState<any>([])
   const [uniquediv, setUniqueDiv] = useState<any>([])
@@ -300,7 +301,7 @@ function UserGroupUpdate(props: any) {
             severity: 'error',
             summary: 'Error!',
             detail: 'Product hierarchy service has issue',
-            life: 6000,
+            life: life,
             className: 'login-toast',
           })
           break
@@ -423,12 +424,14 @@ function UserGroupUpdate(props: any) {
   const handleReset = () => {
     // setGroupId('')
     // setGroupname('')
+    setDisabled1(true)
     setDescription('')
     setPayload([])
     setLocationNames([])
     setStatus('')
     setErrorGroupName('')
     setErrorStatus('')
+    setDisabled1(false)
   }
   const Option = (props: any) => {
     return (
@@ -749,6 +752,7 @@ function UserGroupUpdate(props: any) {
   const handleCreateGroup = () => {
     // e.preventDefault()
     setIsProgressLoader(true)
+    setDisabled1(true)
     const formData = {
       groupName: groupname,
       groupDesc: description,
@@ -798,31 +802,28 @@ function UserGroupUpdate(props: any) {
           //console.log(res);
           //console.log(res.data.message);
           setIsProgressLoader(false)
-          if (res && isProgressLoader === false) {
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.message,
-              life: 6000,
-              className: 'login-toast',
-            })
-            setTimeout(() => goBack(), 6000)
-          }
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: life,
+            className: 'login-toast',
+          })
+          setTimeout(() => goBack(), life)
         })
         .catch((err) => {
+          setDisabled1(false)
+          setIsProgressLoader(false)
           //console.log(err);
           // let statusCode = err.response.data.errorMessage
           // console.log(statusCode)
-          setIsProgressLoader(false)
-          if (err.response && isProgressLoader === false) {
-            toast.current.show({
-              severity: 'error',
-              summary: 'Error!',
-              detail: err.response.data.errorMessage,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: err.response.data.errorMessage,
+            life: life,
+            className: 'login-toast',
+          })
         })
   }
 
@@ -1228,6 +1229,7 @@ function UserGroupUpdate(props: any) {
                           className={classes.submitButton}
                           // onClick={handleReset}
                           onClick={handleResetAfterDialog}
+                          disabled={disabled1}
                         >
                           Reset
                         </Button>
@@ -1244,6 +1246,7 @@ function UserGroupUpdate(props: any) {
                           className={classes.buttons}
                           // onClick={handleCreateGroup}
                           onClick={handleCreateGroupAfterDialog}
+                          disabled={disabled1}
                         >
                           Submit
                         </Button>
@@ -1251,12 +1254,10 @@ function UserGroupUpdate(props: any) {
                     </Box>
                   </Box>
                 </form>
+                <LoadingComponent showLoader={isProgressLoader} />
               </Box>
             </Grid>
           </Grid>
-          <div>
-            <LoadingComponent showLoader={isProgressLoader} />
-          </div>
         </Box>
       </Paper>
       {viewConfirmReset}

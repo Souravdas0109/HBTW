@@ -26,7 +26,7 @@ import {
 import config from '../../config/Config'
 import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
 import { useHistory } from 'react-router-dom'
-import { routes } from '../../util/Constants'
+import { routes, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
@@ -46,10 +46,14 @@ function UserGroupCreate() {
   const [locationNames, setLocationNames] = useState([])
   const [viewLocationEl, setViewLocationEl] = useState(null)
   const toast = useRef<any>(null)
+  //
+  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  //
   //product changes start.............................................
   // const BASE = "https://pre-api.morrisons.com";
   const [error, setError] = useState('')
   const [disabled, setDisabled] = useState(true)
+  const [disabled1, setDisabled1] = useState(false)
   const [selected, setSelected] = useState<any>([])
   const [data, setData] = useState<any>([])
   const [uniquediv, setUniqueDiv] = useState<any>([])
@@ -70,9 +74,6 @@ function UserGroupCreate() {
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [errorGroupName, setErrorGroupName] = useState('')
   const [errorStatus, setErrorStatus] = useState('')
-  //
-  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
-  //
   //product changes end ................................................
 
   //product changes start...........................................
@@ -224,7 +225,7 @@ function UserGroupCreate() {
             severity: 'error',
             summary: 'Error!',
             detail: 'Product hierarchy service has issue',
-            life: 6000,
+            life: life,
             className: 'login-toast',
           })
           break
@@ -346,6 +347,7 @@ function UserGroupCreate() {
   }
   const handleReset = () => {
     // setGroupId('')
+    setDisabled1(true)
     setGroupname('')
     setDescription('')
     setPayload([])
@@ -353,6 +355,7 @@ function UserGroupCreate() {
     setStatus('')
     setErrorGroupName('')
     setErrorStatus('')
+    setDisabled1(false)
   }
   const Option = (props: any) => {
     return (
@@ -673,6 +676,7 @@ function UserGroupCreate() {
 
   const handleCreateGroup = () => {
     // e.preventDefault()
+    setDisabled1(true)
     setIsProgressLoader(true)
     const formData = {
       groupName: groupname,
@@ -724,32 +728,29 @@ function UserGroupCreate() {
           //console.log(res);
           //console.log(res.data.message);
           setIsProgressLoader(false)
-          if (res && isProgressLoader === false) {
-            setGroupId(res.data.message.split('groupId:')[1].trim())
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.message,
-              life: 6000,
-              className: 'login-toast',
-            })
-            setTimeout(() => goBack(), 6000)
-          }
+          setGroupId(res.data.message.split('groupId:')[1].trim())
+          toast.current.show({
+            severity: 'success',
+            summary: '',
+            detail: res.data.message,
+            life: life,
+            className: 'login-toast',
+          })
+          setTimeout(() => goBack(), life)
         })
         .catch((err) => {
+          setDisabled1(false)
           // //console.log(err);
           // let statusCode = err.response.data.error
           // console.log(statusCode)
           setIsProgressLoader(false)
-          if (err.response && isProgressLoader === false) {
-            toast.current.show({
-              severity: 'error',
-              summary: 'Error!',
-              detail: err.response.data.errorMessage,
-              life: 6000,
-              className: 'login-toast',
-            })
-          }
+          toast.current.show({
+            severity: 'error',
+            summary: 'Error!',
+            detail: err.response.data.errorMessage,
+            life: life,
+            className: 'login-toast',
+          })
         })
   }
 
@@ -1154,6 +1155,7 @@ function UserGroupCreate() {
                           className={classes.submitButton}
                           // onClick={handleReset}
                           onClick={handleResetAfterDialog}
+                          disabled={disabled1}
                         >
                           Reset
                         </Button>
@@ -1170,6 +1172,7 @@ function UserGroupCreate() {
                           className={classes.buttons}
                           // onClick={handleCreateGroup}
                           onClick={handleCreateGroupAfterDialog}
+                          disabled={disabled1}
                         >
                           Submit
                         </Button>
@@ -1177,12 +1180,10 @@ function UserGroupCreate() {
                     </Box>
                   </Box>
                 </form>
+                <LoadingComponent showLoader={isProgressLoader} />
               </Box>
             </Grid>
           </Grid>
-          <div>
-            <LoadingComponent showLoader={isProgressLoader} />
-          </div>
         </Box>
       </Paper>
       {viewConfirmReset}
