@@ -113,6 +113,7 @@ function PendingActionUpdate(props: any) {
   const toast = useRef<any>(null)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [returnText, setReturnText] = React.useState('')
   //
 
   useEffect(() => {
@@ -191,16 +192,33 @@ function PendingActionUpdate(props: any) {
         severity = 'error'
       }
       setIsProgressLoader(false)
-      toast.current.show({
-        severity: severity,
-        summary: '',
-        detail: detail,
-        life: life,
-        className: 'login-toast',
-      })
+      toast.current.show([
+        {
+          severity: 'success',
+          summary: '',
+          detail: returnText,
+          life: life,
+          className: 'login-toast',
+        },
+        {
+          severity: severity,
+          summary: '',
+          detail: detail,
+          life: life,
+          className: 'login-toast',
+        },
+      ])
       setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
     }
-  }, [checkCount, DASHBOARD, DEFAULT, history, failureCount, referenceDocData])
+  }, [
+    checkCount,
+    DASHBOARD,
+    DEFAULT,
+    history,
+    failureCount,
+    referenceDocData,
+    returnText,
+  ])
 
   useEffect(() => {
     if (requestedId && requestedId !== '') {
@@ -939,8 +957,8 @@ function PendingActionUpdate(props: any) {
           }}
         >
           <Typography variant="body2" style={{ overflowX: 'auto' }}>
-            {/* Request ID:<b> {requestedId}</b> */}
-            Request ID:<b> {taskId}</b>
+            Request ID:<b> {requestedId}</b>
+            {/* Request ID:<b> {taskId}</b> */}
           </Typography>
         </Box>
         <Box
@@ -1147,10 +1165,12 @@ function PendingActionUpdate(props: any) {
     //       },
     //     }
     //   )
+    setReturnText('')
     userDetail &&
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
+          setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1162,7 +1182,7 @@ function PendingActionUpdate(props: any) {
           const timepart = time.split('T')[1].split('.')[0]
           const logData = {
             // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
+            requestId: res.data.requestId,
             // timestamp: `${datepart} ${timepart}`,
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
@@ -1206,13 +1226,13 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'success',
+          //   summary: '',
+          //   detail: res.data.comments,
+          //   life: life,
+          //   className: 'login-toast',
+          // })
 
           // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
@@ -1357,11 +1377,13 @@ function PendingActionUpdate(props: any) {
     //       },
     //     }
     //   )
+    setReturnText('')
     userDetail &&
       putUserDetailsCamundaAPI &&
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
+          setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1372,7 +1394,7 @@ function PendingActionUpdate(props: any) {
           const timepart = time.split('T')[1].split('.')[0]
           const logData = {
             // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.businessKey,
+            requestId: res.data.requestId,
             // timestamp: `${datepart} ${timepart}`,
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
@@ -1414,13 +1436,13 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'success',
+          //   summary: '',
+          //   detail: res.data.comments,
+          //   life: life,
+          //   className: 'login-toast',
+          // })
 
           // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
@@ -1522,11 +1544,13 @@ function PendingActionUpdate(props: any) {
         }),
     }
     console.log(formData)
+    setReturnText('')
     pendingActionDetails &&
       putCompleteTaskAPI &&
       putCompleteTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
+          setReturnText(res.data.status)
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1542,7 +1566,7 @@ function PendingActionUpdate(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: pendingActionDetails[0].requestId,
+            camundaRequestId: pendingActionDetails[0].businessKey,
             actionTaken: 'Approved',
             comments: comments,
             attachmentUrl: null,
@@ -1579,14 +1603,14 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.status,
-            // detail: 'Success',
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'success',
+          //   summary: '',
+          //   detail: res.data.status,
+          //   // detail: 'Success',
+          //   life: life,
+          //   className: 'login-toast',
+          // })
 
           // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
@@ -1628,11 +1652,13 @@ function PendingActionUpdate(props: any) {
       // submitFlag: 'Reassign',
     }
     console.log(formData)
+    setReturnText('')
     pendingActionDetails &&
       putClaimTaskAPI &&
       putClaimTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
+          setReturnText(res.data.comments)
           // if (res.data.status.toLowerCase() !== 'failed') {
           const rolelog =
             userDetail &&
@@ -1649,7 +1675,7 @@ function PendingActionUpdate(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: pendingActionDetails[0].requestId,
+            camundaRequestId: pendingActionDetails[0].businessKey,
             actionTaken: 'Reassign',
             comments: comments,
             attachmentUrl: null,
@@ -1686,14 +1712,14 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: res.data.comments,
-            // detail: 'Success',
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'success',
+          //   summary: '',
+          //   detail: res.data.comments,
+          //   // detail: 'Success',
+          //   life: life,
+          //   className: 'login-toast',
+          // })
 
           // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
           // } else {
@@ -1746,11 +1772,13 @@ function PendingActionUpdate(props: any) {
       taskId: pendingActionDetails[0].taskId,
     }
     console.log(formData)
+    setReturnText('')
     pendingActionDetails &&
       putRejectTaskAPI &&
       putRejectTaskAPI(formData, pendingActionDetails[0].businessKey)
         .then((res) => {
           console.log(res)
+          setReturnText(res.data.status)
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1766,7 +1794,7 @@ function PendingActionUpdate(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: pendingActionDetails[0].requestId,
+            camundaRequestId: pendingActionDetails[0].businessKey,
             actionTaken: 'Reject',
             comments: comments,
             attachmentUrl: null,
@@ -1803,14 +1831,14 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            //  detail: res.data.comments,
-            detail: 'Success',
-            life: life,
-            className: 'login-toast',
-          })
+          // toast.current.show({
+          //   severity: 'success',
+          //   summary: '',
+          //   //  detail: res.data.comments,
+          //   detail: 'Success',
+          //   life: life,
+          //   className: 'login-toast',
+          // })
 
           // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })

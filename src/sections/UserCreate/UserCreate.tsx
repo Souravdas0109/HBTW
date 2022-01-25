@@ -99,6 +99,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [disabled, setDisabled] = React.useState(false)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [returnText, setReturnText] = React.useState('')
   //
   //integration changes start
   const [roles, setRoles] = useState([])
@@ -168,16 +169,33 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         severity = 'error'
       }
       setIsProgressLoader(false)
-      toast.current.show({
-        severity: severity,
-        summary: '',
-        detail: detail,
-        life: life,
-        className: 'login-toast',
-      })
+      toast.current.show([
+        {
+          severity: 'success',
+          summary: '',
+          detail: returnText,
+          life: life,
+          className: 'login-toast',
+        },
+        {
+          severity: severity,
+          summary: '',
+          detail: detail,
+          life: life,
+          className: 'login-toast',
+        },
+      ])
       setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
     }
-  }, [checkCount, DASHBOARD, DEFAULT, history, failureCount, referenceDocData])
+  }, [
+    checkCount,
+    DASHBOARD,
+    DEFAULT,
+    history,
+    failureCount,
+    referenceDocData,
+    returnText,
+  ])
 
   useEffect(() => {
     if (rolesArray) {
@@ -1169,10 +1187,12 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       // employeeID &&
       //   roleNames &&
       //   groups &&
+      setReturnText('')
       userDetail &&
         putUserDetailsCamundaAPI(formData)
           .then((res) => {
             console.log(res)
+            setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
             const rolelog =
               userDetail &&
               userDetail.userdetails[0].roles
@@ -1184,7 +1204,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             const timepart = time.split('T')[1].split('.')[0]
             const logData = {
               // requestId: userDetail && userDetail.userdetails[0].user.userId,
-              requestId: res.data.businessKey,
+              requestId: res.data.requestId,
               // timestamp: `${datepart} ${timepart}`,
               timestamp: `${datepart}`,
               userId: userDetail && userDetail.userdetails[0].user.userId,
@@ -1228,13 +1248,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               setCheckCount(1)
               postTasklog(logData)
             }
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.comments,
-              life: life,
-              className: 'login-toast',
-            })
+            // toast.current.show({
+            //   severity: 'success',
+            //   summary: '',
+            //   detail: res.data.comments,
+            //   life: life,
+            //   className: 'login-toast',
+            // })
 
             // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
           })
@@ -1379,11 +1399,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       // employeeID &&
       //   roleNames &&
       //   groups &&
+      setReturnText('')
       userDetail &&
         putUserDetailsCamundaAPI &&
         putUserDetailsCamundaAPI(formData)
           .then((res) => {
             console.log(res)
+            setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
             const rolelog =
               userDetail &&
               userDetail.userdetails[0].roles
@@ -1394,7 +1416,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             const timepart = time.split('T')[1].split('.')[0]
             const logData = {
               // requestId: userDetail && userDetail.userdetails[0].user.userId,
-              requestId: res.data.businessKey,
+              requestId: res.data.requestId,
               // timestamp: `${datepart} ${timepart}`,
               timestamp: `${datepart}`,
               userId: userDetail && userDetail.userdetails[0].user.userId,
@@ -1436,13 +1458,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               setCheckCount(1)
               postTasklog(logData)
             }
-            toast.current.show({
-              severity: 'success',
-              summary: '',
-              detail: res.data.comments,
-              life: life,
-              className: 'login-toast',
-            })
+            // toast.current.show({
+            //   severity: 'success',
+            //   summary: '',
+            //   detail: res.data.comments,
+            //   life: life,
+            //   className: 'login-toast',
+            // })
 
             // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
           })
