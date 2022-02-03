@@ -89,7 +89,7 @@ function InprogressTask(props: any) {
                   paddingLeft: 20,
                 }}
               >
-                <button className={classes.exploreButton} onClick={goBack}>
+                <button className={classes.backButton} onClick={goBack}>
                   Back
                 </button>
               </Box>
@@ -100,11 +100,60 @@ function InprogressTask(props: any) {
                 p: 2,
               }}
             >
-              {!active ? (
+              {/* {!active ? ( */}
+              <DataTable
+                value={inProgressTasksDetails}
+                rowHover
+                paginator
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                stateStorage="session"
+                stateKey="dt-state-demo-session-inprogresstask"
+                rows={10}
+                style={{
+                  width: '100%',
+                }}
+                scrollable
+                scrollHeight="flex"
+                globalFilter={globalFilter}
+                emptyMessage="No users found."
+                showGridlines
+                //loading={manageUserLoading}
+              >
+                {inprogressTaskTableHeaders.map((column) => {
+                  return (
+                    <Column
+                      key={column.field}
+                      field={column.field}
+                      header={column.headerName}
+                      bodyStyle={{
+                        fontSize: '12px',
+                        width: column.width,
+                        overflowX: 'auto',
+                      }}
+                      headerStyle={{
+                        fontSize: '12px',
+                        width: column.width,
+                        backgroundColor: teal[900],
+                        color: 'white',
+                      }}
+                      // body={
+                      //   column.field === 'requestedId' && requestIdTemplate
+                      // }
+                      sortable
+                    />
+                  )
+                })}
+              </DataTable>
+              {/* ) : (
                 <DataTable
                   value={inProgressTasksDetails}
+                  rowHover
                   paginator
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                  currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                  stateStorage="session"
+                  stateKey="dt-state-demo-session"
                   rows={10}
                   style={{
                     width: '100%',
@@ -141,48 +190,7 @@ function InprogressTask(props: any) {
                     )
                   })}
                 </DataTable>
-              ) : (
-                <DataTable
-                  value={inProgressTasksDetails}
-                  paginator
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-                  rows={10}
-                  style={{
-                    width: '100%',
-                  }}
-                  scrollable
-                  scrollHeight="flex"
-                  globalFilter={globalFilter}
-                  emptyMessage="No users found."
-                  showGridlines
-                  //loading={manageUserLoading}
-                >
-                  {inprogressTaskTableHeaders.map((column) => {
-                    return (
-                      <Column
-                        key={column.field}
-                        field={column.field}
-                        header={column.headerName}
-                        bodyStyle={{
-                          fontSize: '12px',
-                          width: column.width,
-                          overflowX: 'auto',
-                        }}
-                        headerStyle={{
-                          fontSize: '12px',
-                          width: column.width,
-                          backgroundColor: teal[900],
-                          color: 'white',
-                        }}
-                        // body={
-                        //   column.field === 'requestedId' && requestIdTemplate
-                        // }
-                        sortable
-                      />
-                    )
-                  })}
-                </DataTable>
-              )}
+              )} */}
             </Box>
           </Grid>
         </Grid>

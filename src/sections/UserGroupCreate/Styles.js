@@ -63,12 +63,15 @@ export const useStyles = makeStyles((theme) => ({
   },
   whiteButton: {
     borderColor: theme.palette.primary.main,
-    border: '2px solid',
+    border: '1px solid',
     backgroundColor: 'white',
     color: theme.palette.primary.main,
     '&:hover': {
       color: 'white',
+      backgroundColor: teal[900],
     },
+    marginBottom: '10px',
+    marginRight: '10px',
   },
   viewLogTitle: {
     backgroundColor: theme.palette.primary.main,
@@ -113,7 +116,11 @@ export const useStyles = makeStyles((theme) => ({
     color: 'blue',
     // backgroundColor: "white",
     cursor: 'pointer',
-    fontSize: '16px',
+    fontSize: '18px',
+    '&:disabled': {
+      color: 'grey',
+      cursor: 'default',
+    },
   },
   eachRow: {
     display: 'flex',
@@ -174,32 +181,28 @@ export const useStyles = makeStyles((theme) => ({
     color: '#0000ff',
   },
   submitButton: {
-    marginTop: '20px',
-    marginLeft: 0,
-    [theme.breakpoints.down(750)]: {
-      marginLeft: 0,
-    },
-    width: 100,
-    height: 40,
-    fontSize: 'bi',
-    color: teal[900],
-    borderColor: teal[900],
+    width: 'auto',
+    border: '1px solid',
+    borderColor: theme.palette.primary.main,
+    //height: 40,
     display: 'inline',
     '&:hover': {
       fontSize: 'large',
     },
+    marginBottom: '10px',
+    marginRight: '10px',
   },
   buttons: {
-    marginTop: '20px',
-    marginLeft: 0,
-    [theme.breakpoints.down(750)]: {
-      marginLeft: 0,
-    },
-    width: 100,
-    height: 40,
+    width: 'auto',
+    border: '1px solid',
+    borderColor: theme.palette.primary.main,
+    //height: 40,
+    display: 'inline',
     '&:hover': {
       fontSize: 'large',
     },
+    marginBottom: '10px',
+    marginRight: '10px',
   },
   root: {
     padding: theme.spacing(2),

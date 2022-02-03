@@ -21,4 +21,9 @@ export const theme = createTheme({
       contrastText: '#c10822',
     },
   },
+  typography: {
+    button: {
+      textTransform: 'none',
+    },
+  },
 })

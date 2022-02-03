@@ -9,6 +9,7 @@ import {
   RESET_MYGROUPPENDING_ACTION,
   SET_MYGROUPUNASSIGN_TASKS,
   RESET_MYGROUPUNASSIGN_TASKS,
+  RESET_ALL,
 } from './Type'
 export const set_pendingAction = (data: any) => {
   return {
@@ -64,5 +65,11 @@ export const set_mygroupunassignAction = (data: any) => {
 export const reset_mygroupunassignAction = () => {
   return {
     type: RESET_MYGROUPUNASSIGN_TASKS,
+  }
+}
+
+export const reset_all = () => {
+  return {
+    type: RESET_ALL,
   }
 }

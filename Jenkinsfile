@@ -89,7 +89,9 @@ pipeline {
 			steps {
 				script {
 					echo "Build Started for ${params.DEPLOY_ENV}";
+					sh 'npm cache clean --force';
 					sh 'npm install';
+					sh 'npm config set registry=https://registry.npmjs.org/';
 					sh "npm run build:${params.DEPLOY_ENV.toLowerCase()}";
 
 					sh "zip -r app.zip ./build";

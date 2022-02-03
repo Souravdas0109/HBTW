@@ -109,7 +109,7 @@ function PendingAction(props: any) {
                   paddingLeft: 20,
                 }}
               >
-                <button className={classes.exploreButton} onClick={goBack}>
+                <button className={classes.backButton} onClick={goBack}>
                   Back
                 </button>
               </Box>
@@ -120,11 +120,58 @@ function PendingAction(props: any) {
                 p: 2,
               }}
             >
-              {!active ? (
+              {/* {!active ? ( */}
+              <DataTable
+                value={pendingActionDetails}
+                rowHover
+                paginator
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                stateStorage="session"
+                stateKey="dt-state-demo-session-pendingaction"
+                rows={10}
+                style={{
+                  width: '100%',
+                }}
+                scrollable
+                scrollHeight="flex"
+                globalFilter={globalFilter}
+                emptyMessage="No users found."
+                showGridlines
+                loading={pendingActionLoading}
+              >
+                {pendingActionTableHeaders.map((column) => {
+                  return (
+                    <Column
+                      key={column.field}
+                      field={column.field}
+                      header={column.headerName}
+                      bodyStyle={{
+                        fontSize: '12px',
+                        width: column.width,
+                        overflowX: 'auto',
+                      }}
+                      headerStyle={{
+                        fontSize: '12px',
+                        width: column.width,
+                        backgroundColor: teal[900],
+                        color: 'white',
+                      }}
+                      body={column.field === 'requestId' && requestIdTemplate}
+                      sortable
+                    />
+                  )
+                })}
+              </DataTable>
+              {/* ) : (
                 <DataTable
                   value={pendingActionDetails}
+                  rowHover
                   paginator
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                  currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                  stateStorage="session"
+                  stateKey="dt-state-demo-session"
                   rows={10}
                   style={{
                     width: '100%',
@@ -159,46 +206,7 @@ function PendingAction(props: any) {
                     )
                   })}
                 </DataTable>
-              ) : (
-                <DataTable
-                  value={pendingActionDetails}
-                  paginator
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-                  rows={10}
-                  style={{
-                    width: '100%',
-                  }}
-                  scrollable
-                  scrollHeight="flex"
-                  globalFilter={globalFilter}
-                  emptyMessage="No users found."
-                  showGridlines
-                  loading={pendingActionLoading}
-                >
-                  {pendingActionTableHeaders.map((column) => {
-                    return (
-                      <Column
-                        key={column.field}
-                        field={column.field}
-                        header={column.headerName}
-                        bodyStyle={{
-                          fontSize: '12px',
-                          width: column.width,
-                          overflowX: 'auto',
-                        }}
-                        headerStyle={{
-                          fontSize: '12px',
-                          width: column.width,
-                          backgroundColor: teal[900],
-                          color: 'white',
-                        }}
-                        body={column.field === 'requestId' && requestIdTemplate}
-                        sortable
-                      />
-                    )
-                  })}
-                </DataTable>
-              )}
+              )} */}
             </Box>
           </Grid>
         </Grid>

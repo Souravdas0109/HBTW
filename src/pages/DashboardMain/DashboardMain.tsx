@@ -1,28 +1,28 @@
-import { Divider, Typography, makeStyles } from "@material-ui/core";
-import React from "react";
-import Dashboard from "../../sections/Dashboard/Dashboard";
+import { Divider, Typography, makeStyles } from '@material-ui/core'
+import React from 'react'
+import Dashboard from '../../sections/Dashboard/Dashboard'
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: "flex",
+    display: 'flex',
     flex: 1,
-    flexDirection: "column",
-    height: "100%",
+    flexDirection: 'column',
+    height: '100%',
   },
   value: {
     flex: 1,
   },
   container: {
-    height: "100%",
+    height: '100%',
   },
-}));
+}))
 function DashboardMain() {
-  const classes = useStyles();
+  const classes = useStyles()
   return (
     <div className={classes.root}>
       <div>
         <Typography variant="h6" color="primary" align="center">
-          Commercial Web Application - Dashboard
+          Commercial Web Application - Task Dashboard
         </Typography>
         <Divider />
       </div>
@@ -30,7 +30,7 @@ function DashboardMain() {
         <Dashboard />
       </div>
     </div>
-  );
+  )
 }
 
-export default DashboardMain;
+export default DashboardMain

@@ -29,6 +29,7 @@ import {
   SET_NO_ACCESS,
   SET_MENU_LIST,
   SAVE_APP_FUNC_ARRAY,
+  INCREMENT,
 } from './Type'
 
 export const loginUser = (idToken: any) => (dispatch: any) => {
@@ -76,6 +77,12 @@ export const getUser = (empId: String) => (dispatch: any) => {
 const loginUserRequest = () => {
   return {
     type: LOGIN_USER_REQUEST,
+  }
+}
+
+export const increment = () => {
+  return {
+    type: INCREMENT,
   }
 }
 

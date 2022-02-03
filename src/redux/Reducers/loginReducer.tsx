@@ -19,7 +19,8 @@ import {
   SET_NO_ACCESS,
   SET_MENU_LIST,
   SAVE_APP_FUNC_ARRAY,
-} from "../Actions/Login/Type";
+  INCREMENT,
+} from '../Actions/Login/Type'
 
 const initLoginState = {
   error: false,
@@ -27,7 +28,7 @@ const initLoginState = {
   // isRoleLoading: false,
   // isAppLoading: false,
   user: undefined,
-  errorMessage: "",
+  errorMessage: '',
   hasAccess: true,
   userDetail: undefined,
   rolesArray: undefined,
@@ -35,50 +36,52 @@ const initLoginState = {
   menuList: undefined,
   appFuncList: undefined,
   isTokenExpired: false,
-};
+  value: 1,
+}
 
 const loginReducer = (state = initLoginState, action: any) => {
-  const { type, payload } = action;
+  const { type, payload } = action
   switch (type) {
     case LOGIN_USER_REQUEST:
       return {
         ...state,
         isLoading: true,
         user: undefined,
-        errorMessage: "",
+        errorMessage: '',
         error: false,
         isTokenExpired: false,
-      };
+      }
     case LOGIN_USER_FAILURE:
       return {
         ...state,
         isLoading: false,
         error: true,
         errorMessage: payload,
-      };
+      }
     case LOGIN_USER_SUCCESS:
       return {
         ...state,
         //isLoading: false,
         user: payload,
         error: false,
-      };
+        value: 0,
+      }
     case GET_USER_REQUEST:
       return {
         ...state,
         isLoading: true,
         isTokenExpired: false,
         error: false,
-        errorMessage: "",
+        errorMessage: '',
         hasAccess: true,
-      };
+      }
     case LOGOUT_USER_REQUEST:
       return {
         ...state,
         user: undefined,
         error: false,
-        errorMessage: "",
-      };
+        errorMessage: '',
+      }
     case GET_USER_SUCCESS:
       return {
         ...state,
@@ -86,7 +89,7 @@ const loginReducer = (state = initLoginState, action: any) => {
         userDetail: payload,
         error: false,
         hasAccess: true,
-      };
+      }
     case GET_USER_ERROR:
       return {
         ...state,
@@ -94,22 +97,22 @@ const loginReducer = (state = initLoginState, action: any) => {
         userDetail: undefined,
         error: true,
         errorMessage: payload,
-      };
+      }
     case GET_ROLES_REQUEST:
       return {
         ...state,
         // isRoleLoading: true,
         isTokenExpired: false,
         error: false,
-        errorMessage: "",
-      };
+        errorMessage: '',
+      }
     case GET_ROLES_SUCCESS:
       return {
         ...state,
         isLoading: false,
         rolesArray: payload,
         error: false,
-      };
+      }
     case GET_ROLES_ERROR:
       return {
         ...state,
@@ -117,22 +120,22 @@ const loginReducer = (state = initLoginState, action: any) => {
         rolesArray: undefined,
         error: true,
         errorMessage: payload,
-      };
+      }
     case GET_APPS_REQUEST:
       return {
         ...state,
         // isAppLoading: true,
         isTokenExpired: false,
         error: false,
-        errorMessage: "",
-      };
+        errorMessage: '',
+      }
     case GET_APPS_SUCCESS:
       return {
         ...state,
         // isLoading: false,
         appsArray: payload,
         error: false,
-      };
+      }
     case GET_APPS_ERROR:
       return {
         ...state,
@@ -140,24 +143,24 @@ const loginReducer = (state = initLoginState, action: any) => {
         appsArray: undefined,
         error: true,
         errorMessage: payload,
-      };
+      }
     case REFRESH_APPS_ARRAY:
       return {
         ...state,
         appsArray: {},
-      };
+      }
     case REFRESH_ROLES_ARRAY:
       return {
         ...state,
         rolesArray: {},
-      };
+      }
     case REFRESH_USERDETAILS: {
       return {
         ...state,
         userDetail: {},
         menuList: [],
         appFuncList: [],
-      };
+      }
     }
     case USER_TOKEN_EXPIRED_ERROR:
       return {
@@ -170,26 +173,31 @@ const loginReducer = (state = initLoginState, action: any) => {
         appsArray: undefined,
         isTokenExpired: true,
         error: false,
-      };
+      }
     case SET_NO_ACCESS:
       return {
         ...state,
         hasAccess: payload,
-      };
+      }
     case SET_MENU_LIST:
       return {
         ...state,
         menuList: payload,
-      };
+      }
     case SAVE_APP_FUNC_ARRAY:
       return {
         ...state,
         appFuncList: payload,
-      };
+      }
+    case INCREMENT:
+      return {
+        ...state,
+        value: 1,
+      }
     default:
-      return state;
+      return state
   }
-};
+}
 
 //export { loginReducer }
-export default loginReducer;
+export default loginReducer

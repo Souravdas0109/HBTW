@@ -22,24 +22,28 @@ export const useStyles = makeStyles((theme) => ({
     color: 'blue',
     fontSize: '12px',
     fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '10px',
-    },
+    // [theme.breakpoints.down('sm')]: {
+    //   fontSize: '10px',
+    // },
   },
   backButton: {
     border: 0,
     color: 'blue',
     cursor: 'pointer',
-    fontSize: '15px',
+    fontSize: '18px',
+    '&:disabled': {
+      color: 'grey',
+      cursor: 'default',
+    },
   },
   exploreButtonforid: {
     color: 'blue',
     cursor: 'pointer',
     fontSize: '12px',
     fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '10px',
-    },
+    // [theme.breakpoints.down('sm')]: {
+    //   fontSize: '10px',
+    // },
   },
   paper: { minWidth: '500px' },
 }))

@@ -31,6 +31,7 @@ import { reset_empID } from '../../redux/Actions/ManageUser/Action'
 import { Toast } from 'primereact/toast'
 import { fieldWidth, useStyles } from './Styles'
 import {
+  getColleagueAPI,
   getUserGroupAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
@@ -43,6 +44,7 @@ import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { routes, extensions, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
+import { allMessages } from '../../util/Messages'
 
 const Input = styled('input')({
   display: 'none',
@@ -78,7 +80,7 @@ function UpdateUser(props: any) {
   const viewLogOpen = Boolean(viewLogEl)
   const [roleAccess, setRoleAccess] = React.useState('')
   const [groupAccess, setGroupAccess] = React.useState('')
-  const [groupData, setGroupData] = React.useState<any>('')
+  const [groupData, setGroupData] = React.useState<Array<any>>([])
   const [groups, setGroups] = React.useState([])
   const [groupInput, setGroupInput] = React.useState([])
   const [groupOpen, setGroupOpen] = React.useState(false)
@@ -86,6 +88,7 @@ function UpdateUser(props: any) {
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
+  const [colleagueData, setColleagueData] = React.useState('')
   const [errorRequestType, setErrorRequestType] = React.useState('')
   const [errorEmployeeId, setErrorEmployeeId] = React.useState('')
   const [errorStatus, setErrorStatus] = React.useState('')
@@ -97,7 +100,7 @@ function UpdateUser(props: any) {
   const [roles, setRoles] = React.useState([])
   const [tasks, setTasks] = React.useState(taskList)
   const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
-  const [taskSelected, setTaskSelected] = React.useState<any>(null)
+  const [taskSelected, setTaskSelected] = React.useState<any>('')
   const [taskOpen, setTaskOpen] = React.useState(false)
   const [requestId, setRequestId] = React.useState('')
   const [taskId, setTaskId] = React.useState('')
@@ -106,8 +109,16 @@ function UpdateUser(props: any) {
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   const [returnText, setReturnText] = React.useState('')
+  const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
+    []
+  )
+  const [logDataIn, setLogDataIn] = React.useState({})
   //
-
+  const focusRequestType = useRef<any>(null)
+  const focusEmpId = useRef<any>(null)
+  const focusStatus = useRef<any>(null)
+  const focusRole = useRef<any>(null)
+  const focusGroup = useRef<any>(null)
   useEffect(() => {
     return () => reset_empID()
   }, [])
@@ -171,40 +182,114 @@ function UpdateUser(props: any) {
   useEffect(() => {
     // console.log('Check count: ', checkCount)
     // console.log('Failure count: ', failureCount)
-    let detail
-    let severity
-    if (checkCount === 0) {
-      if (failureCount === 0 && referenceDocData.length === 0) {
-        detail = 'Log posted successfully'
-        severity = 'success'
-      } else if (failureCount === 0 && referenceDocData.length > 0) {
-        detail = `All attached files uploaded and logged successfully`
-        severity = 'success'
-      } else if (failureCount > 0 && referenceDocData.length === 0) {
-        detail = `Log posting failed due to service error`
-        severity = 'error'
-      } else if (failureCount > 0 && referenceDocData.length > 0) {
-        detail = `${failureCount} files failed to upload and log due to service error`
-        severity = 'error'
+    let detail = ''
+    let severity = ''
+    if (referenceDocData.length === 0) {
+      if (checkCount === 0) {
+        // if (failureCount === 0 && referenceDocData.length === 0) {
+        if (failureCount === 0) {
+          detail = allMessages.success.successPost
+          severity = 'success'
+          // } else if (failureCount === 0 && referenceDocData.length > 0) {
+          //   detail = allMessages.success.successPostAttach
+          //   severity = 'success'
+          // } else if (failureCount > 0 && referenceDocData.length === 0) {
+        } else if (failureCount > 0) {
+          detail = allMessages.error.logpostFailureSingle
+          severity = 'error'
+          // } else if (failureCount > 0 && referenceDocData.length > 0) {
+          //   detail = `${failureCount} ${allMessages.error.logpostFailureAttach}`
+          //   severity = 'error'
+        }
+        setIsProgressLoader(false)
+        toast.current.show([
+          {
+            severity: 'success',
+            summary: '',
+            detail: returnText,
+            life: life,
+            className: 'login-toast',
+          },
+          {
+            severity: severity,
+            summary: '',
+            detail: detail,
+            life: life,
+            className: 'login-toast',
+          },
+        ])
+        setTimeout(
+          () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+          life
+        )
       }
-      setIsProgressLoader(false)
-      toast.current.show([
-        {
-          severity: 'success',
-          summary: '',
-          detail: returnText,
-          life: life,
-          className: 'login-toast',
-        },
-        {
-          severity: severity,
-          summary: '',
-          detail: detail,
-          life: life,
-          className: 'login-toast',
-        },
-      ])
-      setTimeout(() => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`), life)
+    } else {
+      if (checkCount === 0) {
+        const attachListString = attachmentUrlArr.join('#!#')
+        console.log(logDataIn)
+        const data = {
+          ...logDataIn,
+          attachmentUrl: attachListString,
+        }
+        logDataIn &&
+          postTaskLogsAPI &&
+          postTaskLogsAPI(data)
+            .then((res) => {
+              if (failureCount === 0) {
+                detail = allMessages.success.successAttach
+                severity = 'success'
+              } else if (failureCount > 0) {
+                detail = `${failureCount} ${allMessages.error.logFailureAttach}`
+                severity = 'error'
+              }
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(
+                () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+                life
+              )
+            })
+            .catch((err) => {
+              detail = allMessages.error.logpostFailureSingle
+              severity = 'error'
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(
+                () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+                life
+              )
+            })
+      }
     }
   }, [
     checkCount,
@@ -214,6 +299,8 @@ function UpdateUser(props: any) {
     failureCount,
     referenceDocData,
     returnText,
+    logDataIn,
+    attachmentUrlArr,
   ])
 
   useEffect(() => {
@@ -232,7 +319,9 @@ function UpdateUser(props: any) {
 
   useEffect(() => {
     if (status === 'D' && requestType !== 'modify' && requestType !== '') {
-      setErrorRequestType('Only Modify request can be raised for Deleted users')
+      // setErrorRequestType(allMessages.error.deletedError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.deletedError)
     }
     if (
       status === 'I' &&
@@ -240,9 +329,14 @@ function UpdateUser(props: any) {
       requestType !== 'remove' &&
       requestType !== ''
     ) {
-      setErrorRequestType(
-        'Only Modify/Remove request can be raised for Inactive users'
-      )
+      // setErrorRequestType(allMessages.error.inactiveError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inactiveError)
+    }
+    if (status === 'W' && requestType !== 'new' && requestType !== '') {
+      // setErrorRequestType(allMessages.error.inprogressError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inprogressError)
     }
   }, [status, requestType])
 
@@ -306,10 +400,16 @@ function UpdateUser(props: any) {
   // };
   const onstatusChange = (e: any) => {
     setStatus(e.target.value)
-    if (e.target.value !== '') setErrorStatus('')
+    if (e.target.value !== '') {
+      setErrorStatus('')
+      setErrorRequestType('')
+    }
   }
   const onrequestTypeChange = (e: any) => {
-    if (e.target.value !== '') setErrorRequestType('')
+    if (e.target.value !== '') {
+      setErrorRequestType('')
+      setErrorStatus('')
+    }
     if (e.target.value.toLowerCase() === 'new') {
       // setStatus('W')
       setRoleAccess('new_role')
@@ -319,11 +419,13 @@ function UpdateUser(props: any) {
       // setStatus('W')
       setRoleAccess('mod_role')
       setGroupAccess('mod_group')
+      setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
       // setStatus('W')
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
+      setStatus('A')
     }
     setRequestType(e.target.value)
   }
@@ -381,30 +483,29 @@ function UpdateUser(props: any) {
   }
 
   const roleSelect1 = (
-    <>
-      <Select
-        options={roles}
-        isMulti
-        onChange={handleRoleChange1}
-        components={{
-          Option,
-        }}
-        value={roleNames}
-        closeMenuOnSelect={false}
-        hideSelectedOptions={false}
-        className={classes.multiSelect}
-        styles={roleSelectStyle}
-        isDisabled={
-          UtilityFunctions.isHidden(
-            '8',
-            appFuncList ? appFuncList : [],
-            roleAccess
-          )
-            ? true
-            : false
-        }
-      />
-    </>
+    <Select
+      options={roles}
+      isMulti
+      ref={focusRole}
+      onChange={handleRoleChange1}
+      components={{
+        Option,
+      }}
+      value={roleNames}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      className={classes.multiSelect}
+      styles={roleSelectStyle}
+      isDisabled={
+        UtilityFunctions.isHidden(
+          '8',
+          appFuncList ? appFuncList : [],
+          roleAccess
+        )
+          ? true
+          : false
+      }
+    />
   )
 
   useEffect(() => {
@@ -415,20 +516,38 @@ function UpdateUser(props: any) {
       setLastName(selectEmployeeID.lastName)
       setEmail(selectEmployeeID.emailId)
       setDesignation(selectEmployeeID.designation)
-      setAdditionalInfo(selectEmployeeID.additionalInfo)
-      if (selectEmployeeID.status === 'A') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('ACTIVE')
-      } else if (selectEmployeeID.status === 'W') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('INPROGRESS')
-      } else if (selectEmployeeID.status === 'I') {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('INACTIVE')
-      } else {
-        setStatus(selectEmployeeID.status)
-        setStatusWithValue('DELETED')
-      }
+      // setAdditionalInfo(selectEmployeeID.additionalInfo)
+      // if (
+      //   selectEmployeeID.additionalInfo &&
+      //   selectEmployeeID.additionalInfo !== ''
+      // ) {
+      //   setAdditionalInfo(selectEmployeeID.additionalInfo)
+      // } else {
+      getColleagueAPI(selectEmployeeID.userId)
+        .then((res: any) => {
+          setColleagueData(res.data)
+        })
+        .catch((err) => setColleagueData(''))
+      // }
+      setStatus(
+        constants.statuses
+          .filter((stat: any) => stat.text === selectEmployeeID.status)
+          .map((stat: any) => stat.statusID)
+          .toString()
+      )
+      // if (selectEmployeeID.status === 'A') {
+      //   setStatus(selectEmployeeID.status)
+      //   setStatusWithValue('ACTIVE')
+      // } else if (selectEmployeeID.status === 'W') {
+      //   setStatus(selectEmployeeID.status)
+      //   setStatusWithValue('INPROGRESS')
+      // } else if (selectEmployeeID.status === 'I') {
+      //   setStatus(selectEmployeeID.status)
+      //   setStatusWithValue('INACTIVE')
+      // } else {
+      //   setStatus(selectEmployeeID.status)
+      //   setStatusWithValue('DELETED')
+      // }
 
       setRoleNames(
         selectEmployeeID.roles.map((role: any) => {
@@ -477,6 +596,7 @@ function UpdateUser(props: any) {
   }
   const handleCloseGroups = (e: any) => {
     e.preventDefault()
+    setGroupInput(groups)
     setGroupOpen(false)
   }
   const updateGroups = () => {
@@ -584,8 +704,9 @@ function UpdateUser(props: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="button"
-            className={classes.whiteButton}
+            type="submit"
+            variant="contained"
+            color="primary"
             onClick={updateGroups}
             disabled={
               UtilityFunctions.isHidden(
@@ -754,14 +875,39 @@ function UpdateUser(props: any) {
   }
 
   const attachmentTemplate = (rowData: any) => {
+    let values = []
+    if (rowData.attachmentUrl) {
+      const urls = rowData.attachmentUrl.split('#!#')
+      for (let i = 0; i < urls.length; i++) {
+        const namepart = urls[i].substr(urls[i].lastIndexOf('/') + 1)
+        const part = namepart.split('-', 2).join('-').length
+        values.push({
+          name: namepart.substr(part + 1),
+          data: urls[i],
+        })
+      }
+    }
+    // return rowData.attachmentUrl ? (
+    //   <a
+    //     href={rowData.attachmentUrl}
+    //     target="popup"
+    //     className={classes.backButton}
+    //   >
+    //     <AttachFileIcon fontSize="small" />
+    //   </a>
+    // ) : (
+    //   rowData.attachmentUrl
+    // )
     return rowData.attachmentUrl ? (
-      <a
-        href={rowData.attachmentUrl}
-        target="popup"
-        className={classes.backButton}
-      >
-        <AttachFileIcon fontSize="small" />
-      </a>
+      <div>
+        {values.map((item) => (
+          <div key={item.name}>
+            <a href={item.data} target="popup" className={classes.attachIcon}>
+              {item.name}
+            </a>
+          </div>
+        ))}
+      </div>
     ) : (
       rowData.attachmentUrl
     )
@@ -774,7 +920,8 @@ function UpdateUser(props: any) {
         setOpenAdditional((prevState) => !prevState)
       }}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -843,7 +990,12 @@ function UpdateUser(props: any) {
         >
           <DataTable
             value={
-              additionalInfo ? constants.getAdditionalInfo(additionalInfo) : []
+              // additionalInfo ? constants.getAdditionalInfo(additionalInfo) : []
+              colleagueData
+                ? constants.getColleagueDetails(colleagueData)
+                : additionalInfo
+                ? constants.getAdditionalInfo(additionalInfo)
+                : []
             }
             // paginator
             // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
@@ -890,7 +1042,8 @@ function UpdateUser(props: any) {
       open={viewLogOpen}
       onClose={handleCloseViewLog}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -963,7 +1116,8 @@ function UpdateUser(props: any) {
           <DataTable
             value={viewLogRows}
             paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
             rows={5}
             style={{
               fontSize: '12px',
@@ -1021,6 +1175,11 @@ function UpdateUser(props: any) {
   const checkForm = (btnName: string) => {
     let flag = 1
     if (errorRequestType !== '') {
+      focusRequestType.current.focus()
+      flag = 0
+    }
+    if (errorStatus !== '') {
+      focusStatus.current.focus()
       flag = 0
     }
     if (
@@ -1028,22 +1187,27 @@ function UpdateUser(props: any) {
       requestType !== 'modify' &&
       requestType !== 'remove'
     ) {
-      setErrorRequestType('Please select request type')
+      focusRequestType.current.focus()
+      setErrorRequestType(allMessages.error.noRequestType)
       flag = 0
     }
     if (employeeID === '') {
-      setErrorEmployeeId('Provide employee id and search')
+      focusEmpId.current.focus()
+      setErrorEmployeeId(allMessages.error.noEmployeeId)
       flag = 0
     }
     if (status === '') {
-      setErrorStatus('Please select a status')
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.noStatus)
     }
     if (roleNames.length === 0) {
-      setErrorRoles('Please select atleast one role')
+      focusRole.current.focus()
+      setErrorRoles(allMessages.error.noRoles)
       flag = 0
     }
     if (groups.length === 0) {
-      setErrorGroups('Please select atleast one group')
+      focusGroup.current.focus()
+      setErrorGroups(allMessages.error.noGroups)
       flag = 0
     }
     if (flag === 1 && btnName === 'approve') {
@@ -1071,6 +1235,12 @@ function UpdateUser(props: any) {
     // e.preventDefault()
     setIsProgressLoader(true)
     setDisabled(true)
+    // const colleague: any =
+    //   colleagueData && constants.getColleagueDetails(colleagueData)
+    // const colleaguestring =
+    //   colleagueData &&
+    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+
     const formData = {
       camunda: {
         submitFlag: 'Approved',
@@ -1096,7 +1266,8 @@ function UpdateUser(props: any) {
         middleName: middleName,
         lastName: lastName,
         emailId: email,
-        additionalInfo: additionalInfo,
+        additionalInfo: '',
+        // colleagueData !== '' ? colleaguestring : additionalInfo,
         designation: designation.toUpperCase(),
         status: status,
       },
@@ -1135,6 +1306,15 @@ function UpdateUser(props: any) {
         .then((res) => {
           console.log(res)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(res.data.requestId)
+          }
+          // else {
+          //   ;(window as any).clipboardData.setData(
+          //     'text/plain',
+          //     res.data.requestId
+          //   )
+          // }
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1151,11 +1331,12 @@ function UpdateUser(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: res.data.businessKey,
+            camundaRequestId: res.data.businessKey ? res.data.businessKey : '',
             actionTaken: 'Approved',
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1166,8 +1347,14 @@ function UpdateUser(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1284,6 +1471,12 @@ function UpdateUser(props: any) {
     // e.preventDefault()
     setIsProgressLoader(true)
     setDisabled(true)
+    // const colleague: any =
+    //   colleagueData && constants.getColleagueDetails(colleagueData)
+    // const colleaguestring =
+    //   colleagueData &&
+    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+
     const formData = {
       camunda: {
         submitFlag: 'Submit',
@@ -1309,7 +1502,8 @@ function UpdateUser(props: any) {
         middleName: middleName,
         lastName: lastName,
         emailId: email,
-        additionalInfo: additionalInfo,
+        additionalInfo: '',
+        // colleagueData !== '' ? colleaguestring : additionalInfo,
         designation: designation.toUpperCase(),
         status: status,
       },
@@ -1349,6 +1543,15 @@ function UpdateUser(props: any) {
         .then((res) => {
           console.log(res)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(res.data.requestId)
+          }
+          // else {
+          //   ;(window as any).clipboardData.setData(
+          //     'text/plain',
+          //     res.data.requestId
+          //   )
+          // }
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1364,11 +1567,12 @@ function UpdateUser(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Submited',
+            camundaRequestId: res.data.businessKey ? res.data.businessKey : '',
+            actionTaken: 'Submitted',
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1379,8 +1583,14 @@ function UpdateUser(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1622,6 +1832,7 @@ function UpdateUser(props: any) {
             <Typography variant="subtitle2">
               <select
                 name="requesttype"
+                ref={focusRequestType}
                 id="requesttype"
                 className={classes.selectField}
                 defaultValue=""
@@ -1672,6 +1883,7 @@ function UpdateUser(props: any) {
             <Typography variant="subtitle2">
               <input
                 type="text"
+                ref={focusEmpId}
                 className={classes.inputFields}
                 value={employeeID}
                 onChange={() => {}}
@@ -1846,7 +2058,7 @@ function UpdateUser(props: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={additionalInfo ? false : true}
+                disabled={colleagueData || additionalInfo ? false : true}
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
@@ -1893,6 +2105,7 @@ function UpdateUser(props: any) {
               <select
                 name="status"
                 id="status"
+                ref={focusStatus}
                 className={classes.selectField}
                 defaultValue=""
                 onChange={onstatusChange}
@@ -1923,39 +2136,39 @@ function UpdateUser(props: any) {
                           </option>
                         )
                       })
-                  : requestType === 'modify'
-                  ? constants.statuses
-                      .filter((type) => type.statusID.toLowerCase() !== 'w')
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : requestType === 'remove'
-                  ? constants.statuses
-                      .filter(
-                        (type) => type.statusID.toLowerCase() !== 'w'
-                        // &&
-                        // type.statusID.toLowerCase() !== 'i'
-                      )
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : constants.statuses.map((type) => {
+                  : // : requestType === 'modify'
+                    // ? constants.statuses
+                    //     .filter((type) => type.statusID.toLowerCase() !== 'w')
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    // : requestType === 'remove'
+                    // ? constants.statuses
+                    //     .filter(
+                    //       (type) => type.statusID.toLowerCase() !== 'w'
+                    //       // &&
+                    //       // type.statusID.toLowerCase() !== 'i'
+                    //     )
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    constants.statuses.map((type) => {
                       return (
                         <option
                           value={type.statusID}
@@ -1970,6 +2183,16 @@ function UpdateUser(props: any) {
             </Typography>
           </Box>
         </Box>
+        {errorStatus !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorStatus}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -2011,62 +2234,65 @@ function UpdateUser(props: any) {
           </Box>
 
           <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle1">
-              {groups ? (
-                groups.length > 0 ? (
-                  <button
-                    className={classes.backButton}
-                    onClick={handleOpenGroups}
-                  >
-                    Groups ( {groups.length} )
-                  </button>
-                ) : (
-                  <button
-                    // className={
-                    //   UtilityFunctions.isHidden(
-                    //     '8',
-                    //     appFuncList ? appFuncList : [],
-                    //     groupAccess
-                    //   )
-                    //     ? classes.hideit
-                    //     : classes.backButton
-                    // }
-                    className={classes.backButton}
-                    disabled={UtilityFunctions.isHidden(
-                      '8',
-                      appFuncList ? appFuncList : [],
-                      groupAccess
-                    )}
-                    onClick={handleOpenGroups}
-                  >
-                    Add
-                  </button>
-                )
-              ) : (
+            {/* <Typography variant="subtitle1"> */}
+            {groups ? (
+              groups.length > 0 ? (
                 <button
                   className={classes.backButton}
                   onClick={handleOpenGroups}
+                  ref={focusGroup}
+                >
+                  Groups ( {groups.length} )
+                </button>
+              ) : (
+                <button
+                  // className={
+                  //   UtilityFunctions.isHidden(
+                  //     '8',
+                  //     appFuncList ? appFuncList : [],
+                  //     groupAccess
+                  //   )
+                  //     ? classes.hideit
+                  //     : classes.backButton
+                  // }
+                  className={classes.backButton}
+                  disabled={UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    groupAccess
+                  )}
+                  onClick={handleOpenGroups}
+                  ref={focusGroup}
                 >
                   Add
                 </button>
-              )}
-              &nbsp;&nbsp; &nbsp;&nbsp;
+              )
+            ) : (
               <button
-                // className={
-                //   UtilityFunctions.isHidden(
-                //     '8',
-                //     appFuncList ? appFuncList : [],
-                //     'manage_task'
-                //   )
-                //     ? classes.hideit
-                //     : classes.backButton
-                // }
-                className={classes.hideit}
-                onClick={handleOpenTasks}
+                className={classes.backButton}
+                onClick={handleOpenGroups}
+                ref={focusGroup}
               >
-                Manage Task ( {tasks.length} )
+                Add
               </button>
-            </Typography>
+            )}
+            &nbsp;&nbsp; &nbsp;&nbsp;
+            <button
+              // className={
+              //   UtilityFunctions.isHidden(
+              //     '8',
+              //     appFuncList ? appFuncList : [],
+              //     'manage_task'
+              //   )
+              //     ? classes.hideit
+              //     : classes.backButton
+              // }
+              className={classes.hideit}
+              onClick={handleOpenTasks}
+            >
+              Manage Task ( {tasks.length} )
+            </button>
+            {/* </Typography> */}
           </Box>
         </Box>
         {groups.length === 0 && errorGroups !== '' && (
@@ -2158,7 +2384,7 @@ function UpdateUser(props: any) {
             <Box className={classes.inputLabel}></Box>
             <Box className={classes.inputFieldBox}>
               <Typography variant="subtitle2" color={'secondary'}>
-                Files with invalid extensions omitted
+                {allMessages.error.invalidExtension}
               </Typography>
             </Box>
           </Box>
@@ -2190,8 +2416,10 @@ function UpdateUser(props: any) {
                   </Button>
                 </Box>             
               ))} */}
+            <Box className={classes.inputLabel}></Box>
             <Box
-              className={!active ? classes.filelist : classes.inputFieldBox}
+              // className={!active ? classes.filelist : classes.inputFieldBox}
+              className={classes.inputFieldBox}
               sx={{ overflow: 'auto' }}
             >
               <table>
@@ -2209,6 +2437,11 @@ function UpdateUser(props: any) {
                               setReferenceDocData([...newone])
                             }}
                             color="primary"
+                            size="small"
+                            style={{
+                              justifyContent: 'flex-start',
+                              minWidth: '30px',
+                            }}
                           >
                             X
                           </Button>

@@ -8,20 +8,24 @@ import {
   IconButton,
   Divider,
   Tooltip,
+  useMediaQuery,
+  useTheme,
 } from '@material-ui/core'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
-import { pendingStatusDetails } from './DataConstant'
+// import { pendingStatusDetails } from './DataConstant'
 import { userTaskDashboard } from './DataConstant'
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 
 import {
   set_mygrouppendingAction,
   set_mygroupunassignAction,
   set_myinprogressAction,
   set_mypendingAction,
+  reset_all,
 } from '../../redux/Actions/PendingAction/Action'
 import { getStatusCamundaAPI } from '../../api/Fetch'
 import { ServiceResponse } from '../../pages/Login/Messages'
@@ -37,8 +41,31 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     color: 'white',
   },
-  bold: {
-    fontWeight: 'bold',
+  wide: {
+    [theme.breakpoints.up(900)]: {
+      maxWidth: 600,
+      fontSize: '14px',
+    },
+    [theme.breakpoints.down(900)]: {
+      maxWidth: 400,
+      fontSize: '14px',
+    },
+    [theme.breakpoints.down(750)]: {
+      maxWidth: 400,
+      fontSize: '14px',
+    },
+    [theme.breakpoints.down(500)]: {
+      width: 300,
+      fontSize: '12px',
+    },
+    [theme.breakpoints.down(400)]: {
+      width: 200,
+      fontSize: '12px',
+    },
+    [theme.breakpoints.down(300)]: {
+      width: 200,
+      fontSize: '12px',
+    },
   },
   color90: {
     color: theme.palette.primary.main,
@@ -61,6 +88,9 @@ const useStyles = makeStyles((theme) => ({
 }))
 function Dashboard(props: any) {
   const [newMap, setNewMap] = useState<Array<any>>([])
+  const theme = useTheme()
+  const active = useMediaQuery(theme.breakpoints.down(700))
+  const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   // let newMap1: Array<any> = []
 
   const {
@@ -72,19 +102,23 @@ function Dashboard(props: any) {
     set_myinprogressAction,
     set_mygrouppendingAction,
     set_mygroupunassignAction,
+    reset_all,
   } = props
   const classes = useStyles()
 
   useEffect(() => {
+    setIsProgressLoader(true)
     let pendingTasks: Array<any> = []
     let inprogressTasks: Array<any> = []
     let mygroupPendingTasks: Array<any> = []
     let mygroupUnassignTasks: Array<any> = []
+    setNewMap([...userTaskDashboard])
     getStatusCamundaAPI &&
       getStatusCamundaAPI()
         .then((res) => {
           const pendingStatusDetails = res.data
 
+          setIsProgressLoader(false)
           if (pendingStatusDetails && pendingStatusDetails.status) {
             pendingTasks =
               pendingStatusDetails &&
@@ -112,7 +146,7 @@ function Dashboard(props: any) {
               pendingStatusDetails.status &&
               pendingStatusDetails.status.filter(
                 (item: any) =>
-                  item.details.toLowerCase() === 'mygroupunassignedworkflows'
+                  item.details.toLowerCase() === 'mygroupunnassignedtasks'
               )
 
             // console.log(pendingTasks)
@@ -126,12 +160,14 @@ function Dashboard(props: any) {
           }
         })
         .catch((error) => {
+          setIsProgressLoader(false)
           set_mypendingAction([])
           set_myinprogressAction([])
           set_mygrouppendingAction([])
           set_mygroupunassignAction([])
         })
     // }, [pendingStatusDetails])
+    return reset_all()
   }, [])
 
   useEffect(() => {
@@ -182,9 +218,14 @@ function Dashboard(props: any) {
 
   return (
     <div style={{ padding: '20px' }}>
+      <LoadingComponent showLoader={isProgressLoader} />
       <Typography variant="h6" color="primary" className={classes.tabHead}>
         Task Dashboard{' '}
-        <Tooltip title={ServiceResponse.getMessage('dashboard', 'task')}>
+        <Tooltip
+          title={ServiceResponse.getMessage('dashboard', 'task')}
+          classes={{ tooltip: classes.wide }}
+          placement={!active ? 'right-start' : 'bottom'}
+        >
           <IconButton>
             <InfoOutlinedIcon />
           </IconButton>
@@ -192,6 +233,7 @@ function Dashboard(props: any) {
       </Typography>
       <Grid container>
         {newMap &&
+          newMap.length > 0 &&
           newMap.map((dash, index) => (
             <Grid item xl={6} lg={6} md={6} sm={6} xs={12} key={index}>
               <Card className={classes.card}>
@@ -221,7 +263,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                Pending Actions
+                                &#8226; Pending Actions
                               </Typography>
                             </td>
 
@@ -250,7 +292,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                In-Progress Tasks
+                                &#8226; In-Progress Tasks
                               </Typography>
                             </td>
 
@@ -292,7 +334,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                Pending Actions
+                                &#8226; Pending Actions
                               </Typography>
                             </td>
 
@@ -320,7 +362,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                Unassigned Workflows
+                                &#8226; Unassigned Workflows
                               </Typography>
                             </td>
 
@@ -377,6 +419,7 @@ const matchDispatchToProps = (dispatch: any) => {
       dispatch(set_mygrouppendingAction(mygroupPendingTasks)),
     set_mygroupunassignAction: (mygroupUnassignTasks: any) =>
       dispatch(set_mygroupunassignAction(mygroupUnassignTasks)),
+    reset_all: () => dispatch(reset_all()),
   }
 }
 

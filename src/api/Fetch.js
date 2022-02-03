@@ -107,14 +107,14 @@ export const postFileAttachmentAPI = (req, userId) => {
 
 export const putUserDetailsAPI = (req) => {
   let url = `${BASE_URL}${PUT_USER_DETAILS_ID}`
-  url = url.replace('{userId}', req.user.EmployeeId)
+  url = url.replace('{userId}', req.user.employeeId)
   let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'PUT', reqBody)
 }
 
 export const putUserDetailsCamundaAPI = (req) => {
   let url = `${BASE_URL}${PUT_USER_DETAILS_ID_CAMUNDA}`
-  url = url.replace('{userId}', req.user.EmployeeId)
+  url = url.replace('{userId}', req.user.employeeId)
   let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'PUT', reqBody)
 }

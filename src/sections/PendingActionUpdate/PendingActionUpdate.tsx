@@ -21,6 +21,7 @@ import { Column } from 'primereact/column'
 import { fieldWidth, useStyles } from './Styles'
 import { taskList } from '../../util/Constants'
 import {
+  getColleagueAPI,
   getUserGroupAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
@@ -40,6 +41,7 @@ import { pendingActionUpdateTableHeaders } from './tableHeader'
 import { routes, extensions, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
+import { allMessages } from '../../util/Messages'
 // import { viewLogTemp } from '../Dashboard/DataConstant'
 
 const Input = styled('input')({
@@ -79,6 +81,7 @@ function PendingActionUpdate(props: any) {
   const [status, setStatus] = React.useState('')
   const [statusWithValue, setStatusWithValue] = React.useState('')
   const [comments, setComments] = React.useState('')
+  const [comments1, setComments1] = React.useState('')
   const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
   const [viewLogEl, setViewLogEl] = React.useState(false)
@@ -95,6 +98,7 @@ function PendingActionUpdate(props: any) {
   const [cancelOpenReject, setCancelOpenReject] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
+  const [colleagueData, setColleagueData] = React.useState('')
   const [errorRequestType, setErrorRequestType] = React.useState('')
   const [errorEmployeeId, setErrorEmployeeId] = React.useState('')
   const [errorStatus, setErrorStatus] = React.useState('')
@@ -114,7 +118,16 @@ function PendingActionUpdate(props: any) {
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   const [returnText, setReturnText] = React.useState('')
+  const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
+    []
+  )
+  const [logDataIn, setLogDataIn] = React.useState({})
   //
+  const focusRequestType = useRef<any>(null)
+  const focusEmpId = useRef<any>(null)
+  const focusStatus = useRef<any>(null)
+  const focusRole = useRef<any>(null)
+  const focusGroup = useRef<any>(null)
 
   useEffect(() => {
     return () => reset_pendingAction()
@@ -175,40 +188,105 @@ function PendingActionUpdate(props: any) {
   useEffect(() => {
     // console.log('Check count: ', checkCount)
     // console.log('Failure count: ', failureCount)
-    let detail
-    let severity
-    if (checkCount === 0) {
-      if (failureCount === 0 && referenceDocData.length === 0) {
-        detail = 'Log posted successfully'
-        severity = 'success'
-      } else if (failureCount === 0 && referenceDocData.length > 0) {
-        detail = `All attached files uploaded and logged successfully`
-        severity = 'success'
-      } else if (failureCount > 0 && referenceDocData.length === 0) {
-        detail = `Log posting failed due to service error`
-        severity = 'error'
-      } else if (failureCount > 0 && referenceDocData.length > 0) {
-        detail = `${failureCount} files failed to upload and log due to service error`
-        severity = 'error'
+    let detail = ''
+    let severity = ''
+    if (referenceDocData.length === 0) {
+      if (checkCount === 0) {
+        // if (failureCount === 0 && referenceDocData.length === 0) {
+        if (failureCount === 0) {
+          detail = allMessages.success.successPost
+          severity = 'success'
+          // } else if (failureCount === 0 && referenceDocData.length > 0) {
+          //   detail = allMessages.success.successPostAttach
+          //   severity = 'success'
+          // } else if (failureCount > 0 && referenceDocData.length === 0) {
+        } else if (failureCount > 0) {
+          detail = allMessages.error.logpostFailureSingle
+          severity = 'error'
+          // } else if (failureCount > 0 && referenceDocData.length > 0) {
+          //   detail = `${failureCount} ${allMessages.error.logpostFailureAttach}`
+          //   severity = 'error'
+        }
+        setIsProgressLoader(false)
+        toast.current.show([
+          {
+            severity: 'success',
+            summary: '',
+            detail: returnText,
+            life: life,
+            className: 'login-toast',
+          },
+          {
+            severity: severity,
+            summary: '',
+            detail: detail,
+            life: life,
+            className: 'login-toast',
+          },
+        ])
+        setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
       }
-      setIsProgressLoader(false)
-      toast.current.show([
-        {
-          severity: 'success',
-          summary: '',
-          detail: returnText,
-          life: life,
-          className: 'login-toast',
-        },
-        {
-          severity: severity,
-          summary: '',
-          detail: detail,
-          life: life,
-          className: 'login-toast',
-        },
-      ])
-      setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+    } else {
+      if (checkCount === 0) {
+        const attachListString = attachmentUrlArr.join('#!#')
+        console.log(logDataIn)
+        const data = {
+          ...logDataIn,
+          attachmentUrl: attachListString,
+        }
+        logDataIn &&
+          postTaskLogsAPI &&
+          postTaskLogsAPI(data)
+            .then((res) => {
+              if (failureCount === 0) {
+                detail = allMessages.success.successAttach
+                severity = 'success'
+              } else if (failureCount > 0) {
+                detail = `${failureCount} ${allMessages.error.logFailureAttach}`
+                severity = 'error'
+              }
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+            })
+            .catch((err) => {
+              detail = allMessages.error.logpostFailureSingle
+              severity = 'error'
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+            })
+      }
     }
   }, [
     checkCount,
@@ -218,6 +296,8 @@ function PendingActionUpdate(props: any) {
     failureCount,
     referenceDocData,
     returnText,
+    logDataIn,
+    attachmentUrlArr,
   ])
 
   useEffect(() => {
@@ -227,6 +307,15 @@ function PendingActionUpdate(props: any) {
           .then((res) => {
             console.log(res.data)
             setViewLogRows([...res.data.tasklogs])
+            let commentStr = ''
+            // for (let i = 0; i < res.data.tasklogs.length; i++) {
+            //   commentStr =
+            //     commentStr +
+            //     `${res.data.tasklogs[i].timestamp} ${res.data.tasklogs[i].comments}\n`
+            // }
+            commentStr =
+              res.data.tasklogs[res.data.tasklogs.length - 1].comments
+            setComments1(commentStr)
           })
           .catch((err) => {
             setViewLogRows([])
@@ -234,6 +323,29 @@ function PendingActionUpdate(props: any) {
       // setViewLogRows(viewLogTemp)
     }
   }, [requestedId])
+
+  useEffect(() => {
+    if (status === 'D' && requestType !== 'modify' && requestType !== '') {
+      // setErrorRequestType(allMessages.error.deletedError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.deletedError)
+    }
+    if (
+      status === 'I' &&
+      requestType !== 'modify' &&
+      requestType !== 'remove' &&
+      requestType !== ''
+    ) {
+      // setErrorRequestType(allMessages.error.inactiveError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inactiveError)
+    }
+    if (status === 'W' && requestType !== 'new' && requestType !== '') {
+      // setErrorRequestType(allMessages.error.inprogressError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inprogressError)
+    }
+  }, [status, requestType])
 
   const goBack = () => {
     reset_pendingAction()
@@ -258,9 +370,16 @@ function PendingActionUpdate(props: any) {
   }
   const onstatusChange = (e: any) => {
     setStatus(e.target.value)
-    if (e.target.value !== '') setErrorStatus('')
+    if (e.target.value !== '') {
+      setErrorStatus('')
+      setErrorRequestType('')
+    }
   }
   const onrequestTypeChange = (e: any) => {
+    if (e.target.value !== '') {
+      setErrorRequestType('')
+      setErrorStatus('')
+    }
     setRequestType(e.target.value)
   }
   useEffect(() => {
@@ -271,9 +390,11 @@ function PendingActionUpdate(props: any) {
     } else if (requestType.toLowerCase() === 'modify') {
       setGroupAccess('mod_group')
       setRoleAccess('mod_role')
+      setStatus('A')
     } else if (requestType.toLowerCase() === 'remove') {
       setGroupAccess('rem_group')
       setRoleAccess('rem_role')
+      setStatus('A')
     }
   }, [requestType])
   const handleFileUpload = (event: any) => {
@@ -357,30 +478,29 @@ function PendingActionUpdate(props: any) {
         })
   }
   const roleSelect1 = (
-    <>
-      <Select
-        options={roles}
-        isMulti
-        onChange={handleRoleChange1}
-        components={{
-          Option,
-        }}
-        value={roleNames}
-        closeMenuOnSelect={false}
-        hideSelectedOptions={false}
-        className={classes.multiSelect}
-        styles={roleSelectStyle}
-        isDisabled={
-          UtilityFunctions.isHidden(
-            '8',
-            appFuncList ? appFuncList : [],
-            roleAccess
-          )
-            ? true
-            : false
-        }
-      />
-    </>
+    <Select
+      options={roles}
+      isMulti
+      ref={focusRole}
+      onChange={handleRoleChange1}
+      components={{
+        Option,
+      }}
+      value={roleNames}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      className={classes.multiSelect}
+      styles={roleSelectStyle}
+      isDisabled={
+        UtilityFunctions.isHidden(
+          '8',
+          appFuncList ? appFuncList : [],
+          roleAccess
+        )
+          ? true
+          : false
+      }
+    />
   )
   React.useEffect(() => {
     setRequestedId(selectEmployeeID.requestId)
@@ -403,9 +523,23 @@ function PendingActionUpdate(props: any) {
             setMiddleName(res.data.tasklists[0].requestData.user.middleName)
             setLastName(res.data.tasklists[0].requestData.user.lastName)
             setEmail(res.data.tasklists[0].requestData.user.emailId)
-            setAdditionalInfo(
-              res.data.tasklists[0].requestData.user.additionalInfo
-            )
+            // setAdditionalInfo(
+            //   res.data.tasklists[0].requestData.user.additionalInfo
+            // )
+            // if (
+            //   res.data.tasklists[0].requestData.user.additionalInfo &&
+            //   res.data.tasklists[0].requestData.user.additionalInfo !== ''
+            // ) {
+            //   setAdditionalInfo(
+            //     res.data.tasklists[0].requestData.user.additionalInfo
+            //   )
+            // } else {
+            getColleagueAPI(res.data.tasklists[0].requestData.user.employeeId)
+              .then((res: any) => {
+                setColleagueData(res.data)
+              })
+              .catch((err) => setColleagueData(''))
+            // }
             setDesignation(res.data.tasklists[0].requestData.user.designation)
             if (res.data.tasklists[0].requestData.user.status === 'D') {
               setStatus(res.data.tasklists[0].requestData.user.status)
@@ -469,7 +603,8 @@ function PendingActionUpdate(props: any) {
             setGroupInput([])
             setGroups([])
           })
-      setComments(selectEmployeeID.comments)
+
+      // setComments(selectEmployeeID.comments)
     } else {
       setEmployeeID('')
       setFirstName('')
@@ -489,6 +624,7 @@ function PendingActionUpdate(props: any) {
   }
   const handleCloseGroups = (e: any) => {
     e.preventDefault()
+    setGroupInput(groups)
     setGroupOpen(false)
   }
   const updateGroups = () => {
@@ -595,8 +731,9 @@ function PendingActionUpdate(props: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="button"
-            className={classes.whiteButton}
+            type="submit"
+            variant="contained"
+            color="primary"
             onClick={updateGroups}
             disabled={
               UtilityFunctions.isHidden(
@@ -763,14 +900,40 @@ function PendingActionUpdate(props: any) {
   }
 
   const attachmentTemplate = (rowData: any) => {
+    let values = []
+    if (rowData.attachmentUrl) {
+      const urls = rowData.attachmentUrl.split('#!#')
+      for (let i = 0; i < urls.length; i++) {
+        const namepart = urls[i].substr(urls[i].lastIndexOf('/') + 1)
+        const part = namepart.split('-', 2).join('-').length
+        values.push({
+          name: namepart.substr(part + 1),
+          data: urls[i],
+        })
+      }
+    }
+    // return rowData.attachmentUrl ? (
+    //   <a
+    //     href={rowData.attachmentUrl}
+    //     target="popup"
+    //     className={classes.backButton}
+    //   >
+    //     <AttachFileIcon fontSize="small" />
+    //   </a>
+    // ) : (
+    //   rowData.attachmentUrl
+    // )
     return rowData.attachmentUrl ? (
-      <a
-        href={rowData.attachmentUrl}
-        target="popup"
-        className={classes.backButton}
-      >
-        <AttachFileIcon fontSize="small" />
-      </a>
+      <div>
+        {values.map((item) => (
+          <div key={item.name}>
+            &#8226;{'  '}
+            <a href={item.data} target="popup" className={classes.attachIcon}>
+              {item.name}
+            </a>
+          </div>
+        ))}
+      </div>
     ) : (
       rowData.attachmentUrl
     )
@@ -783,7 +946,8 @@ function PendingActionUpdate(props: any) {
         setOpenAdditional((prevState) => !prevState)
       }}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -852,7 +1016,12 @@ function PendingActionUpdate(props: any) {
         >
           <DataTable
             value={
-              additionalInfo ? constants.getAdditionalInfo(additionalInfo) : []
+              // additionalInfo ? constants.getAdditionalInfo(additionalInfo) : []
+              colleagueData
+                ? constants.getColleagueDetails(colleagueData)
+                : additionalInfo
+                ? constants.getAdditionalInfo(additionalInfo)
+                : []
             }
             // paginator
             // paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
@@ -899,7 +1068,8 @@ function PendingActionUpdate(props: any) {
       open={viewLogOpen}
       onClose={handleCloseViewLog}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -972,7 +1142,8 @@ function PendingActionUpdate(props: any) {
           <DataTable
             value={viewLogRows}
             paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
             rows={5}
             style={{
               fontSize: '12px',
@@ -1047,27 +1218,40 @@ function PendingActionUpdate(props: any) {
 
   const checkForm = (btnName: string) => {
     let flag = 1
+    if (errorRequestType !== '') {
+      focusRequestType.current.focus()
+      flag = 0
+    }
+    if (errorStatus !== '') {
+      focusStatus.current.focus()
+      flag = 0
+    }
     if (
       requestType !== 'new' &&
       requestType !== 'modify' &&
       requestType !== 'remove'
     ) {
-      setErrorRequestType('Please select request type')
+      focusRequestType.current.focus()
+      setErrorRequestType(allMessages.error.noRequestType)
       flag = 0
     }
     if (employeeID === '') {
-      setErrorEmployeeId('Provide employee id and search')
+      focusEmpId.current.focus()
+      setErrorEmployeeId(allMessages.error.noEmployeeId)
       flag = 0
     }
     if (status === '') {
-      setErrorStatus('Please select a status')
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.noStatus)
     }
     if (roleNames.length === 0) {
-      setErrorRoles('Please select atleast one role')
+      focusRole.current.focus()
+      setErrorRoles(allMessages.error.noRoles)
       flag = 0
     }
     if (groups.length === 0) {
-      setErrorGroups('Please select atleast one group')
+      focusGroup.current.focus()
+      setErrorGroups(allMessages.error.noGroups)
       flag = 0
     }
     if (flag === 1 && btnName === 'approve') {
@@ -1107,6 +1291,13 @@ function PendingActionUpdate(props: any) {
 
   const handleUpdateUserforApprove = () => {
     // e.preventDefault()
+    setIsProgressLoader(true)
+    setDisabled(true)
+    // const colleague: any =
+    //   colleagueData && constants.getColleagueDetails(colleagueData)
+    // const colleaguestring =
+    //   colleagueData &&
+    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
     const formData = {
       camunda: {
         submitFlag: 'Approved',
@@ -1132,7 +1323,8 @@ function PendingActionUpdate(props: any) {
         middleName: middleName,
         lastName: lastName,
         emailId: email,
-        additionalInfo: additionalInfo,
+        additionalInfo: '',
+        // colleagueData !== '' ? colleaguestring : additionalInfo,
         designation: designation.toUpperCase(),
         status: status,
       },
@@ -1171,6 +1363,15 @@ function PendingActionUpdate(props: any) {
         .then((res) => {
           console.log(res)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(res.data.requestId)
+          }
+          // else {
+          //   ;(window as any).clipboardData.setData(
+          //     'text/plain',
+          //     res.data.requestId
+          //   )
+          // }
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1187,11 +1388,12 @@ function PendingActionUpdate(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: res.data.businessKey,
+            camundaRequestId: res.data.businessKey ? res.data.businessKey : '',
             actionTaken: 'Approved',
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1202,8 +1404,14 @@ function PendingActionUpdate(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1238,6 +1446,7 @@ function PendingActionUpdate(props: any) {
         })
         .catch((err) => {
           setDisabled(false)
+          setIsProgressLoader(false)
           console.log(err.response)
           // let statusCode = err.response.status
           // console.log(statusCode)
@@ -1319,6 +1528,11 @@ function PendingActionUpdate(props: any) {
     // e.preventDefault()
     setDisabled(true)
     setIsProgressLoader(true)
+    // const colleague: any =
+    //   colleagueData && constants.getColleagueDetails(colleagueData)
+    // const colleaguestring =
+    //   colleagueData &&
+    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
     const formData = {
       camunda: {
         submitFlag: 'Submit',
@@ -1344,7 +1558,8 @@ function PendingActionUpdate(props: any) {
         middleName: middleName,
         lastName: lastName,
         emailId: email,
-        additionalInfo: additionalInfo,
+        additionalInfo: '',
+        // colleagueData !== '' ? colleaguestring : additionalInfo,
         designation: designation.toUpperCase(),
         status: status,
       },
@@ -1384,6 +1599,15 @@ function PendingActionUpdate(props: any) {
         .then((res) => {
           console.log(res)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(res.data.requestId)
+          }
+          // else {
+          //   ;(window as any).clipboardData.setData(
+          //     'text/plain',
+          //     res.data.requestId
+          //   )
+          // }
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1399,11 +1623,12 @@ function PendingActionUpdate(props: any) {
             timestamp: `${datepart}`,
             userId: userDetail && userDetail.userdetails[0].user.userId,
             role: rolelog,
-            camundaRequestId: res.data.businessKey,
-            actionTaken: 'Submited',
+            camundaRequestId: res.data.businessKey ? res.data.businessKey : '',
+            actionTaken: 'Submitted',
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1414,8 +1639,14 @@ function PendingActionUpdate(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1571,6 +1802,7 @@ function PendingActionUpdate(props: any) {
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1581,8 +1813,14 @@ function PendingActionUpdate(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1680,6 +1918,7 @@ function PendingActionUpdate(props: any) {
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1690,8 +1929,14 @@ function PendingActionUpdate(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -1799,6 +2044,7 @@ function PendingActionUpdate(props: any) {
             comments: comments,
             attachmentUrl: null,
           }
+          setLogDataIn({ ...logData })
           if (referenceDocData.length > 0) {
             setFailureCount(referenceDocData.length)
             setCheckCount(referenceDocData.length)
@@ -1809,8 +2055,14 @@ function PendingActionUpdate(props: any) {
                 postFileAttachmentAPI &&
                 postFileAttachmentAPI(formdata1, employeeID)
                   .then((res) => {
-                    logData.attachmentUrl = res.data.attachmentUrl
-                    postTasklog(logData)
+                    // logData.attachmentUrl = res.data.attachmentUrl
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
+                    // postTasklog(logData)
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
@@ -2156,6 +2408,7 @@ function PendingActionUpdate(props: any) {
             <Typography variant="subtitle2">
               <select
                 name="requesttype"
+                ref={focusRequestType}
                 id="requesttype"
                 className={classes.selectField}
                 defaultValue=""
@@ -2207,6 +2460,7 @@ function PendingActionUpdate(props: any) {
             <Typography variant="subtitle2">
               <input
                 type="text"
+                ref={focusEmpId}
                 className={classes.inputFields}
                 value={employeeID}
                 onChange={() => {}}
@@ -2381,7 +2635,7 @@ function PendingActionUpdate(props: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={additionalInfo ? false : true}
+                disabled={colleagueData || additionalInfo ? false : true}
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
@@ -2428,6 +2682,7 @@ function PendingActionUpdate(props: any) {
               <select
                 name="status"
                 id="status"
+                ref={focusStatus}
                 className={classes.selectField}
                 defaultValue=""
                 onChange={onstatusChange}
@@ -2458,39 +2713,39 @@ function PendingActionUpdate(props: any) {
                           </option>
                         )
                       })
-                  : requestType === 'modify'
-                  ? constants.statuses
-                      .filter((type) => type.statusID.toLowerCase() !== 'w')
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : requestType === 'remove'
-                  ? constants.statuses
-                      .filter(
-                        (type) => type.statusID.toLowerCase() !== 'w'
-                        // &&
-                        // type.statusID.toLowerCase() !== 'i'
-                      )
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : constants.statuses.map((type) => {
+                  : // : requestType === 'modify'
+                    // ? constants.statuses
+                    //     .filter((type) => type.statusID.toLowerCase() !== 'w')
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    // : requestType === 'remove'
+                    // ? constants.statuses
+                    //     .filter(
+                    //       (type) => type.statusID.toLowerCase() !== 'w'
+                    //       // &&
+                    //       // type.statusID.toLowerCase() !== 'i'
+                    //     )
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    constants.statuses.map((type) => {
                       return (
                         <option
                           value={type.statusID}
@@ -2505,6 +2760,16 @@ function PendingActionUpdate(props: any) {
             </Typography>
           </Box>
         </Box>
+        {errorStatus !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorStatus}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box className={classes.eachRow}>
           <Box className={classes.inputLabel}>
             <Typography variant="subtitle2">
@@ -2546,62 +2811,65 @@ function PendingActionUpdate(props: any) {
           </Box>
 
           <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle1">
-              {groups ? (
-                groups.length > 0 ? (
-                  <button
-                    className={classes.backButton}
-                    onClick={handleOpenGroups}
-                  >
-                    Groups ( {groups.length} )
-                  </button>
-                ) : (
-                  <button
-                    // className={
-                    //   UtilityFunctions.isHidden(
-                    //     '8',
-                    //     appFuncList ? appFuncList : [],
-                    //     groupAccess
-                    //   )
-                    //     ? classes.hideit
-                    //     : classes.backButton
-                    // }
-                    className={classes.backButton}
-                    disabled={UtilityFunctions.isHidden(
-                      '8',
-                      appFuncList ? appFuncList : [],
-                      groupAccess
-                    )}
-                    onClick={handleOpenGroups}
-                  >
-                    Add
-                  </button>
-                )
-              ) : (
+            {/* <Typography variant="subtitle1"> */}
+            {groups ? (
+              groups.length > 0 ? (
                 <button
                   className={classes.backButton}
                   onClick={handleOpenGroups}
+                  ref={focusGroup}
+                >
+                  Groups ( {groups.length} )
+                </button>
+              ) : (
+                <button
+                  // className={
+                  //   UtilityFunctions.isHidden(
+                  //     '8',
+                  //     appFuncList ? appFuncList : [],
+                  //     groupAccess
+                  //   )
+                  //     ? classes.hideit
+                  //     : classes.backButton
+                  // }
+                  className={classes.backButton}
+                  disabled={UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    groupAccess
+                  )}
+                  onClick={handleOpenGroups}
+                  ref={focusGroup}
                 >
                   Add
                 </button>
-              )}
-              &nbsp;&nbsp; &nbsp;&nbsp;
+              )
+            ) : (
               <button
-                // className={
-                //   UtilityFunctions.isHidden(
-                //     '8',
-                //     appFuncList ? appFuncList : [],
-                //     'manage_task'
-                //   )
-                //     ? classes.hideit
-                //     : classes.backButton
-                // }
-                className={classes.hideit}
-                onClick={handleOpenTasks}
+                className={classes.backButton}
+                onClick={handleOpenGroups}
+                ref={focusGroup}
               >
-                Manage Task ( {tasks.length} )
+                Add
               </button>
-            </Typography>
+            )}
+            &nbsp;&nbsp; &nbsp;&nbsp;
+            <button
+              // className={
+              //   UtilityFunctions.isHidden(
+              //     '8',
+              //     appFuncList ? appFuncList : [],
+              //     'manage_task'
+              //   )
+              //     ? classes.hideit
+              //     : classes.backButton
+              // }
+              className={classes.hideit}
+              onClick={handleOpenTasks}
+            >
+              Manage Task ( {tasks.length} )
+            </button>
+            {/* </Typography> */}
           </Box>
         </Box>
         {groups.length === 0 && errorGroups !== '' && (
@@ -2693,7 +2961,7 @@ function PendingActionUpdate(props: any) {
             <Box className={classes.inputLabel}></Box>
             <Box className={classes.inputFieldBox}>
               <Typography variant="subtitle2" color={'secondary'}>
-                Files with invalid extensions omitted
+                {allMessages.error.invalidExtension}
               </Typography>
             </Box>
           </Box>
@@ -2725,8 +2993,10 @@ function PendingActionUpdate(props: any) {
                   </Button>
                 </Box>             
               ))} */}
+            <Box className={classes.inputLabel}></Box>
             <Box
-              className={!active ? classes.filelist : classes.inputFieldBox}
+              // className={!active ? classes.filelist : classes.inputFieldBox}
+              className={classes.inputFieldBox}
               sx={{ overflow: 'auto' }}
             >
               <table>
@@ -2744,6 +3014,11 @@ function PendingActionUpdate(props: any) {
                               setReferenceDocData([...newone])
                             }}
                             color="primary"
+                            size="small"
+                            style={{
+                              justifyContent: 'flex-start',
+                              minWidth: '30px',
+                            }}
                           >
                             X
                           </Button>
@@ -2785,11 +3060,11 @@ function PendingActionUpdate(props: any) {
                 cols={10}
                 rows={5}
                 className={classes.textArea}
-                placeholder="Some Comments....."
+                placeholder={comments1}
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
-                value={comments}
+                // value={comments}
               />
             </Typography>
           </Box>

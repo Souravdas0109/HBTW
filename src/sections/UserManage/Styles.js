@@ -21,17 +21,17 @@ export const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.main,
     fontSize: '12px',
     fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '10px',
-    },
+    // [theme.breakpoints.down('sm')]: {
+    //   fontSize: '10px',
+    // },
   },
   exploreButtonforid: {
     color: 'blue',
     cursor: 'pointer',
     fontSize: '12px',
     fontFamily: theme.typography.fontFamily,
-    [theme.breakpoints.down('sm')]: {
-      fontSize: '10px',
-    },
+    // [theme.breakpoints.down('sm')]: {
+    //   fontSize: '10px',
+    // },
   },
 }))

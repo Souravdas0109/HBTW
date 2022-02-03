@@ -9,6 +9,7 @@ import {
   RESET_MYGROUPPENDING_ACTION,
   SET_MYGROUPUNASSIGN_TASKS,
   RESET_MYGROUPUNASSIGN_TASKS,
+  RESET_ALL,
 } from '../Actions/PendingAction/Type'
 const initpendingactionState = {
   pendingActionDetails: undefined,
@@ -58,6 +59,14 @@ const pendingActionReducer = (state = initpendingactionState, action: any) => {
       return state
     case RESET_MYGROUPUNASSIGN_TASKS:
       return state
+    case RESET_ALL:
+      return {
+        pendingActionDetails: [],
+        mypendingAction: [],
+        myinprogressTasks: [],
+        mygroupPendingAction: [],
+        mygroupUnassignTasks: [],
+      }
     default:
       return state
   }

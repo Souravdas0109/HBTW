@@ -46,15 +46,15 @@ export const constants = {
   groupstatuses: [
     {
       statusID: 'A',
-      text: 'ACTIVE',
+      text: 'Active',
     },
     {
       statusID: 'I',
-      text: 'INACTIVE',
+      text: 'Inactive',
     },
     {
       statusID: 'D',
-      text: 'DELETED',
+      text: 'Deleted',
     },
   ],
 

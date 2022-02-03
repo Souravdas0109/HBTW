@@ -10,7 +10,9 @@ import {
   resetRolesArray,
   resetAppsArray,
   resetUserdetails,
+  increment,
 } from '../../redux/Actions/Login/Action'
+import { reset_all } from '../../redux/Actions/PendingAction/Action'
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop'
 import { useStyles, drawerWidth } from './Styles'
 import NavigationDrawer from '../../sections/NavigationDrawer/NavigationDrawer'
@@ -35,6 +37,9 @@ const Home = (props: any) => {
     refreshApps,
     resetUserdetails,
     userDetail,
+    reset_all,
+    increment,
+    incrementD,
   } = props
   // let role = userDetail && userDetail.role;
   const [open, setOpen] = useState(false)
@@ -61,21 +66,33 @@ const Home = (props: any) => {
     const user = JSON.parse(
       (localStorage && localStorage.getItem('_GresponseV2')) || '{}'
     )
-    if (user && user.empId) {
+    if (user && user.empId && increment === 1) {
       getUser(user.empId)
     }
-  }, [getUser])
+    if (increment === 0) {
+      incrementD()
+    }
+  }, [getUser, incrementD])
 
   const handleLogout = useCallback(() => {
     localStorage.removeItem('_Gresponse')
     localStorage.removeItem('_GresponseV2')
     localStorage.removeItem('_Colresponse')
+    sessionStorage.clear()
     refreshRoles()
     refreshApps()
     resetUserdetails()
+    reset_all()
     history.push('/login')
     logoutUser()
-  }, [history, logoutUser, refreshRoles, refreshApps, resetUserdetails])
+  }, [
+    history,
+    logoutUser,
+    refreshRoles,
+    refreshApps,
+    resetUserdetails,
+    reset_all,
+  ])
 
   useEffect(() => {
     if (isTokenExpired) {
@@ -134,6 +151,8 @@ const mapDispatchToProps = (dispatch: any) => {
     refreshApps: () => dispatch(resetAppsArray()),
     resetUserdetails: () => dispatch(resetUserdetails()),
     getUser: (empId: String) => dispatch(getUser(empId)),
+    reset_all: () => dispatch(reset_all()),
+    incrementD: () => dispatch(increment()),
   }
 }
 
@@ -142,6 +161,7 @@ const mapStateToProps = (state: any) => {
     userDetail: state.loginReducer.userDetail,
     isTokenExpired: state.loginReducer.isTokenExpired,
     error: state.loginReducer.error,
+    increment: state.loginReducer.value,
   }
 }
 

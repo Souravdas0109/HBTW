@@ -140,15 +140,15 @@ export const constants = {
   ],
 
   viewLogColumns: [
-    { field: 'timestamp', headerName: 'Timestamp', width: 150 },
-    { field: 'userId', headerName: 'User ID', width: 100 },
+    { field: 'timestamp', headerName: 'Timestamp', width: 120 },
+    { field: 'userId', headerName: 'User ID', width: 80 },
     { field: 'role', headerName: 'Role', width: 100 },
-    { field: 'actionTaken', headerName: 'Action', width: 100 },
+    { field: 'actionTaken', headerName: 'Action', width: 150 },
     {
       field: 'attachmentUrl',
       headerName: 'Attachment',
       type: 'file',
-      width: 100,
+      width: 200,
     },
     { field: 'comments', headerName: 'Comments', width: 200 },
   ],
@@ -156,34 +156,34 @@ export const constants = {
   requestTypes: [
     {
       name: 'new',
-      text: 'New',
+      text: 'Create New User',
     },
     {
       name: 'modify',
-      text: 'Modify',
+      text: 'Modify Existing User',
     },
     {
       name: 'remove',
-      text: 'Remove',
+      text: 'Remove Existing User',
     },
   ],
 
   statuses: [
     {
       statusID: 'W',
-      text: 'INPROGRESS',
+      text: 'Inprogress',
     },
     {
       statusID: 'A',
-      text: 'ACTIVE',
+      text: 'Active',
     },
     {
       statusID: 'I',
-      text: 'INACTIVE',
+      text: 'Inactive',
     },
     {
       statusID: 'D',
-      text: 'DELETED',
+      text: 'Deleted',
     },
   ],
 

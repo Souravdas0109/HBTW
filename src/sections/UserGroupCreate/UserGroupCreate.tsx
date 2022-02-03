@@ -29,11 +29,13 @@ import { useHistory } from 'react-router-dom'
 import { routes, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
+import { allMessages } from '../../util/Messages'
 
 function UserGroupCreate() {
   const theme = useTheme()
   const { BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY } = config
   const active = useMediaQuery(theme.breakpoints.down(750))
+  const forbutton = useMediaQuery(theme.breakpoints.down(400))
   const classes = useStyles()
   const history = useHistory()
   const { DEFAULT, USERCONFIG_USERGROUP } = routes
@@ -42,7 +44,8 @@ function UserGroupCreate() {
   const [description, setDescription] = useState('')
   const [currentDate, setCurrentDate] = useState('')
   const [status, setStatus] = useState('A')
-  const [viewProductEl, setViewProductEl] = useState(null)
+  // const [viewProductEl, setViewProductEl] = useState(null)
+  const [viewProductEl, setViewProductEl] = useState(false)
   const [locationNames, setLocationNames] = useState([])
   const [viewLocationEl, setViewLocationEl] = useState(null)
   const toast = useRef<any>(null)
@@ -69,11 +72,13 @@ function UserGroupCreate() {
   const [uniquescls, setUniqueScls] = useState<any>([])
   const [uniquesclsobj, setUniqueSclsObj] = useState<any>([])
   const [payload, setPayload] = useState<any>([])
+  const [hierarchy, setHierarchy] = useState<any>([])
   const [hierLevel, setHierLevel] = useState<any>('')
   const [cancelOpenReset, setCancelOpenReset] = React.useState(false)
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [errorGroupName, setErrorGroupName] = useState('')
   const [errorStatus, setErrorStatus] = useState('')
+  const focusGroupName = useRef<any>(null)
   //product changes end ................................................
 
   //product changes start...........................................
@@ -303,6 +308,11 @@ function UserGroupCreate() {
     }
   }
 
+  const updateHierarchy = () => {
+    setHierarchy(payload)
+    setViewProductEl(false)
+  }
+
   const handleHierarchyChange = (e: any) => {
     let values = []
 
@@ -339,8 +349,8 @@ function UserGroupCreate() {
     }),
   }
 
-  const viewProductOpen = Boolean(viewProductEl)
-  const viewLocationOpen = Boolean(viewLocationEl)
+  // const viewProductOpen = Boolean(viewProductEl)
+  // const viewLocationOpen = Boolean(viewLocationEl)
   const handleLocationChange = (selected: any) => {
     setLocationNames(selected)
     // console.log(selected);
@@ -442,11 +452,16 @@ function UserGroupCreate() {
     setErrorStatus('')
     setStatus(e.target.value)
   }
-  const handleOpenViewProduct = (e: any) => {
-    setViewProductEl(e.currentTarget)
+  // const handleOpenViewProduct = (e: any) => {
+  //   setViewProductEl(e.currentTarget)
+  // }
+  const handleOpenViewProduct = () => {
+    setViewProductEl(true)
   }
   const handleCloseViewProduct = () => {
-    setViewProductEl(null)
+    // setViewProductEl(null)
+    setPayload(hierarchy)
+    setViewProductEl(false)
   }
   const handleOpenViewLocation = (e: any) => {
     setViewLocationEl(e.currentTarget)
@@ -458,78 +473,88 @@ function UserGroupCreate() {
   const viewProduct = (
     <Dialog
       id="basic-menu"
-      open={viewProductOpen}
+      // open={viewProductOpen}
+      open={viewProductEl}
       onClose={handleCloseViewProduct}
     >
       <Box
         sx={{
+          height: 450,
+          // width: dialogwidth,
           width: 'auto',
-          height: !active ? 500 : 400,
-          //   border: "3px solid green",
-          //   borderRadius: 4,
+          p: 2,
           display: 'flex',
           flexDirection: 'column',
-          p: 1,
+          justifyContent: 'space-between',
         }}
       >
         <Box
+          className={classes.inputFieldBox}
           sx={{
             display: 'flex',
-            height: 30,
-            flexDirection: 'row',
+            flexDirection: 'column',
           }}
-          className={classes.viewLogTitle}
         >
           <Box
             sx={{
               display: 'flex',
-              flexGrow: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
+              height: 30,
+              flexDirection: 'row',
             }}
+            className={classes.viewLogTitle}
           >
-            <Typography variant="subtitle1">Add Product Hierarchies</Typography>
-          </Box>
-          <Box
-            sx={{
-              paddingRight: '2px',
-            }}
-          >
-            <button
-              style={{
-                border: 0,
-                padding: 0,
-                height: 22,
-                width: 22,
+            <Box
+              sx={{
+                display: 'flex',
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
-              className={classes.closeViewLog}
-              onClick={handleCloseViewProduct}
             >
-              <CloseIcon />
-            </button>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            paddingLeft: '16px',
-            display: 'flex',
-          }}
-        >
-          <Box
-            className={classes.inputFieldBox}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            {/* {productSelect} */}
-            <Box>
-              <Typography variant="subtitle1" color="primary">
-                Hierarchy Level
+              <Typography variant="subtitle1">
+                Add Product Hierarchies
               </Typography>
             </Box>
-            <Box>
-              {/* <select
+            <Box
+              sx={{
+                paddingRight: '2px',
+              }}
+            >
+              <button
+                style={{
+                  border: 0,
+                  padding: 0,
+                  height: 22,
+                  width: 22,
+                }}
+                className={classes.closeViewLog}
+                onClick={handleCloseViewProduct}
+              >
+                X
+              </button>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              alignItems: 'flex-start',
+              marginTop: '16px',
+            }}
+          >
+            <Box
+              className={classes.inputFieldBox}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {/* {productSelect} */}
+              <Box>
+                <Typography variant="subtitle1" color="primary">
+                  Hierarchy Level
+                </Typography>
+              </Box>
+              <Box>
+                {/* <select
                 style={{ width: 150 }}
                 defaultValue="0"
                 onChange={handleHierLevelSelect}
@@ -546,44 +571,63 @@ function UserGroupCreate() {
                     );
                   })}
               </select> */}
-              <Select
-                defaultValue={hierLevel}
-                isDisabled={data !== [] ? false : true}
-                isLoading={false}
-                // components={{
-                //   Option,
-                // }}
-                isRtl={false}
-                isSearchable={true}
-                name="color"
-                options={constants.mainvalues}
-                onChange={handleChange}
-                className={classes.multiSelect}
-                styles={locationCustomStyles}
-                //value={hierLevel}
-              />
-              {/* <TreeSelect value={hierLevelSelect} options={hierLevelValues} onChange={(e)=>setHierLevelSelect(e.value)}/> */}
+                <Select
+                  defaultValue={hierLevel}
+                  isDisabled={data !== [] ? false : true}
+                  isLoading={false}
+                  // components={{
+                  //   Option,
+                  // }}
+                  isRtl={false}
+                  isSearchable={true}
+                  name="color"
+                  options={constants.mainvalues}
+                  onChange={handleChange}
+                  className={classes.multiSelect}
+                  styles={locationCustomStyles}
+                  //value={hierLevel}
+                />
+                {/* <TreeSelect value={hierLevelSelect} options={hierLevelValues} onChange={(e)=>setHierLevelSelect(e.value)}/> */}
+              </Box>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              alignItems: 'flex-start',
+              marginTop: '16px',
+            }}
+          >
+            <Box>
+              <Typography variant="subtitle1" color="primary">
+                Search Hierrachies
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                justifyContent: 'center',
+                // paddingRight: '10px',
+              }}
+            >
+              {productSelect}
             </Box>
           </Box>
         </Box>
         <Box
           sx={{
-            padding: '16px',
+            display: 'flex',
+            justifyContent: 'end',
           }}
+          className={classes.inputFieldBox}
         >
-          <Box>
-            <Typography variant="subtitle1" color="primary">
-              Search Hierrachies
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              justifyContent: 'center',
-              paddingRight: '10px',
-            }}
+          <Button
+            type="submit"
+            variant="contained"
+            color="primary"
+            onClick={updateHierarchy}
+            disabled={disabled}
           >
-            {productSelect}
-          </Box>
+            Save
+          </Button>
         </Box>
       </Box>
     </Dialog>
@@ -691,7 +735,8 @@ function UserGroupCreate() {
           endDate: location.endDate,
         }
       }),
-      productHierarchy: payload.map((product: any) => {
+      // productHierarchy: payload.map((product: any) => {
+      productHierarchy: hierarchy.map((product: any) => {
         return {
           hierarchyLevel: product.hierarchyLevel,
           hierarchyId: product.hierarchyId,
@@ -729,6 +774,17 @@ function UserGroupCreate() {
           //console.log(res.data.message);
           setIsProgressLoader(false)
           setGroupId(res.data.message.split('groupId:')[1].trim())
+          if (navigator.clipboard) {
+            navigator.clipboard.writeText(
+              res.data.message.split('groupId:')[1].trim()
+            )
+          }
+          // else {
+          //   ;(window as any).clipboardData.setData(
+          //     'text/plain',
+          //     res.data.message.split('groupId:')[1].trim()
+          //   )
+          // }
           toast.current.show({
             severity: 'success',
             summary: '',
@@ -775,7 +831,8 @@ function UserGroupCreate() {
   const checkForm = (btnName: string) => {
     let flag = 1
     if (groupname === '') {
-      setErrorGroupName('Please provide Group Name')
+      focusGroupName.current.focus()
+      setErrorGroupName(allMessages.error.noGroupName)
       flag = 0
     }
     // if (status === '') {
@@ -947,6 +1004,7 @@ function UserGroupCreate() {
                         <input
                           type="text"
                           name="groupname"
+                          ref={focusGroupName}
                           id="groupname"
                           placeholder="eg. group name 1"
                           className={classes.inputFields}
@@ -1020,6 +1078,7 @@ function UserGroupCreate() {
                           defaultValue=""
                           onChange={onstatusChange}
                           required
+                          disabled
                         >
                           {/* <option
                             disabled
@@ -1061,14 +1120,17 @@ function UserGroupCreate() {
 
                     <Box className={classes.inputFieldBox}>
                       <Typography variant="subtitle1">
-                        {payload ? (
-                          payload.length > 0 ? (
+                        {/* {payload ? (
+                          payload.length > 0 ? ( */}
+                        {hierarchy ? (
+                          hierarchy.length > 0 ? (
                             <Link
                               to="#"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
-                              Product Hierarchies({payload.length})
+                              {/* Product Hierarchies({payload.length}) */}
+                              Product Hierarchies({hierarchy.length})
                             </Link>
                           ) : (
                             <Link
@@ -1134,51 +1196,70 @@ function UserGroupCreate() {
                       {viewLocation}
                     </Box> */}
                   </Box>
-                  <Box className={classes.eachRow}>
+                  {/* <Box className={classes.eachRow}> */}
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: !active ? 'row' : 'column',
+                      justifyContent: !active ? 'space-between' : 'center',
+                      paddingTop: '30px',
+                      alignItems: !active ? 'center' : 'center',
+                    }}
+                  >
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: !active ? 'row' : 'column',
-                        justifyContent: !active ? 'space-evenly' : 'center',
-                        width: !active ? 400 : 200,
-                        alignItems: !active ? 'center' : 'center',
+                        flexDirection: !forbutton ? 'row' : 'column',
+                        alignItems: !forbutton ? 'center' : 'center',
+                        justifyContent: !forbutton ? 'space-between' : 'center',
+                      }}
+                    ></Box>
+                    {/* <Box
+                      sx={{
+                        display: 'flex',
+                      }}
+                    > */}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: !forbutton ? 'row' : 'column',
+                        alignItems: !forbutton ? 'center' : 'center',
+                        justifyContent: !forbutton ? 'space-between' : 'center',
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: 'flex',
-                        }}
+                      <Button
+                        type="reset"
+                        variant="contained"
+                        className={classes.whiteButton}
+                        // onClick={handleReset}
+                        onClick={handleResetAfterDialog}
+                        disabled={disabled1}
+                        size="small"
                       >
-                        <Button
-                          type="reset"
-                          variant="contained"
-                          className={classes.submitButton}
-                          // onClick={handleReset}
-                          onClick={handleResetAfterDialog}
-                          disabled={disabled1}
-                        >
-                          Reset
-                        </Button>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                        }}
+                        Reset
+                      </Button>
+                      {/* </Box> */}
+                      {/* <Box
+                      sx={{
+                        display: 'flex',
+                      }}
+                    > */}
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        type="submit"
+                        className={classes.buttons}
+                        // onClick={handleCreateGroup}
+                        onClick={handleCreateGroupAfterDialog}
+                        disabled={disabled1}
+                        size="small"
                       >
-                        <Button
-                          variant="contained"
-                          color="primary"
-                          type="submit"
-                          className={classes.buttons}
-                          // onClick={handleCreateGroup}
-                          onClick={handleCreateGroupAfterDialog}
-                          disabled={disabled1}
-                        >
-                          Submit
-                        </Button>
-                      </Box>
+                        Submit
+                      </Button>
                     </Box>
+                    {/* </Box> */}
                   </Box>
+                  {/* </Box> */}
                 </form>
                 <LoadingComponent showLoader={isProgressLoader} />
               </Box>

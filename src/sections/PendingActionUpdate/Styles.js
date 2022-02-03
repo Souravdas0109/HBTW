@@ -129,6 +129,8 @@ export const useStyles = makeStyles((theme) => {
     },
     submitButton: {
       width: 'auto',
+      border: '1px solid',
+      borderColor: theme.palette.primary.main,
       // height: 40,
       display: 'inline',
       '&:hover': {
@@ -139,6 +141,8 @@ export const useStyles = makeStyles((theme) => {
     },
     buttons: {
       width: 'auto',
+      border: '1px solid',
+      borderColor: theme.palette.primary.main,
       // height: 40,
       '&:hover': {
         fontSize: 'large',
@@ -191,6 +195,14 @@ export const useStyles = makeStyles((theme) => {
         cursor: 'default',
       },
     },
+    attachIcon: {
+      border: 0,
+      color: 'blue',
+      // backgroundColor: "white",
+      cursor: 'pointer',
+      fontSize: '10px',
+      textDecoration: 'underline',
+    },
     viewLogTitle: {
       backgroundColor: theme.palette.primary.main,
       color: 'white',
@@ -216,7 +228,7 @@ export const useStyles = makeStyles((theme) => {
     },
     whiteButton: {
       borderColor: theme.palette.primary.main,
-      border: '2px solid',
+      border: '1px solid',
       backgroundColor: 'white',
       color: theme.palette.primary.main,
       '&:hover': {
@@ -243,6 +255,9 @@ export const useStyles = makeStyles((theme) => {
     },
     hideit: {
       display: 'none',
+    },
+    customMaxWidth: {
+      maxWidth: '75%',
     },
   }
 })

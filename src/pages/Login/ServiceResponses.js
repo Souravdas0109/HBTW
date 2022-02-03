@@ -16,26 +16,30 @@ export const ServiceResponses = {
     task: (
       <div>
         <div>
-          <strong>My:</strong>
+          <div style={{ fontWeight: 'bold' }}>My:</div>
         </div>
         <div>
-          <strong>Pending Actions:</strong> User can see the list of task(s)
-          which is not yet started.
+          <span style={{ fontWeight: 'bold' }}>&#8226; Pending Actions:</span>{' '}
+          User can see the list of task(s) which is not yet started.
         </div>{' '}
         <div>
-          <strong>In-progress Task:</strong> User can see the list of task(s)
-          which is started but incomplete.
+          <span style={{ fontWeight: 'bold' }}>&#8226; In-progress Task:</span>{' '}
+          User can see the list of task(s) which is started but incomplete.
+        </div>{' '}
+        <br />
+        <div>
+          <div style={{ fontWeight: 'bold' }}>Group:</div>
         </div>{' '}
         <div>
-          <strong>Group:</strong>
+          <span style={{ fontWeight: 'bold' }}>&#8226; Pending Actions:</span>{' '}
+          User can see the list of task(s) which is pending by self and/or
+          others from the same group.
         </div>{' '}
         <div>
-          <strong>Pending Actions:</strong> User can see the list of task(s)
-          which is pending by self and/or others from the same group.
-        </div>{' '}
-        <div>
-          <strong>Unassigned Workflow:</strong> User can see the list of task(s)
-          which is yet to be assigned.
+          <span style={{ fontWeight: 'bold' }}>
+            &#8226; Unassigned Workflow:
+          </span>{' '}
+          User can see the list of task(s) which is yet to be assigned.
         </div>
       </div>
     ),

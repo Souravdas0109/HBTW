@@ -58,7 +58,11 @@ function UserGroupManage(props: any) {
               groupId: group.groupId,
               groupName: group.groupName,
               groupDesc: group.groupDesc,
-              status: group.status,
+              // status: group.status,
+              status: constants.groupstatuses
+                .filter((stat: any) => stat.statusID === group.status)
+                .map((stat: any) => stat.text)
+                .toString(),
               productHierarchy: group.productHierarchy,
               locationHierarchy: group.locationHierarchy,
             }
@@ -210,8 +214,10 @@ function UserGroupManage(props: any) {
         >
           <DataTable
             value={productData}
+            rowHover
             paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
             rows={5}
             style={{
               fontSize: '12px',
@@ -320,8 +326,10 @@ function UserGroupManage(props: any) {
         >
           <DataTable
             value={locationData}
+            rowHover
             paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
             rows={5}
             style={{
               fontSize: '12px',
@@ -366,7 +374,7 @@ function UserGroupManage(props: any) {
       <button
         value={rowData.groupId}
         onClick={handleNameClick}
-        className={classes.links}
+        className={classes.exploreButton}
       >
         {rowData.groupId}
       </button>
@@ -497,8 +505,13 @@ function UserGroupManage(props: any) {
       >
         <DataTable
           value={userGroupsData}
+          rowHover
           paginator
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+          //currentPageReportTemplate="({first} - {last} of {totalRecords},{currentPage}/{totalPages})"
+          currentPageReportTemplate="{first} - {last} of {totalRecords}"
+          stateStorage="session"
+          stateKey="dt-state-demo-session-groupmanage"
           rows={6}
           style={{
             // fontSize: "10px",

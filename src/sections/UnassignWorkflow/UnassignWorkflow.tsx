@@ -22,6 +22,7 @@ import { reset_mygroupunassignAction } from '../../redux/Actions/PendingAction/A
 import { routes, life } from '../../util/Constants'
 import { putClaimTaskAPI } from '../../api/Fetch'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
+import { allMessages } from '../../util/Messages'
 
 function UnassignWorkflow(props: any) {
   const { reset_mygroupunassignAction, mygroupUnassignTasks, userDetail } =
@@ -32,6 +33,8 @@ function UnassignWorkflow(props: any) {
   const history = useHistory()
   const [globalFilter, setGlobalFilter] = useState('')
   const [unassignUser, setUnassignUser] = useState([])
+  const [checkCount, setCheckCount] = React.useState(1)
+  const [failureCount, setFailureCount] = React.useState(0)
   const toast = useRef<any>(null)
   const active = useMediaQuery(theme.breakpoints.down('sm'))
   const [myGroupUnassignedTasks, setMyGroupUnassignedTasks] = useState([])
@@ -61,9 +64,38 @@ function UnassignWorkflow(props: any) {
     console.log(unassignUser)
   }, [unassignUser])
 
+  useEffect(() => {
+    // console.log('Check count: ', checkCount)
+    // console.log('Failure count: ', failureCount)
+    let detail
+    let severity
+    if (checkCount === 0) {
+      if (failureCount === 0) {
+        detail = allMessages.success.successAssign
+        severity = 'success'
+      } else if (failureCount > 0) {
+        detail = allMessages.error.errorAssign
+        severity = 'error'
+      }
+      setIsProgressLoader(false)
+      toast.current.show([
+        {
+          severity: severity,
+          summary: '',
+          detail: detail,
+          life: life,
+          className: 'login-toast',
+        },
+      ])
+      setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+    }
+  }, [checkCount, DASHBOARD, DEFAULT, history, failureCount])
+
   const handleAssign = () => {
     setIsProgressLoader(true)
     if (unassignUser.length > 0) {
+      setFailureCount(unassignUser.length)
+      setCheckCount(unassignUser.length)
       const assignPayload = {
         requestorDetails: {
           emailId: userDetail && userDetail.userdetails[0].user.emailId,
@@ -82,22 +114,23 @@ function UnassignWorkflow(props: any) {
       }
       const taskIds =
         unassignUser && unassignUser.map((item: any) => item.taskId)
-      console.log(taskIds)
 
       for (let i = 0; i < taskIds.length; i++) {
         putClaimTaskAPI &&
           putClaimTaskAPI(assignPayload, taskIds[i])
             .then((res) => {
               console.log(res.data)
+              setFailureCount((prevState) => prevState - 1)
+              setCheckCount((prevState) => prevState - 1)
               // if (res.data.status.toLowerCase() !== 'failed') {
-              setIsProgressLoader(false)
-              toast.current.show({
-                severity: 'success',
-                summary: taskIds[i],
-                detail: res.data.comments,
-                life: life,
-                className: 'login-toast',
-              })
+              // setIsProgressLoader(false)
+              // toast.current.show({
+              //   severity: 'success',
+              //   summary: taskIds[i],
+              //   detail: res.data.comments,
+              //   life: life,
+              //   className: 'login-toast',
+              // })
               // } else {
               //   toast.current.show({
               //     severity: 'error',
@@ -109,15 +142,16 @@ function UnassignWorkflow(props: any) {
               // }
             })
             .catch((err) => {
-              setIsProgressLoader(false)
-              toast.current.show({
-                severity: 'error',
-                summary: 'Error!',
-                //detail: `${err.response.status} from tasklistapi`,
-                detail: err.response.data.errorMessage,
-                life: life,
-                className: 'login-toast',
-              })
+              setCheckCount((prevState) => prevState - 1)
+              // setIsProgressLoader(false)
+              // toast.current.show({
+              //   severity: 'error',
+              //   summary: 'Error!',
+              //   //detail: `${err.response.status} from tasklistapi`,
+              //   detail: err.response.data.errorMessage,
+              //   life: life,
+              //   className: 'login-toast',
+              // })
             })
       }
     }
@@ -168,7 +202,7 @@ function UnassignWorkflow(props: any) {
                     paddingLeft: 20,
                   }}
                 >
-                  <button className={classes.exploreButton} onClick={goBack}>
+                  <button className={classes.backButton} onClick={goBack}>
                     Back
                   </button>
                 </Box>
@@ -179,62 +213,70 @@ function UnassignWorkflow(props: any) {
                   p: 2,
                 }}
               >
-                {!active ? (
-                  <DataTable
-                    value={myGroupUnassignedTasks}
-                    paginator
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-                    rows={10}
-                    style={{
-                      width: '100%',
+                {/* {!active ? ( */}
+                <DataTable
+                  value={myGroupUnassignedTasks}
+                  rowHover
+                  paginator
+                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                  currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                  stateStorage="session"
+                  stateKey="dt-state-demo-session-unassignworkflow"
+                  rows={10}
+                  style={{
+                    width: '100%',
+                  }}
+                  selection={unassignUser}
+                  onSelectionChange={(e) => setUnassignUser(e.value)}
+                  scrollable
+                  scrollHeight="flex"
+                  globalFilter={globalFilter}
+                  emptyMessage="No users found."
+                  showGridlines
+                  //loading={manageUserLoading}
+                >
+                  <Column
+                    selectionMode="multiple"
+                    headerStyle={{
+                      width: '3em',
+                      backgroundColor: teal[900],
+                      color: 'white',
                     }}
-                    selection={unassignUser}
-                    onSelectionChange={(e) => setUnassignUser(e.value)}
-                    scrollable
-                    scrollHeight="flex"
-                    globalFilter={globalFilter}
-                    emptyMessage="No users found."
-                    showGridlines
-                    //loading={manageUserLoading}
-                  >
-                    <Column
-                      selectionMode="multiple"
-                      headerStyle={{
-                        width: '3em',
-                        backgroundColor: teal[900],
-                        color: 'white',
-                      }}
-                    ></Column>
-                    {pendingActionTableHeaders.map((column) => {
-                      return (
-                        <Column
-                          key={column.field}
-                          field={column.field}
-                          header={column.headerName}
-                          bodyStyle={{
-                            fontSize: '12px',
-                            width: column.width,
-                            overflowX: 'auto',
-                          }}
-                          headerStyle={{
-                            fontSize: '12px',
-                            width: column.width,
-                            backgroundColor: teal[900],
-                            color: 'white',
-                          }}
-                          // body={
-                          //   column.field === 'requestedId' && requestIdTemplate
-                          // }
-                          // sortable
-                        />
-                      )
-                    })}
-                  </DataTable>
-                ) : (
+                  ></Column>
+                  {pendingActionTableHeaders.map((column) => {
+                    return (
+                      <Column
+                        key={column.field}
+                        field={column.field}
+                        header={column.headerName}
+                        bodyStyle={{
+                          fontSize: '12px',
+                          width: column.width,
+                          overflowX: 'auto',
+                        }}
+                        headerStyle={{
+                          fontSize: '12px',
+                          width: column.width,
+                          backgroundColor: teal[900],
+                          color: 'white',
+                        }}
+                        // body={
+                        //   column.field === 'requestedId' && requestIdTemplate
+                        // }
+                        // sortable
+                      />
+                    )
+                  })}
+                </DataTable>
+                {/* ) : (
                   <DataTable
                     value={myGroupUnassignedTasks}
+                    rowHover
                     paginator
-                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+                    currentPageReportTemplate="{first} - {last} of {totalRecords}"
+                    stateStorage="session"
+                    stateKey="dt-state-demo-session"
                     rows={10}
                     style={{
                       width: '100%',
@@ -281,7 +323,7 @@ function UnassignWorkflow(props: any) {
                       )
                     })}
                   </DataTable>
-                )}
+                )} */}
               </Box>
               <Box
                 sx={{

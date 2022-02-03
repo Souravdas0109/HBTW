@@ -46,7 +46,7 @@ export const groupPendingActionTableHeaders = [
   {
     field: 'requestId',
     headerName: 'Requested ID',
-    width: 100,
+    width: 150,
   },
   {
     field: 'assignedToUserId',
@@ -71,7 +71,7 @@ export const groupPendingActionTableHeaders = [
   {
     field: 'taskName',
     headerName: 'Action',
-    width: 100,
+    width: 200,
   },
   {
     field: 'comments',

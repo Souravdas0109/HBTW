@@ -27,15 +27,15 @@ export const userTaskDashboard = [
     title: 'Range Change Management',
     value: 'rangechangemanagement',
     my: {
-      pendingActions: 2,
+      pendingActions: 0,
       pendingActionURL: '#',
-      inProgressTask: 3,
+      inProgressTask: 0,
       inProgressTaskURL: '#',
     },
     myGroup: {
-      pendingActions: 7,
+      pendingActions: 0,
       myGrouppendingActionURL: '#',
-      inProgressTask: 15,
+      inProgressTask: 0,
       myGroupInprogressTaskURL: '#',
     },
   },
@@ -43,15 +43,15 @@ export const userTaskDashboard = [
     title: 'Promotion & Funding',
     value: 'promotionandfunding',
     my: {
-      pendingActions: 2,
+      pendingActions: 0,
       pendingActionURL: '#',
-      inProgressTask: 3,
+      inProgressTask: 0,
       inProgressTaskURL: '#',
     },
     myGroup: {
-      pendingActions: 7,
+      pendingActions: 0,
       myGrouppendingActionURL: '#',
-      inProgressTask: 15,
+      inProgressTask: 0,
       myGroupInprogressTaskURL: '#',
     },
   },
@@ -59,9 +59,9 @@ export const userTaskDashboard = [
     title: 'Product Portal',
     value: 'productportal',
     my: {
-      pendingActions: 2,
+      pendingActions: 0,
       pendingActionURL: '#',
-      inProgressTask: 3,
+      inProgressTask: 0,
       inProgressTaskURL: '#',
     },
     myGroup: {
@@ -112,7 +112,7 @@ export const pendingStatusDetails = {
       count: '2',
       tasks: [
         {
-          requestId: '25-1259-20972',
+          requestId: '28-1123-44747',
           assignedToUserId: '2345',
           assignedToGroupId: '1004',
           assignedTimeStamp: '2022-01-07',
@@ -129,7 +129,7 @@ export const pendingStatusDetails = {
           userEmailId: 'mark@morrisonsplc.co.uk',
         },
         {
-          requestId: '202201210701740_40011361_hbtwUserManagementWorkflow',
+          requestId: '202201281101978_40011361_hbtwUserManagementWorkflow',
           assignedToUserId: '2346',
           assignedToGroupId: '1004',
           assignedTimeStamp: '2022-01-07',
@@ -228,7 +228,7 @@ export const pendingStatusDetails = {
       ],
     },
     {
-      details: 'myGroupUnassignedWorkflows',
+      details: 'myGroupUnnassignedTasks',
       count: '2',
       tasks: [
         {

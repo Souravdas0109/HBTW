@@ -32,7 +32,7 @@ export const pendingActionTableHeaders = [
   {
     field: 'requestId',
     headerName: 'Requested ID',
-    width: 100,
+    width: 150,
   },
   {
     field: 'assignedToUserId',
@@ -57,7 +57,7 @@ export const pendingActionTableHeaders = [
   {
     field: 'taskName',
     headerName: 'Action',
-    width: 100,
+    width: 200,
   },
   {
     field: 'comments',

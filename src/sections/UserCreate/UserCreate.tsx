@@ -44,6 +44,7 @@ import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { routes, extensions, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
+import { allMessages } from '../../util/Messages'
 
 const Input = styled('input')({
   display: 'none',
@@ -100,11 +101,20 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   const [returnText, setReturnText] = React.useState('')
+  const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
+    []
+  )
+  const [logDataIn, setLogDataIn] = React.useState({})
   //
   //integration changes start
   const [roles, setRoles] = useState([])
   const [groupsData, setGroupsData] = useState([])
   const toast = useRef<any>(null)
+  const focusRequestType = useRef<any>(null)
+  const focusEmpId = useRef<any>(null)
+  const focusStatus = useRef<any>(null)
+  const focusRole = useRef<any>(null)
+  const focusGroup = useRef<any>(null)
   //integration changes start
   useEffect(() => {
     setGroupInput(groups)
@@ -125,6 +135,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   //integration changes start
 
   useEffect(() => {
+    focusRequestType.current.focus()
     getUserGroupAPI &&
       getUserGroupAPI()
         .then((res) => {
@@ -152,40 +163,105 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   useEffect(() => {
     // console.log('Check count: ', checkCount)
     // console.log('Failure count: ', failureCount)
-    let detail
-    let severity
-    if (checkCount === 0) {
-      if (failureCount === 0 && referenceDocData.length === 0) {
-        detail = 'Log posted successfully'
-        severity = 'success'
-      } else if (failureCount === 0 && referenceDocData.length > 0) {
-        detail = `All attached files uploaded and logged successfully`
-        severity = 'success'
-      } else if (failureCount > 0 && referenceDocData.length === 0) {
-        detail = `Log posting failed due to service error`
-        severity = 'error'
-      } else if (failureCount > 0 && referenceDocData.length > 0) {
-        detail = `${failureCount} files failed to upload and log due to service error`
-        severity = 'error'
+    let detail = ''
+    let severity = ''
+    if (referenceDocData.length === 0) {
+      if (checkCount === 0) {
+        // if (failureCount === 0 && referenceDocData.length === 0) {
+        if (failureCount === 0) {
+          detail = allMessages.success.successPost
+          severity = 'success'
+          // } else if (failureCount === 0 && referenceDocData.length > 0) {
+          //   detail = allMessages.success.successPostAttach
+          //   severity = 'success'
+          // } else if (failureCount > 0 && referenceDocData.length === 0) {
+        } else if (failureCount > 0) {
+          detail = allMessages.error.logpostFailureSingle
+          severity = 'error'
+          // } else if (failureCount > 0 && referenceDocData.length > 0) {
+          //   detail = `${failureCount} ${allMessages.error.logpostFailureAttach}`
+          //   severity = 'error'
+        }
+        setIsProgressLoader(false)
+        toast.current.show([
+          {
+            severity: 'success',
+            summary: '',
+            detail: returnText,
+            life: life,
+            className: 'login-toast',
+          },
+          {
+            severity: severity,
+            summary: '',
+            detail: detail,
+            life: life,
+            className: 'login-toast',
+          },
+        ])
+        setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
       }
-      setIsProgressLoader(false)
-      toast.current.show([
-        {
-          severity: 'success',
-          summary: '',
-          detail: returnText,
-          life: life,
-          className: 'login-toast',
-        },
-        {
-          severity: severity,
-          summary: '',
-          detail: detail,
-          life: life,
-          className: 'login-toast',
-        },
-      ])
-      setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+    } else {
+      if (checkCount === 0) {
+        const attachListString = attachmentUrlArr.join('#!#')
+        console.log(logDataIn)
+        const data = {
+          ...logDataIn,
+          attachmentUrl: attachListString,
+        }
+        logDataIn &&
+          postTaskLogsAPI &&
+          postTaskLogsAPI(data)
+            .then((res) => {
+              if (failureCount === 0) {
+                detail = allMessages.success.successAttach
+                severity = 'success'
+              } else if (failureCount > 0) {
+                detail = `${failureCount} ${allMessages.error.logFailureAttach}`
+                severity = 'error'
+              }
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+            })
+            .catch((err) => {
+              detail = allMessages.error.logpostFailureSingle
+              severity = 'error'
+              setIsProgressLoader(false)
+              toast.current.show([
+                {
+                  severity: 'success',
+                  summary: '',
+                  detail: returnText,
+                  life: life,
+                  className: 'login-toast',
+                },
+                {
+                  severity: severity,
+                  summary: '',
+                  detail: detail,
+                  life: life,
+                  className: 'login-toast',
+                },
+              ])
+              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+            })
+      }
     }
   }, [
     checkCount,
@@ -195,6 +271,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     failureCount,
     referenceDocData,
     returnText,
+    logDataIn,
+    attachmentUrlArr,
   ])
 
   useEffect(() => {
@@ -218,7 +296,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   useEffect(() => {
     if (status === 'D' && requestType !== 'modify' && requestType !== '') {
-      setErrorRequestType('Only Modify request can be raised for Deleted users')
+      // setErrorRequestType(allMessages.error.deletedError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.deletedError)
     }
     if (
       status === 'I' &&
@@ -226,9 +306,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       requestType !== 'remove' &&
       requestType !== ''
     ) {
-      setErrorRequestType(
-        'Only Modify/Remove request can be raised for Inactive users'
-      )
+      // setErrorRequestType(allMessages.error.inactiveError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inactiveError)
+    }
+    if (status === 'W' && requestType !== 'new' && requestType !== '') {
+      // setErrorRequestType(allMessages.error.inprogressError)
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.inprogressError)
     }
   }, [status, requestType])
 
@@ -258,6 +343,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const handleReset = () => {
     setEmpIdInput('')
     setFirstName('')
+    setMiddleName('')
     setLastName('')
     setEmail('')
     setDesignation('')
@@ -266,6 +352,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     setGroupInput([])
     setGroups([])
     setColleagueData('')
+    setComments('')
+    setReferenceDocData([])
   }
 
   const handleFileUpload = (event: any) => {
@@ -303,10 +391,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   }
   const onstatusChange = (e: any) => {
     setStatus(e.target.value)
-    if (e.target.value !== '') setErrorStatus('')
+    if (e.target.value !== '') {
+      setErrorStatus('')
+      setErrorRequestType('')
+    }
   }
   const onrequestTypeChange = (e: any) => {
-    if (e.target.value !== '') setErrorRequestType('')
+    if (e.target.value !== '') {
+      setErrorRequestType('')
+      setErrorStatus('')
+    }
     if (e.target.value.toLowerCase() === 'new') {
       // setStatus('W')
       setRoleAccess('new_role')
@@ -316,11 +410,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       // setStatus('W')
       setRoleAccess('mod_role')
       setGroupAccess('mod_group')
+      setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
       // setStatus('W')
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
+      setStatus('A')
     }
     setRequestType(e.target.value)
     checkIt(e.target.value, emplAvailable)
@@ -328,13 +424,15 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   const checkIt = (type: string, empAvail: boolean) => {
     if (empIdInput !== '' && type.toLowerCase() === 'new' && empAvail) {
-      setShoutOut('Cannot create for an already existing Employee')
+      focusEmpId.current.focus()
+      setShoutOut(allMessages.error.existingEmp)
     } else if (
       empIdInput !== '' &&
       (type.toLowerCase() === 'modify' || type.toLowerCase() === 'remove') &&
       !empAvail
     ) {
-      setShoutOut('Cannot modify for a non existing Employee')
+      focusEmpId.current.focus()
+      setShoutOut(allMessages.error.modifyEmp)
     } else {
       setShoutOut('')
     }
@@ -378,39 +476,30 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   }
 
   const roleSelect1 = (
-    <>
-      <Select
-        options={roles}
-        isMulti
-        onChange={handleRoleChange1}
-        components={{
-          Option,
-        }}
-        value={roleNames}
-        closeMenuOnSelect={false}
-        hideSelectedOptions={false}
-        className={classes.multiSelect}
-        styles={roleSelectStyle}
-        isDisabled={
-          UtilityFunctions.isHidden(
-            '8',
-            appFuncList ? appFuncList : [],
-            roleAccess
-          )
-            ? true
-            : false
-        }
-        //required
-      />
-      <input
-        tabIndex={-1}
-        autoComplete="off"
-        style={{ opacity: 0, height: 0 }}
-        value={roleNames}
-        onChange={() => {}}
-        required
-      />
-    </>
+    <Select
+      options={roles}
+      isMulti
+      ref={focusRole}
+      onChange={handleRoleChange1}
+      components={{
+        Option,
+      }}
+      value={roleNames}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      className={classes.multiSelect}
+      styles={roleSelectStyle}
+      isDisabled={
+        UtilityFunctions.isHidden(
+          '8',
+          appFuncList ? appFuncList : [],
+          roleAccess
+        )
+          ? true
+          : false
+      }
+      //required
+    />
   )
 
   const handleOpenGroups = (e: any) => {
@@ -419,6 +508,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   }
   const handleCloseGroups = (e: any) => {
     e.preventDefault()
+    setGroupInput(groups)
     setGroupOpen(false)
   }
   const updateGroups = () => {
@@ -529,8 +619,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="button"
-            className={classes.whiteButton}
+            type="submit"
+            variant="contained"
+            color="primary"
             onClick={updateGroups}
             disabled={
               UtilityFunctions.isHidden(
@@ -610,7 +701,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         setOpenAdditional((prevState) => !prevState)
       }}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -730,7 +822,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       open={viewLogOpen}
       onClose={handleCloseViewLog}
       fullWidth={true}
-      maxWidth={false}
+      // maxWidth={false}
+      classes={{ paperScrollPaper: classes.customMaxWidth }}
     >
       <Box
         sx={{
@@ -800,7 +893,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           <DataTable
             value={constants.viewLogRows}
             paginator
-            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
+            currentPageReportTemplate="{first} - {last} of {totalRecords}"
             rows={5}
             style={{
               fontSize: '12px',
@@ -980,94 +1074,135 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     //     Authorization: `Basic dnFhaURSWnpTUWhBNkNQQXkwclNvdHNRQWtSZXBwclg6THhhVk01SllpckJya1FRdQ==`,
     //   },
     // })
-    getUserAPI &&
-      getUserAPI(empIdInput)
-        .then((res) => {
-          setColleagueData('')
-          setEmpAvailable(true)
-          checkIt(requestType, true)
-          setEmployeeID(res.data.userdetails[0].user.userId)
-          setFirstName(res.data.userdetails[0].user.firstName)
-          setLastName(res.data.userdetails[0].user.lastName)
-          setMiddleName(res.data.userdetails[0].user.middleName)
-          setEmail(res.data.userdetails[0].user.emailId)
-          setDesignation(res.data.userdetails[0].user.designation)
-          setAdditionalInfo(res.data.userdetails[0].user.additionalInfo)
-          setStatus(res.data.userdetails[0].user.status)
-
-          setRoleNames(
-            res.data.userdetails[0].roles.map((role: any) => {
-              return {
-                label: role.roleName,
-                value: role.roleId,
-              }
-            })
-          )
-          setGroupInput(
-            res.data.userdetails[0].usergroups.map((group: any) => {
-              return {
-                label: group.groupName,
-                value: group.groupId,
-                status: group.status,
-              }
-            })
-          )
-          setGroups(
-            res.data.userdetails[0].usergroups.map((group: any) => {
-              return {
-                label: group.groupName,
-                value: group.groupId,
-                status: group.status,
-              }
-            })
-          )
-          setErrorRoles('')
-          setErrorGroups('')
-          setErrorRequestType('')
-          setErrorEmployeeId('')
-          setErrorStatus('')
-        })
-        .catch((err) => {
-          setEmpAvailable(false)
-          setErrorRoles('')
-          setErrorGroups('')
-          setErrorRequestType('')
-          setErrorEmployeeId('')
-          setErrorStatus('')
-          getColleagueAPI(empIdInput)
-            .then((response: any) => {
-              //console.log(response);
-              checkIt(requestType, false)
-              let userData = response.data
-              setEmployeeID(empIdInput)
-              setFirstName(userData.FirstName)
-              setLastName(userData.LastName)
-              setEmail(userData.email)
-              setDesignation(userData.jobRole.jobTitle)
-              setColleagueData(userData)
-              setStatus('W')
-              setRoleNames([])
-              setGroupInput([])
-              setGroups([])
-              //setStatus(userData.employee_status);
-            })
-            .catch((err) => {
-              //console.log(err);
-              handleReset()
-              toast.current.show({
-                severity: 'error',
-                summary: 'Error!',
-                detail: 'Invalid Employee ID',
-                life: life,
-                className: 'login-toast',
+    if (empIdInput === '') focusEmpId.current.focus()
+    empIdInput !== ''
+      ? getUserAPI &&
+        getUserAPI(empIdInput)
+          .then((res) => {
+            setColleagueData('')
+            setEmpAvailable(true)
+            checkIt(requestType, true)
+            setEmployeeID(res.data.userdetails[0].user.userId)
+            setFirstName(res.data.userdetails[0].user.firstName)
+            setLastName(res.data.userdetails[0].user.lastName)
+            setMiddleName(res.data.userdetails[0].user.middleName)
+            setEmail(res.data.userdetails[0].user.emailId)
+            setDesignation(res.data.userdetails[0].user.designation)
+            // setAdditionalInfo(res.data.userdetails[0].user.additionalInfo)
+            // if (
+            //   res.data.userdetails[0].user.additionalInfo &&
+            //   res.data.userdetails[0].user.additionalInfo !== ''
+            // ) {
+            //   setAdditionalInfo(res.data.userdetails[0].user.additionalInfo)
+            // } else {
+            getColleagueAPI(empIdInput)
+              .then((res: any) => {
+                setColleagueData(res.data)
               })
-            })
-        })
+              .catch((err) => setColleagueData(''))
+            // }
+            setStatus(res.data.userdetails[0].user.status)
+            setRoleNames(
+              res.data.userdetails[0].roles.map((role: any) => {
+                return {
+                  label: role.roleName,
+                  value: role.roleId,
+                }
+              })
+            )
+            setGroupInput(
+              res.data.userdetails[0].usergroups.map((group: any) => {
+                return {
+                  label: group.groupName,
+                  value: group.groupId,
+                  status: group.status,
+                }
+              })
+            )
+            setGroups(
+              res.data.userdetails[0].usergroups.map((group: any) => {
+                return {
+                  label: group.groupName,
+                  value: group.groupId,
+                  status: group.status,
+                }
+              })
+            )
+            setComments('')
+            setReferenceDocData([])
+            setErrorRoles('')
+            setErrorGroups('')
+            // setErrorRequestType('')
+            setErrorEmployeeId('')
+            setErrorStatus('')
+          })
+          .catch((err) => {
+            setEmpAvailable(false)
+            setErrorRoles('')
+            setErrorGroups('')
+            setErrorRequestType('')
+            setErrorEmployeeId('')
+            setErrorStatus('')
+            getColleagueAPI(empIdInput)
+              .then((response: any) => {
+                //console.log(response);
+                checkIt(requestType, false)
+                let userData = response.data
+                setEmployeeID(empIdInput)
+                setFirstName(userData.FirstName)
+                setMiddleName('')
+                setLastName(userData.LastName)
+                setEmail(userData.email)
+                setDesignation(userData.jobRole.jobTitle)
+                setColleagueData(userData)
+                if (requestType === 'new') {
+                  setStatus('W')
+                } else {
+                  setStatus('A')
+                }
+                // setStatus('W')
+                setRoleNames([])
+                setGroupInput([])
+                setGroups([])
+                setComments('')
+                setReferenceDocData([])
+                //setStatus(userData.employee_status);
+              })
+              .catch((err) => {
+                //console.log(err);
+                handleReset()
+                // toast.current.show({
+                //   severity: 'error',
+                //   summary: 'Error!',
+                //   detail: 'Invalid Employee ID',
+                //   life: life,
+                //   className: 'login-toast',
+                // })
+                focusEmpId.current.focus()
+                setErrorEmployeeId(allMessages.error.invalidEmployee)
+                if (requestType === 'new') {
+                  setErrorRequestType('')
+                  setErrorStatus('')
+                  setStatus('W')
+                } else {
+                  setErrorRequestType('')
+                  setErrorStatus('')
+                  setStatus('A')
+                }
+                setShoutOut('')
+              })
+          })
+      : setErrorEmployeeId(allMessages.error.noEmployeeId)
   }
 
-  const checkForm = (btnName: string) => {
+  const checkForm = async (btnName: string) => {
     let flag = 1
     if (errorRequestType !== '') {
+      focusRequestType.current.focus()
+      flag = 0
+    }
+    if (errorStatus !== '') {
+      focusStatus.current.focus()
       flag = 0
     }
     if (
@@ -1075,22 +1210,32 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       requestType !== 'modify' &&
       requestType !== 'remove'
     ) {
-      setErrorRequestType('Please select request type')
+      focusRequestType.current.focus()
+      setErrorRequestType(allMessages.error.noRequestType)
       flag = 0
     }
     if (empIdInput === '') {
-      setErrorEmployeeId('Provide employee id and search')
+      focusEmpId.current.focus()
+      setErrorEmployeeId(allMessages.error.noEmployeeId)
+      flag = 0
+    }
+    if (empIdInput !== '' && email === '' && designation === '') {
+      focusEmpId.current.focus()
+      setErrorEmployeeId(allMessages.error.noSearchPress)
       flag = 0
     }
     if (status === '') {
-      setErrorStatus('Please select a status')
+      focusStatus.current.focus()
+      setErrorStatus(allMessages.error.noStatus)
     }
     if (roleNames.length === 0) {
-      setErrorRoles('Please select atleast one role')
+      focusRole.current.focus()
+      setErrorRoles(allMessages.error.noRoles)
       flag = 0
     }
     if (groups.length === 0) {
-      setErrorGroups('Please select atleast one group')
+      focusGroup.current.focus()
+      setErrorGroups(allMessages.error.noGroups)
       flag = 0
     }
     if (flag === 1 && btnName === 'approve') {
@@ -1119,11 +1264,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     setIsProgressLoader(true)
     if (shoutOut === '') {
       setDisabled(true)
-      const colleague: any =
-        colleagueData && constants.getColleagueDetails(colleagueData)
-      const colleaguestring =
-        colleagueData &&
-        `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+      // const colleague: any =
+      //   colleagueData && constants.getColleagueDetails(colleagueData)
+      // const colleaguestring =
+      //   colleagueData &&
+      //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
 
       const formData = {
         camunda: {
@@ -1150,8 +1295,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           middleName: middleName,
           lastName: lastName,
           emailId: email,
-          additionalInfo:
-            colleagueData !== '' ? colleaguestring : additionalInfo,
+          additionalInfo: '',
+          // colleagueData !== '' ? colleaguestring : additionalInfo,
           status: status,
           designation: designation.toUpperCase(),
         },
@@ -1193,6 +1338,15 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           .then((res) => {
             console.log(res)
             setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(res.data.requestId)
+            }
+            // else {
+            //   ;(window as any).clipboardData.setData(
+            //     'text/plain',
+            //     res.data.requestId
+            //   )
+            // }
             const rolelog =
               userDetail &&
               userDetail.userdetails[0].roles
@@ -1209,11 +1363,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               timestamp: `${datepart}`,
               userId: userDetail && userDetail.userdetails[0].user.userId,
               role: rolelog,
-              camundaRequestId: res.data.businessKey,
+              camundaRequestId: res.data.businessKey
+                ? res.data.businessKey
+                : '',
               actionTaken: 'Approved',
               comments: comments,
               attachmentUrl: null,
             }
+            setLogDataIn({ ...logData })
             if (referenceDocData.length > 0) {
               setFailureCount(referenceDocData.length)
               setCheckCount(referenceDocData.length)
@@ -1224,8 +1381,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   postFileAttachmentAPI &&
                   postFileAttachmentAPI(formdata1, employeeID)
                     .then((res) => {
-                      logData.attachmentUrl = res.data.attachmentUrl
-                      postTasklog(logData)
+                      // logData.attachmentUrl = res.data.attachmentUrl
+                      setAttachmentUrlArr((prevState) => [
+                        ...prevState,
+                        res.data.attachmentUrl,
+                      ])
+                      setFailureCount((prevState) => prevState - 1)
+                      setCheckCount((prevState) => prevState - 1)
+                      // postTasklog(logData)
                     })
                     .catch((err) => {
                       setCheckCount((prevState) => prevState - 1)
@@ -1331,11 +1494,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     setIsProgressLoader(true)
     if (shoutOut === '') {
       setDisabled(true)
-      const colleague: any =
-        colleagueData && constants.getColleagueDetails(colleagueData)
-      const colleaguestring =
-        colleagueData &&
-        `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
+      // const colleague: any =
+      //   colleagueData && constants.getColleagueDetails(colleagueData)
+      // const colleaguestring =
+      //   colleagueData &&
+      //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
 
       const formData = {
         camunda: {
@@ -1362,8 +1525,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           middleName: middleName,
           lastName: lastName,
           emailId: email,
-          additionalInfo:
-            colleagueData !== '' ? colleaguestring : additionalInfo,
+          additionalInfo: '',
+          // colleagueData !== '' ? colleaguestring : additionalInfo,
           status: status,
           designation: designation.toUpperCase(),
         },
@@ -1406,6 +1569,15 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           .then((res) => {
             console.log(res)
             setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(res.data.requestId)
+            }
+            // else {
+            //   ;(window as any).clipboardData.setData(
+            //     'text/plain',
+            //     res.data.requestId
+            //   )
+            // }
             const rolelog =
               userDetail &&
               userDetail.userdetails[0].roles
@@ -1421,11 +1593,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               timestamp: `${datepart}`,
               userId: userDetail && userDetail.userdetails[0].user.userId,
               role: rolelog,
-              camundaRequestId: res.data.businessKey,
-              actionTaken: 'Submited',
+              camundaRequestId: res.data.businessKey
+                ? res.data.businessKey
+                : '',
+              actionTaken: 'Submitted',
               comments: comments,
               attachmentUrl: null,
             }
+            setLogDataIn({ ...logData })
             if (referenceDocData.length > 0) {
               setFailureCount(referenceDocData.length)
               setCheckCount(referenceDocData.length)
@@ -1436,8 +1611,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   postFileAttachmentAPI &&
                   postFileAttachmentAPI(formdata1, employeeID)
                     .then((res) => {
-                      logData.attachmentUrl = res.data.attachmentUrl
-                      postTasklog(logData)
+                      // logData.attachmentUrl = res.data.attachmentUrl
+                      setAttachmentUrlArr((prevState) => [
+                        ...prevState,
+                        res.data.attachmentUrl,
+                      ])
+                      setFailureCount((prevState) => prevState - 1)
+                      setCheckCount((prevState) => prevState - 1)
+                      // postTasklog(logData)
                     })
                     .catch((err) => {
                       setCheckCount((prevState) => prevState - 1)
@@ -1655,6 +1836,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             <Typography variant="subtitle2">
               <select
                 name="requesttype"
+                ref={focusRequestType}
                 id="requesttype"
                 className={classes.selectField}
                 defaultValue=""
@@ -1715,11 +1897,17 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               {/* {typeAheadSearch} */}
               <OutlinedInput
                 value={empIdInput}
+                inputRef={focusEmpId}
                 onChange={(e) => {
-                  if (e.target.value === '') {
-                    setEmpAvailable(false)
-                  }
+                  // if (e.target.value === '') {
+                  setEmpAvailable(false)
+                  // }
                   setEmpIdInput(e.target.value)
+                  setFirstName('')
+                  setMiddleName('')
+                  setLastName('')
+                  setEmail('')
+                  setDesignation('')
                   setErrorEmployeeId('')
                 }}
                 className={classes.inputFields}
@@ -1933,6 +2121,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               <select
                 name="status"
                 id="status"
+                ref={focusStatus}
                 className={classes.selectField}
                 defaultValue=""
                 onChange={onstatusChange}
@@ -1963,39 +2152,39 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                           </option>
                         )
                       })
-                  : requestType === 'modify'
-                  ? constants.statuses
-                      .filter((type) => type.statusID.toLowerCase() !== 'w')
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : requestType === 'remove'
-                  ? constants.statuses
-                      .filter(
-                        (type) => type.statusID.toLowerCase() !== 'w'
-                        // &&
-                        // type.statusID.toLowerCase() !== 'i'
-                      )
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : constants.statuses.map((type) => {
+                  : // : requestType === 'modify'
+                    // ? constants.statuses
+                    //     .filter((type) => type.statusID.toLowerCase() !== 'w')
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    // : requestType === 'remove'
+                    // ? constants.statuses
+                    //     .filter(
+                    //       (type) => type.statusID.toLowerCase() !== 'w'
+                    //       // &&
+                    //       // type.statusID.toLowerCase() !== 'i'
+                    //     )
+                    //     .map((type) => {
+                    //       return (
+                    //         <option
+                    //           value={type.statusID}
+                    //           key={type.statusID}
+                    //           selected={type.statusID === status ? true : false}
+                    //         >
+                    //           {type.text}
+                    //         </option>
+                    //       )
+                    //     })
+                    constants.statuses.map((type) => {
                       return (
                         <option
                           value={type.statusID}
@@ -2061,54 +2250,49 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           </Box>
 
           <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle1">
-              {groups ? (
-                groups.length > 0 ? (
-                  <button
-                    className={classes.backButton}
-                    onClick={handleOpenGroups}
-                  >
-                    Groups ( {groups.length} )
-                  </button>
-                ) : (
-                  <button
-                    // className={
-                    //   UtilityFunctions.isHidden(
-                    //     '8',
-                    //     appFuncList ? appFuncList : [],
-                    //     groupAccess
-                    //   )
-                    //     ? classes.hideit
-                    //     : classes.backButton
-                    // }
-                    className={classes.backButton}
-                    disabled={UtilityFunctions.isHidden(
-                      '8',
-                      appFuncList ? appFuncList : [],
-                      groupAccess
-                    )}
-                    onClick={handleOpenGroups}
-                  >
-                    Add
-                  </button>
-                )
-              ) : (
+            {/* <Typography variant="subtitle1"> */}
+            {groups ? (
+              groups.length > 0 ? (
                 <button
                   className={classes.backButton}
                   onClick={handleOpenGroups}
+                  ref={focusGroup}
+                >
+                  Groups ( {groups.length} )
+                </button>
+              ) : (
+                <button
+                  // className={
+                  //   UtilityFunctions.isHidden(
+                  //     '8',
+                  //     appFuncList ? appFuncList : [],
+                  //     groupAccess
+                  //   )
+                  //     ? classes.hideit
+                  //     : classes.backButton
+                  // }
+                  className={classes.backButton}
+                  disabled={UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    groupAccess
+                  )}
+                  onClick={handleOpenGroups}
+                  ref={focusGroup}
                 >
                   Add
                 </button>
-              )}
-              <input
-                tabIndex={-1}
-                autoComplete="off"
-                style={{ opacity: 0, height: 0 }}
-                value={groups}
-                onChange={() => {}}
-                required
-              />
-            </Typography>
+              )
+            ) : (
+              <button
+                className={classes.backButton}
+                onClick={handleOpenGroups}
+                ref={focusGroup}
+              >
+                Add
+              </button>
+            )}
+            {/* </Typography> */}
           </Box>
         </Box>
         {groups.length === 0 && errorGroups !== '' && (
@@ -2200,7 +2384,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             <Box className={classes.inputLabel}></Box>
             <Box className={classes.inputFieldBox}>
               <Typography variant="subtitle2" color={'secondary'}>
-                Files with invalid extensions omitted
+                {allMessages.error.invalidExtension}
               </Typography>
             </Box>
           </Box>
@@ -2232,8 +2416,10 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   </Button>
                 </Box>             
               ))} */}
+            <Box className={classes.inputLabel}></Box>
             <Box
-              className={!active ? classes.filelist : classes.inputFieldBox}
+              // className={!active ? classes.filelist : classes.inputFieldBox}
+              className={classes.inputFieldBox}
               sx={{ overflow: 'auto' }}
             >
               <table>
@@ -2251,6 +2437,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                               setReferenceDocData([...newone])
                             }}
                             color="primary"
+                            size="small"
+                            style={{
+                              justifyContent: 'flex-start',
+                              minWidth: '30px',
+                            }}
                           >
                             X
                           </Button>
@@ -2296,6 +2487,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
+                value={comments}
               />
             </Typography>
           </Box>

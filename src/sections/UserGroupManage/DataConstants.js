@@ -18,7 +18,7 @@ export const constants = {
     {
       field: 'status',
       headerName: 'Status',
-      width: 80,
+      width: 100,
     },
     {
       field: 'productHierarchy',
@@ -37,5 +37,20 @@ export const constants = {
     { field: 'hierarchyLevel', headerName: 'Hierarchy Level', width: 100 },
     { field: 'startDate', headerName: 'Start Date', width: 100 },
     { field: 'endDate', headerName: 'End Date', width: 100 },
+  ],
+
+  groupstatuses: [
+    {
+      statusID: 'A',
+      text: 'Active',
+    },
+    {
+      statusID: 'I',
+      text: 'Inactive',
+    },
+    {
+      statusID: 'D',
+      text: 'Deleted',
+    },
   ],
 }
