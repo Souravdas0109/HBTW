@@ -187,7 +187,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           {
             severity: 'success',
             summary: '',
-            detail: returnText,
+            detail: `${returnText}\n${allMessages.success.successCopy}`,
             life: life,
             className: 'login-toast',
           },
@@ -367,10 +367,17 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             'i'
           ).test(event.target.files[i].name)
         : false
-      if (!checkextension && event.target.files[i]) {
+      if (
+        (!checkextension || event.target.files[i].size === 0) &&
+        event.target.files[i]
+      ) {
         setWrongExtn(true)
       }
-      if (event.target.files[i] && checkextension) {
+      if (
+        event.target.files[i] &&
+        checkextension &&
+        event.target.files[i].size !== 0
+      ) {
         // let reader = new FileReader();
         // reader.readAsDataURL(event.target.files[0]);
 
@@ -2379,7 +2386,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Box>
           </Box>
         </Box>
-        {wrongExtn && referenceDocData.length > 0 ? (
+        {wrongExtn ? (
+          // && referenceDocData.length > 0
           <Box className={classes.eachRow}>
             <Box className={classes.inputLabel}></Box>
             <Box className={classes.inputFieldBox}>
@@ -2435,6 +2443,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                                 (dat) => dat.name !== p.name
                               )
                               setReferenceDocData([...newone])
+                              if (newone.length === 0) {
+                                setWrongExtn(false)
+                              }
                             }}
                             color="primary"
                             size="small"

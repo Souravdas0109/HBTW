@@ -16,30 +16,28 @@ export const ServiceResponses = {
     task: (
       <div>
         <div>
-          <div style={{ fontWeight: 'bold' }}>My:</div>
+          <div style={{ fontWeight: 'bold' }}>My Task:</div>
         </div>
         <div>
-          <span style={{ fontWeight: 'bold' }}>&#8226; Pending Actions:</span>{' '}
-          User can see the list of task(s) which is not yet started.
+          <span style={{ fontWeight: 'bold' }}>&#8226; Pending:</span> User can
+          see the list of task(s) which is not yet started.
         </div>{' '}
         <div>
-          <span style={{ fontWeight: 'bold' }}>&#8226; In-progress Task:</span>{' '}
-          User can see the list of task(s) which is started but incomplete.
+          <span style={{ fontWeight: 'bold' }}>&#8226; In Progress:</span> User
+          can see the list of task(s) which is started but incomplete.
         </div>{' '}
         <br />
         <div>
-          <div style={{ fontWeight: 'bold' }}>Group:</div>
+          <div style={{ fontWeight: 'bold' }}>Group Task:</div>
         </div>{' '}
         <div>
-          <span style={{ fontWeight: 'bold' }}>&#8226; Pending Actions:</span>{' '}
-          User can see the list of task(s) which is pending by self and/or
-          others from the same group.
+          <span style={{ fontWeight: 'bold' }}>&#8226; Pending:</span> User can
+          see the list of task(s) which is pending by self and/or others from
+          the same group.
         </div>{' '}
         <div>
-          <span style={{ fontWeight: 'bold' }}>
-            &#8226; Unassigned Workflow:
-          </span>{' '}
-          User can see the list of task(s) which is yet to be assigned.
+          <span style={{ fontWeight: 'bold' }}>&#8226; Unassigned:</span> User
+          can see the list of task(s) which is yet to be assigned.
         </div>
       </div>
     ),

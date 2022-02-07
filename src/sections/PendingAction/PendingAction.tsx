@@ -87,7 +87,7 @@ function PendingAction(props: any) {
                   flexGrow: 1,
                 }}
               >
-                <Typography variant="h6">Pending Actions</Typography>
+                <Typography variant="h6">My Task {'>'} Pending</Typography>
               </Box>
               <Box
                 sx={{

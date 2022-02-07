@@ -256,14 +256,14 @@ function Dashboard(props: any) {
                           <tr>
                             <th>
                               <Typography variant="body1" color="primary">
-                                My
+                                My Task
                               </Typography>
                             </th>
                           </tr>
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                &#8226; Pending Actions
+                                &#8226; Pending
                               </Typography>
                             </td>
 
@@ -292,7 +292,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                &#8226; In-Progress Tasks
+                                &#8226; In Progress
                               </Typography>
                             </td>
 
@@ -326,7 +326,7 @@ function Dashboard(props: any) {
                           <tr>
                             <th>
                               <Typography variant="body1" color="primary">
-                                My Group
+                                Group Task
                               </Typography>
                             </th>
                           </tr>
@@ -334,7 +334,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                &#8226; Pending Actions
+                                &#8226; Pending
                               </Typography>
                             </td>
 
@@ -362,7 +362,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                &#8226; Unassigned Workflows
+                                &#8226; Unassigned
                               </Typography>
                             </td>
 

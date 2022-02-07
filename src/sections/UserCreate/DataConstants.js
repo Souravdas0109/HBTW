@@ -246,7 +246,10 @@ export const constants = {
               : ' ',
           hiringmanager:
             colleague.hiringManager !== '' ? colleague.hiringManager : ' ',
-          leavingDate: '2099-12-31',
+          leavingDate:
+            colleague.effectiveLeaveDate !== ''
+              ? colleague.effectiveLeaveDate
+              : ' ',
           businessUnit:
             colleague.colleagueLocationData.businessUnit !== ''
               ? colleague.colleagueLocationData.businessUnit

@@ -156,6 +156,7 @@ export const useStyles = makeStyles((theme) => ({
     },
   },
   textArea: {
+    resize: 'none',
     width: 400,
     [theme.breakpoints.down(750)]: {
       width: 400,

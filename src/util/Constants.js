@@ -21,7 +21,7 @@ export const taskList = [
   },
 ]
 
-export const life = 2000
+export const life = 10000
 
 export let routes
 routes = {

@@ -47,7 +47,7 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
-    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1//tasks/{taskId}/claim',
+    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
     PUT_COMPLETE_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/complete',
@@ -83,7 +83,7 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
-    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1//tasks/{taskId}/claim',
+    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
     PUT_COMPLETE_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/complete',
@@ -119,7 +119,7 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
-    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1//tasks/{taskId}/claim',
+    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
     PUT_COMPLETE_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/complete',
@@ -155,7 +155,7 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
-    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1//tasks/{taskId}/claim',
+    PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
     PUT_COMPLETE_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/complete',

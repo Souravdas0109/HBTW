@@ -67,7 +67,7 @@ function InprogressTask(props: any) {
                   flexGrow: 1,
                 }}
               >
-                <Typography variant="h6">Inprogress Task</Typography>
+                <Typography variant="h6">My Task {'>'} In Progress</Typography>
               </Box>
               <Box
                 sx={{

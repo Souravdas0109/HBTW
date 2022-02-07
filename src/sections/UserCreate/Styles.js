@@ -103,6 +103,7 @@ export const useStyles = makeStyles((theme) => {
       //   width: fieldWidth,
       // },
       width: '100%',
+      resize: 'none',
       border: '1px solid black',
     },
     designationField: {

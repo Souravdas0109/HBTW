@@ -415,7 +415,7 @@ function UserGroupManage(props: any) {
                   type="text"
                   value={globalFilter}
                   onChange={(e) => setGlobalFilter(e.target.value)}
-                  placeholder={' Search User details '}
+                  placeholder={' Search Group details '}
                   style={{
                     width: '300px',
                   }}
@@ -508,7 +508,6 @@ function UserGroupManage(props: any) {
           rowHover
           paginator
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-          //currentPageReportTemplate="({first} - {last} of {totalRecords},{currentPage}/{totalPages})"
           currentPageReportTemplate="{first} - {last} of {totalRecords}"
           stateStorage="session"
           stateKey="dt-state-demo-session-groupmanage"
@@ -527,7 +526,8 @@ function UserGroupManage(props: any) {
           loading={userGroupLoading}
         >
           {constants.userGroupTableHeaders.map((column: any) => {
-            return (
+            return column.field === 'productHierarchy' ||
+              column.field === 'locationHierarchy' ? (
               <Column
                 key={column.field}
                 field={column.field}
@@ -544,10 +544,27 @@ function UserGroupManage(props: any) {
                   color: 'white',
                 }}
                 body={
-                  (column.field === 'groupId' && groupIDTemplate) ||
                   (column.field === 'productHierarchy' && productTemplate) ||
                   (column.field === 'locationHierarchy' && locationTemplate)
                 }
+              />
+            ) : (
+              <Column
+                key={column.field}
+                field={column.field}
+                header={column.headerName}
+                bodyStyle={{
+                  fontSize: '14px',
+                  width: column.width,
+                  overflowX: 'auto',
+                }}
+                headerStyle={{
+                  fontSize: '14px',
+                  width: column.width,
+                  backgroundColor: teal[900],
+                  color: 'white',
+                }}
+                body={column.field === 'groupId' && groupIDTemplate}
                 sortable
               />
             )

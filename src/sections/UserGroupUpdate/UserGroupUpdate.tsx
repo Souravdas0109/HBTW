@@ -34,7 +34,7 @@ import LoadingComponent from '../../components/LoadingComponent/LoadingComponent
 import { allMessages } from '../../util/Messages'
 
 function UserGroupUpdate(props: any) {
-  const { groupDetails, reset_groupID } = props
+  const { groupDetails, reset_groupID, userDetail } = props
   const theme = useTheme()
   const history = useHistory()
   const { DEFAULT, USERCONFIG_USERGROUP } = routes
@@ -71,10 +71,19 @@ function UserGroupUpdate(props: any) {
   const [uniqueclsobj, setUniqueClsObj] = useState<any>([])
   const [uniquescls, setUniqueScls] = useState<any>([])
   const [uniquesclsobj, setUniqueSclsObj] = useState<any>([])
+  //
+  const [divpay, setDivpay] = useState<any>([])
+  const [grppay, setGrppay] = useState<any>([])
+  const [catpay, setCatpay] = useState<any>([])
+  const [deppay, setDeppay] = useState<any>([])
+  const [clspay, setClspay] = useState<any>([])
+  const [sclspay, setSclspay] = useState<any>([])
+  //
   const [payload, setPayload] = useState<any>([])
   const [hierarchy, setHierarchy] = useState<any>([])
   const [hierLevel, setHierLevel] = useState<any>('')
   const [selectGroupID, setSelectGroupID] = React.useState<any>('')
+  const [hierLevelInput, setHierLevelInput] = useState<any>('')
   const [cancelOpenReset, setCancelOpenReset] = React.useState(false)
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [errorGroupName, setErrorGroupName] = useState('')
@@ -173,8 +182,115 @@ function UserGroupUpdate(props: any) {
           }
         })
       )
+      setHierLevelInput(
+        selectGroupID.productHierarchy.map((product: any) => {
+          return {
+            label:
+              product.hierarchyLevel === 'division'
+                ? 'Division'
+                : product.hierarchyLevel === 'group'
+                ? 'Trading Group'
+                : product.hierarchyLevel === 'category'
+                ? 'Category'
+                : product.hierarchyLevel === 'department'
+                ? 'Product Group'
+                : product.hierarchyLevel === 'class'
+                ? 'Class'
+                : product.hierarchyLevel === 'subclass'
+                ? 'Sub Class'
+                : '',
+            value: product.hierarchyLevel,
+            // hierarchyId: product.hierarchyId,
+            // hierarchyLevel: product.hierarchyLevel,
+            // endDate: '2099-12-31',
+            // startDate: new Date().toISOString().split('T')[0],
+          }
+        })
+      )
+      if (selectGroupID.productHierarchy.length > 0) {
+        switch (selectGroupID.productHierarchy[0].hierarchyLevel) {
+          case 'division':
+            setDisabled(false)
+            // setPayload('')
+            // setDivpay(payload)
+            setSelected([...uniquedivobj])
+            break
+          case 'group':
+            setDisabled(false)
+            // setPayload('')
+            // setGrppay(payload)
+            setSelected([...uniquegrpobj])
+            break
+          case 'category':
+            setDisabled(false)
+            // setPayload('')
+            // setCatpay(payload)
+            setSelected([...uniquecatobj])
+            break
+          case 'department':
+            setDisabled(false)
+            // setPayload('')
+            // setDeppay(payload)
+            setSelected([...uniquedepobj])
+            break
+          case 'class':
+            setDisabled(false)
+            // setPayload('')
+            // setClspay(payload)
+            setSelected([...uniqueclsobj])
+            break
+          case 'subclass':
+            setDisabled(false)
+            // setPayload('')
+            // setSclspay(payload)
+            setSelected([...uniquesclsobj])
+            break
+          default:
+            setDisabled(true)
+            // setPayload('')
+            setSelected([])
+            break
+        }
+      }
     }
-  }, [selectGroupID])
+  }, [
+    selectGroupID,
+    uniquesclsobj,
+    uniqueclsobj,
+    uniquedepobj,
+    uniquecatobj,
+    uniquegrpobj,
+    uniquedivobj,
+  ])
+
+  useEffect(() => {
+    // if (hierLevel && hierLevel.length > 0) {
+    //   switch (hierLevel[0].value) {
+    if (payload && payload.length > 0) {
+      switch (payload[0].hierarchyLevel) {
+        case 'division':
+          setDivpay([...payload])
+          break
+        case 'group':
+          setGrppay([...payload])
+          break
+        case 'category':
+          setCatpay([...payload])
+          break
+        case 'department':
+          setDeppay([...payload])
+          break
+        case 'class':
+          setClspay([...payload])
+          break
+        case 'subclass':
+          setSclspay([...payload])
+          break
+        default:
+          break
+      }
+    }
+  }, [payload])
 
   useEffect(() => {
     for (let d = 0; d < data.length; d++) {
@@ -313,12 +429,14 @@ function UserGroupUpdate(props: any) {
       setUniqueDep([])
       setUniqueCls([])
       setUniqueScls([])
+      setIsProgressLoader(true)
       setDisabled(true)
       let nexturl = `${BASE_URL_SIT}${PRODUCT_HIERARCHY_GET}?apikey=${API_KEY}`
       // let nexturl = `${BASE}/product/v1/hierarchies/reporting?apikey=ArAaZlvKV09DlZst4aGqxicONzvtGbpI&offset=0`;
       //   const start = new Date();
       while (nexturl !== '') {
         if (error !== '') {
+          setIsProgressLoader(false)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
@@ -353,44 +471,54 @@ function UserGroupUpdate(props: any) {
             setError(e.message)
           })
       }
+      if (nexturl === '') setIsProgressLoader(false)
       // const end = new Date();
       // const timediff = end - start;
       // console.log("Time taken for api calls: ", timediff);
     }
+    setIsProgressLoader(true)
     handleClick()
   }, [BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY, error])
 
   const handleChange = (e: any) => {
+    // setPayload('')
     setHierLevel(constants.mainvalues.filter((val) => val.value === e.value))
+    // setPayload('')
     switch (e.value) {
       case 'division':
         setDisabled(false)
-        setPayload('')
+        divpay.length > 0 ? setPayload(divpay) : setPayload('')
+        // setPayload('')
         setSelected([...uniquedivobj])
         break
       case 'group':
         setDisabled(false)
-        setPayload('')
+        grppay.length > 0 ? setPayload(grppay) : setPayload('')
+        // setPayload('')
         setSelected([...uniquegrpobj])
         break
       case 'category':
         setDisabled(false)
-        setPayload('')
+        catpay.length > 0 ? setPayload(catpay) : setPayload('')
+        // setPayload('')
         setSelected([...uniquecatobj])
         break
       case 'department':
         setDisabled(false)
-        setPayload('')
+        deppay.length > 0 ? setPayload(deppay) : setPayload('')
+        // setPayload('')
         setSelected([...uniquedepobj])
         break
       case 'class':
         setDisabled(false)
-        setPayload('')
+        clspay.length > 0 ? setPayload(clspay) : setPayload('')
+        // setPayload('')
         setSelected([...uniqueclsobj])
         break
       case 'subclass':
         setDisabled(false)
-        setPayload('')
+        sclspay.length > 0 ? setPayload(sclspay) : setPayload('')
+        // setPayload('')
         setSelected([...uniquesclsobj])
         break
       default:
@@ -403,6 +531,7 @@ function UserGroupUpdate(props: any) {
 
   const updateHierarchy = () => {
     setHierarchy(payload)
+    setHierLevelInput(hierLevel)
     setViewProductEl(false)
   }
 
@@ -411,7 +540,7 @@ function UserGroupUpdate(props: any) {
 
     for (let i = 0; i < e.length; i++) {
       values.push({
-        value: e[i].label,
+        value: e[i].value,
         label: e[i].label,
         hierarchyLevel: e[i].hierGroup ? e[i].hierGroup : e[i].hierarchyLevel,
         hierarchyId: e[i].id ? e[i].id : e[i].hierarchyId,
@@ -453,8 +582,19 @@ function UserGroupUpdate(props: any) {
     // setGroupname('')
     setDisabled1(true)
     setDescription('')
+    setHierarchy([])
     setPayload([])
     setLocationNames([])
+    setDivpay([])
+    setGrppay([])
+    setCatpay([])
+    setDeppay([])
+    setClspay([])
+    setSclspay([])
+    setHierLevel(constants.mainvalues.filter((val) => val.value === 'none'))
+    setHierLevelInput(
+      constants.mainvalues.filter((val) => val.value === 'none')
+    )
     setStatus('')
     setErrorGroupName('')
     setErrorStatus('')
@@ -491,12 +631,13 @@ function UserGroupUpdate(props: any) {
         styles={productCustomStyles}
       /> */}
       <Select
-        closeMenuOnSelect={false}
+        closeMenuOnSelect={true}
         //components={animatedComponents}
         //defaultValue={[colourOptions[4], colourOptions[5]]}
         // components={{
         //   Option,
         // }}
+        // defaultValue={payload}
         isDisabled={disabled}
         isMulti
         hideSelectedOptions={true}
@@ -505,7 +646,7 @@ function UserGroupUpdate(props: any) {
         onChange={handleHierarchyChange}
         className={classes.multiSelect}
         styles={productCustomStyles}
-        //value={payload !== "" ? payload.id : ""}
+        // value={payload !== '' ? payload.hierarchyId : ''}
       />
     </>
   )
@@ -544,11 +685,88 @@ function UserGroupUpdate(props: any) {
   //   setViewProductEl(e.currentTarget)
   // }
   const handleOpenViewProduct = () => {
+    if (hierLevel.length > 0) {
+      switch (hierLevel[0].value) {
+        case 'division':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniquedivobj])
+          break
+        case 'group':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniquegrpobj])
+          break
+        case 'category':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniquecatobj])
+          break
+        case 'department':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniquedepobj])
+          break
+        case 'class':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniqueclsobj])
+          break
+        case 'subclass':
+          // setDisabled(false)
+          // setPayload('')
+          setSelected([...uniquesclsobj])
+          break
+        default:
+          // setDisabled(true)
+          // setPayload('')
+          setSelected([])
+          break
+      }
+    }
     setViewProductEl(true)
   }
   const handleCloseViewProduct = () => {
     // setViewProductEl(null)
     setPayload(hierarchy)
+    switch (hierLevelInput) {
+      case 'division':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniquedivobj])
+        break
+      case 'group':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniquegrpobj])
+        break
+      case 'category':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniquecatobj])
+        break
+      case 'department':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniquedepobj])
+        break
+      case 'class':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniqueclsobj])
+        break
+      case 'subclass':
+        // setDisabled(false)
+        // setPayload('')
+        setSelected([...uniquesclsobj])
+        break
+      default:
+        // setDisabled(true)
+        // setPayload('')
+        setSelected([])
+        break
+    }
+    setHierLevel(hierLevelInput)
     setViewProductEl(false)
   }
   const handleOpenViewLocation = (e: any) => {
@@ -687,7 +905,7 @@ function UserGroupUpdate(props: any) {
           >
             <Box>
               <Typography variant="subtitle1" color="primary">
-                Search Hierrachies
+                Search Hierarchies
               </Typography>
             </Box>
             <Box
@@ -818,6 +1036,7 @@ function UserGroupUpdate(props: any) {
       groupName: groupname,
       groupDesc: description,
       status: status,
+      requestedBy: userDetail && userDetail.userdetails[0].user.userId,
       locationHierarchy: locationNames.map((location: any) => {
         return {
           hierarchyLevel: location.hierarchyLevel,
@@ -870,7 +1089,7 @@ function UserGroupUpdate(props: any) {
           toast.current.show({
             severity: 'success',
             summary: '',
-            detail: res.data.message,
+            detail: `${res.data.message}.\n ${allMessages.success.successGroupCopy}`,
             life: life,
             className: 'login-toast',
           })
@@ -1362,6 +1581,7 @@ function UserGroupUpdate(props: any) {
 const mapStatetoProps = (state: any) => {
   return {
     groupDetails: state.manageGroupReducer.groupDetails,
+    userDetail: state.loginReducer.userDetail,
   }
 }
 

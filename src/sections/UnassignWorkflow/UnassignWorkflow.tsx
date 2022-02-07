@@ -180,7 +180,9 @@ function UnassignWorkflow(props: any) {
                     flexGrow: 1,
                   }}
                 >
-                  <Typography variant="h6">Unassign Workflow</Typography>
+                  <Typography variant="h6">
+                    Group Task {'>'} Unassigned
+                  </Typography>
                 </Box>
                 <Box
                   sx={{

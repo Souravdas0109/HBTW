@@ -212,7 +212,7 @@ function PendingActionUpdate(props: any) {
           {
             severity: 'success',
             summary: '',
-            detail: returnText,
+            detail: `${returnText}.\n ${allMessages.success.successCopy}`,
             life: life,
             className: 'login-toast',
           },
@@ -407,10 +407,17 @@ function PendingActionUpdate(props: any) {
             'i'
           ).test(event.target.files[i].name)
         : false
-      if (!checkextension && event.target.files[i]) {
+      if (
+        (!checkextension || event.target.files[i].size === 0) &&
+        event.target.files[i]
+      ) {
         setWrongExtn(true)
       }
-      if (event.target.files[i] && checkextension) {
+      if (
+        event.target.files[i] &&
+        checkextension &&
+        event.target.files[i].size !== 0
+      ) {
         // let reader = new FileReader();
         // reader.readAsDataURL(event.target.files[0]);
 
@@ -2191,7 +2198,7 @@ function PendingActionUpdate(props: any) {
             flexGrow: 1,
           }}
         >
-          <Typography variant="h6">Pending Action - </Typography>
+          <Typography variant="h6">My Task {'>'} Pending - </Typography>
         </Box>
 
         <Box
@@ -2956,7 +2963,8 @@ function PendingActionUpdate(props: any) {
             </Box>
           </Box>
         </Box>
-        {wrongExtn && referenceDocData.length > 0 ? (
+        {wrongExtn ? (
+          // && referenceDocData.length > 0
           <Box className={classes.eachRow}>
             <Box className={classes.inputLabel}></Box>
             <Box className={classes.inputFieldBox}>
@@ -3012,6 +3020,9 @@ function PendingActionUpdate(props: any) {
                                 (dat) => dat.name !== p.name
                               )
                               setReferenceDocData([...newone])
+                              if (newone.length === 0) {
+                                setWrongExtn(false)
+                              }
                             }}
                             color="primary"
                             size="small"

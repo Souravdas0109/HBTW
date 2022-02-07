@@ -179,7 +179,7 @@ function GroupPendingAction(props: any) {
                     flexGrow: 1,
                   }}
                 >
-                  <Typography variant="h6">Pending Action</Typography>
+                  <Typography variant="h6">Group Task {'>'} Pending</Typography>
                 </Box>
                 <Box
                   sx={{

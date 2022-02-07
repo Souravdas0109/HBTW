@@ -334,6 +334,7 @@ export const mapExtraAppToUserdetails =
       if (value.length > 0) {
         const submenu = value.filter((item: any) => item.menu1Code !== null)
         menuMap.push({
+          appmenuId: value[0].appmenuId,
           appCode: value[0].appCode,
           appName: value[0].appName,
           url: value[0].url,
@@ -341,6 +342,9 @@ export const mapExtraAppToUserdetails =
         })
       }
     }
+    menuMap.sort((a, b) =>
+      a.appmenuId > b.appmenuId ? 1 : b.appmenuId > a.appmenuId ? -1 : 0
+    )
     dispatch(getUserSuccess({ userdetails: userdetails }))
     dispatch(setMenuList(menuMap))
   }

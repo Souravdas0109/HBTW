@@ -44,9 +44,9 @@ export const userTableHeaders = [
     headerName: 'Group',
     width: 150,
   },
-  {
-    field: 'comments',
-    headerName: 'Comments',
-    width: 200,
-  },
+  // {
+  //   field: 'comments',
+  //   headerName: 'Comments',
+  //   width: 200,
+  // },
 ]
