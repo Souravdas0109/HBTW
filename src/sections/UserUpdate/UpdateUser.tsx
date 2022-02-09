@@ -33,6 +33,7 @@ import { fieldWidth, useStyles } from './Styles'
 import {
   getColleagueAPI,
   getUserGroupAPI,
+  getUserGroupActiveAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
   postTaskLogsAPI,
@@ -148,8 +149,10 @@ function UpdateUser(props: any) {
         console.log(rolesValues)
       }
 
-      getUserGroupAPI &&
-        getUserGroupAPI()
+      // getUserGroupAPI &&
+      //   getUserGroupAPI()
+      getUserGroupActiveAPI &&
+        getUserGroupActiveAPI()
           .then((res) => {
             const groupValues = res.data.usergroups.map((group: any) => {
               return {
@@ -218,10 +221,11 @@ function UpdateUser(props: any) {
             className: 'login-toast',
           },
         ])
-        setTimeout(
-          () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
-          life
-        )
+        // setTimeout(
+        //   // () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+        //   () => history.push(`${DEFAULT}${DASHBOARD}`),
+        //   life
+        // )
       }
     } else {
       if (checkCount === 0) {
@@ -247,7 +251,7 @@ function UpdateUser(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -259,10 +263,11 @@ function UpdateUser(props: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(
-                () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
-                life
-              )
+              // setTimeout(
+              //   // () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+              //   () => history.push(`${DEFAULT}${DASHBOARD}`),
+              //   life
+              // )
             })
             .catch((err) => {
               detail = allMessages.error.logpostFailureSingle
@@ -272,7 +277,7 @@ function UpdateUser(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -284,16 +289,17 @@ function UpdateUser(props: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(
-                () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
-                life
-              )
+              // setTimeout(
+              //   // () => history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`),
+              //   () => history.push(`${DEFAULT}${DASHBOARD}`),
+              //   life
+              // )
             })
       }
     }
   }, [
     checkCount,
-    USERCONFIG_USERMANAGE,
+    // USERCONFIG_USERMANAGE,
     DEFAULT,
     history,
     failureCount,
@@ -301,6 +307,7 @@ function UpdateUser(props: any) {
     returnText,
     logDataIn,
     attachmentUrlArr,
+    DASHBOARD,
   ])
 
   useEffect(() => {
@@ -426,13 +433,13 @@ function UpdateUser(props: any) {
       // setStatus('W')
       setRoleAccess('mod_role')
       setGroupAccess('mod_group')
-      setStatus('A')
+      // setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
       // setStatus('W')
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
-      setStatus('A')
+      // setStatus('A')
     }
     setRequestType(e.target.value)
   }
@@ -2123,7 +2130,9 @@ function UpdateUser(props: any) {
                     '8',
                     appFuncList ? appFuncList : [],
                     'status'
-                  ) || requestType === 'new'
+                  ) ||
+                  requestType === 'new' ||
+                  requestType === 'remove'
                 }
               >
                 {/* <option disabled value="" className={classes.selectOptions}>
@@ -2494,7 +2503,7 @@ function UpdateUser(props: any) {
                 cols={10}
                 rows={5}
                 className={classes.textArea}
-                placeholder="Some Comments....."
+                placeholder="Please provide comments"
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
@@ -2614,7 +2623,13 @@ function UpdateUser(props: any) {
 
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${DASHBOARD}`)
+        }}
+      />
       <Paper className={classes.root} elevation={0}>
         <Box sx={{ flexGrow: 1, p: 1, display: 'flex' }}>
           {/* <Grid container spacing={1}> */}

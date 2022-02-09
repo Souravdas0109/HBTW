@@ -87,7 +87,7 @@ function GroupPendingAction(props: any) {
           className: 'login-toast',
         },
       ])
-      setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+      // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
     }
   }, [checkCount, DASHBOARD, DEFAULT, history, failureCount])
 
@@ -158,7 +158,13 @@ function GroupPendingAction(props: any) {
   }
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${DASHBOARD}`)
+        }}
+      />
       <div className={classes.root}>
         <div className={classes.value}>
           <Grid container className={classes.container}>

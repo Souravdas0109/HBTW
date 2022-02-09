@@ -404,7 +404,7 @@ function UserGroupManage(props: any) {
                   flexGrow: 1,
                 }}
               >
-                <Typography variant="h6">Manage Users Group</Typography>
+                <Typography variant="h6">Manage User Groups</Typography>
               </Box>
               <Box
                 sx={{
@@ -471,7 +471,7 @@ function UserGroupManage(props: any) {
                     type="text"
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
-                    placeholder={' Search User details '}
+                    placeholder={' Search Group details '}
                     style={{
                       width: '200px',
                     }}

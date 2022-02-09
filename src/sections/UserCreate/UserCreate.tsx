@@ -34,6 +34,7 @@ import { connect } from 'react-redux'
 import {
   getColleagueAPI,
   getUserGroupAPI,
+  getUserGroupActiveAPI,
   postTaskLogsAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
@@ -136,8 +137,10 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   useEffect(() => {
     focusRequestType.current.focus()
-    getUserGroupAPI &&
-      getUserGroupAPI()
+    // getUserGroupAPI &&
+    //   getUserGroupAPI()
+    getUserGroupActiveAPI &&
+      getUserGroupActiveAPI()
         .then((res) => {
           console.log(res.data)
           const groupValues = res.data.usergroups.map((group: any) => {
@@ -199,7 +202,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             className: 'login-toast',
           },
         ])
-        setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+        // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
       }
     } else {
       if (checkCount === 0) {
@@ -225,7 +228,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -237,7 +240,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+              // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
             })
             .catch((err) => {
               detail = allMessages.error.logpostFailureSingle
@@ -247,7 +250,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -259,7 +262,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+              // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
             })
       }
     }
@@ -417,13 +420,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       // setStatus('W')
       setRoleAccess('mod_role')
       setGroupAccess('mod_group')
-      setStatus('A')
+      // setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
       // setStatus('W')
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
-      setStatus('A')
+      // setStatus('A')
     }
     setRequestType(e.target.value)
     checkIt(e.target.value, emplAvailable)
@@ -2139,7 +2142,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                     '8',
                     appFuncList ? appFuncList : [],
                     'status'
-                  ) || requestType === 'new'
+                  ) ||
+                  requestType === 'new' ||
+                  requestType === 'remove'
                 }
               >
                 {/* <option disabled value="" className={classes.selectOptions}>
@@ -2494,7 +2499,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 cols={10}
                 rows={5}
                 className={classes.textArea}
-                placeholder="Some Comments....."
+                placeholder="Please provide comments"
                 onChange={(e) => {
                   setComments(e.target.value)
                 }}
@@ -2619,7 +2624,13 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${DASHBOARD}`)
+        }}
+      />
       <Paper className={classes.root} elevation={0}>
         <Box sx={{ flexGrow: 1, p: 1, display: 'flex' }}>
           {/* <Grid container spacing={1}> */}

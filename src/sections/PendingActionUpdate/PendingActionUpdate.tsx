@@ -23,6 +23,7 @@ import { taskList } from '../../util/Constants'
 import {
   getColleagueAPI,
   getUserGroupAPI,
+  getUserGroupActiveAPI,
   putUserDetailsAPI,
   putUserDetailsCamundaAPI,
   postTaskLogsAPI,
@@ -158,8 +159,10 @@ function PendingActionUpdate(props: any) {
         console.log(rolesValues)
       }
 
-      getUserGroupAPI &&
-        getUserGroupAPI()
+      // getUserGroupAPI &&
+      //   getUserGroupAPI()
+      getUserGroupActiveAPI &&
+        getUserGroupActiveAPI()
           .then((res) => {
             const groupValues = res.data.usergroups.map((group: any) => {
               return {
@@ -224,7 +227,7 @@ function PendingActionUpdate(props: any) {
             className: 'login-toast',
           },
         ])
-        setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+        // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
       }
     } else {
       if (checkCount === 0) {
@@ -250,7 +253,7 @@ function PendingActionUpdate(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -262,7 +265,7 @@ function PendingActionUpdate(props: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+              // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
             })
             .catch((err) => {
               detail = allMessages.error.logpostFailureSingle
@@ -272,7 +275,7 @@ function PendingActionUpdate(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: returnText,
+                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -284,7 +287,7 @@ function PendingActionUpdate(props: any) {
                   className: 'login-toast',
                 },
               ])
-              setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
+              // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
             })
       }
     }
@@ -390,11 +393,11 @@ function PendingActionUpdate(props: any) {
     } else if (requestType.toLowerCase() === 'modify') {
       setGroupAccess('mod_group')
       setRoleAccess('mod_role')
-      setStatus('A')
+      // setStatus('A')
     } else if (requestType.toLowerCase() === 'remove') {
       setGroupAccess('rem_group')
       setRoleAccess('rem_role')
-      setStatus('A')
+      // setStatus('A')
     }
   }, [requestType])
   const handleFileUpload = (event: any) => {
@@ -2700,7 +2703,9 @@ function PendingActionUpdate(props: any) {
                     '8',
                     appFuncList ? appFuncList : [],
                     'status'
-                  ) || requestType === 'new'
+                  ) ||
+                  requestType === 'new' ||
+                  requestType === 'remove'
                 }
               >
                 {/* <option disabled value="" className={classes.selectOptions}>
@@ -3195,7 +3200,13 @@ function PendingActionUpdate(props: any) {
   )
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${DASHBOARD}`)
+        }}
+      />
       <Paper className={classes.root} elevation={0}>
         <Box sx={{ flexGrow: 1, p: 1, display: 'flex' }}>
           {/* <Grid container spacing={1}> */}

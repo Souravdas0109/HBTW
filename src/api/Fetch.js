@@ -224,6 +224,12 @@ export const getUserGroupAPI = () => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getUserGroupActiveAPI = () => {
+  const url = `${BASE_URL}${GET_USER_GROUPS_ALL}`
+  const params = 'limit=1000&statusIn=A'
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const putUserGroupAPI = (req, groupId) => {
   let url = `${BASE_URL}${PUT_USER_GROUPS_ID}`
   url = url.replace('{groupId}', groupId)
@@ -259,6 +265,12 @@ export const getProductHierarchyAPI = (url) => {
 export const getAllUsersAPI = () => {
   const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
   const params = 'limit=1000'
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getAllUsersWithGroupAPI = (groupId) => {
+  const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
+  const params = `limit=1000&groupIdIn=${groupId}`
   return serviceRequest(url, 'GET', undefined, params)
 }
 

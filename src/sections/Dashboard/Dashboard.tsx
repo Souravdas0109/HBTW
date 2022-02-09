@@ -292,7 +292,7 @@ function Dashboard(props: any) {
                           <tr>
                             <td>
                               <Typography variant="body2" color="primary">
-                                &#8226; In Progress
+                                &#8226; In-progress
                               </Typography>
                             </td>
 

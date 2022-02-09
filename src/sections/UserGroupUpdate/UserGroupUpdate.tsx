@@ -26,7 +26,11 @@ import {
   LocationhierarchyTypes,
 } from '../UserGroupCreate/DataConstants'
 import config from '../../config/Config'
-import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
+import {
+  getProductHierarchyAPI,
+  putUserGroupAPI,
+  getAllUsersWithGroupAPI,
+} from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
 import { routes, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
@@ -103,6 +107,8 @@ function UserGroupUpdate(props: any) {
     if (!groupDetails) {
       history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
     } else {
+      setErrorStatus('')
+      setErrorGroupName('')
       console.log(groupDetails[0])
       setSelectGroupID(groupDetails[0])
       console.log(selectGroupID)
@@ -1006,6 +1012,7 @@ function UserGroupUpdate(props: any) {
   //   </Dialog>
   // )
   const goBack = () => {
+    console.log('Called')
     reset_groupID()
     history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
   }
@@ -1032,83 +1039,200 @@ function UserGroupUpdate(props: any) {
     // e.preventDefault()
     setIsProgressLoader(true)
     setDisabled1(true)
-    const formData = {
-      groupName: groupname,
-      groupDesc: description,
-      status: status,
-      requestedBy: userDetail && userDetail.userdetails[0].user.userId,
-      locationHierarchy: locationNames.map((location: any) => {
-        return {
-          hierarchyLevel: location.hierarchyLevel,
-          hierarchyId: location.hierarchyId,
-          hierarchyName: null,
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: location.endDate,
-        }
-      }),
-      // productHierarchy: payload.map((product: any) => {
-      productHierarchy: hierarchy.map((product: any) => {
-        return {
-          hierarchyLevel: product.hierarchyLevel,
-          hierarchyId: product.hierarchyId,
-          hierarchyName: product.label,
-          startDate: new Date().toISOString().split('T')[0],
-          endDate: product.endDate,
-        }
-      }),
-    }
-    //console.log(status);
-    console.log(formData)
-    // let accessToken;
-    // if (localStorage && localStorage.getItem("_GresponseV2")) {
-    //   accessToken = JSON.parse(
-    //     (localStorage && localStorage.getItem("_GresponseV2")) || "{}"
-    //   );
-    // }
-
-    // axios
-    //   .put(
-    //     `https://dev-api.morrisons.com/commercial-user/v1/usergroups/${groupId}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Cache-Control": "no-cache",
-    //         Authorization: `Bearer ${accessToken.access_token}`,
-    //       },
-    //     }
-    //   )
-    putUserGroupAPI &&
-      putUserGroupAPI(formData, groupId)
-        .then((res) => {
-          //console.log(res);
-          //console.log(res.data.message);
-          setIsProgressLoader(false)
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(groupId)
+    if (status !== 'A') {
+      getAllUsersWithGroupAPI &&
+        getAllUsersWithGroupAPI(groupId)
+          .then((res: any) => {
+            const count = res.data.metadata && res.data.metadata.count
+            if (count > 0) {
+              setIsProgressLoader(false)
+              setDisabled1(false)
+              setErrorStatus(allMessages.error.errorGroupDelInac)
+            } else if (count === 0) {
+              const formData = {
+                groupName: groupname,
+                groupDesc: description,
+                status: status,
+                requestedBy:
+                  userDetail && userDetail.userdetails[0].user.userId,
+                locationHierarchy: locationNames.map((location: any) => {
+                  return {
+                    hierarchyLevel: location.hierarchyLevel,
+                    hierarchyId: location.hierarchyId,
+                    hierarchyName: null,
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: location.endDate,
+                  }
+                }),
+                productHierarchy: hierarchy.map((product: any) => {
+                  return {
+                    hierarchyLevel: product.hierarchyLevel,
+                    hierarchyId: product.hierarchyId,
+                    hierarchyName: product.label,
+                    startDate: new Date().toISOString().split('T')[0],
+                    endDate: product.endDate,
+                  }
+                }),
+              }
+              putUserGroupAPI &&
+                putUserGroupAPI(formData, groupId)
+                  .then((res) => {
+                    setIsProgressLoader(false)
+                    if (navigator.clipboard) {
+                      navigator.clipboard.writeText(groupId)
+                    }
+                    toast.current.show({
+                      severity: 'success',
+                      summary: '',
+                      detail: `${res.data.message}.\n ${allMessages.success.successGroupCopy}`,
+                      life: life,
+                      className: 'login-toast',
+                    })
+                  })
+                  .catch((err) => {
+                    setDisabled1(false)
+                    setIsProgressLoader(false)
+                    toast.current.show({
+                      severity: 'error',
+                      summary: 'Error!',
+                      detail: err.response.data.errorMessage,
+                      life: life,
+                      className: 'login-toast',
+                    })
+                  })
+            }
+          })
+          .catch((err: any) => {
+            const formData = {
+              groupName: groupname,
+              groupDesc: description,
+              status: status,
+              requestedBy: userDetail && userDetail.userdetails[0].user.userId,
+              locationHierarchy: locationNames.map((location: any) => {
+                return {
+                  hierarchyLevel: location.hierarchyLevel,
+                  hierarchyId: location.hierarchyId,
+                  hierarchyName: null,
+                  startDate: new Date().toISOString().split('T')[0],
+                  endDate: location.endDate,
+                }
+              }),
+              productHierarchy: hierarchy.map((product: any) => {
+                return {
+                  hierarchyLevel: product.hierarchyLevel,
+                  hierarchyId: product.hierarchyId,
+                  hierarchyName: product.label,
+                  startDate: new Date().toISOString().split('T')[0],
+                  endDate: product.endDate,
+                }
+              }),
+            }
+            putUserGroupAPI &&
+              putUserGroupAPI(formData, groupId)
+                .then((res) => {
+                  setIsProgressLoader(false)
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(groupId)
+                  }
+                  toast.current.show({
+                    severity: 'success',
+                    summary: '',
+                    detail: `${res.data.message}.\n ${allMessages.success.successGroupCopy}`,
+                    life: life,
+                    className: 'login-toast',
+                  })
+                })
+                .catch((err) => {
+                  setDisabled1(false)
+                  setIsProgressLoader(false)
+                  toast.current.show({
+                    severity: 'error',
+                    summary: 'Error!',
+                    detail: err.response.data.errorMessage,
+                    life: life,
+                    className: 'login-toast',
+                  })
+                })
+          })
+    } else {
+      const formData = {
+        groupName: groupname,
+        groupDesc: description,
+        status: status,
+        requestedBy: userDetail && userDetail.userdetails[0].user.userId,
+        locationHierarchy: locationNames.map((location: any) => {
+          return {
+            hierarchyLevel: location.hierarchyLevel,
+            hierarchyId: location.hierarchyId,
+            hierarchyName: null,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: location.endDate,
           }
-          toast.current.show({
-            severity: 'success',
-            summary: '',
-            detail: `${res.data.message}.\n ${allMessages.success.successGroupCopy}`,
-            life: life,
-            className: 'login-toast',
+        }),
+        // productHierarchy: payload.map((product: any) => {
+        productHierarchy: hierarchy.map((product: any) => {
+          return {
+            hierarchyLevel: product.hierarchyLevel,
+            hierarchyId: product.hierarchyId,
+            hierarchyName: product.label,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: product.endDate,
+          }
+        }),
+      }
+      //console.log(status);
+      console.log(formData)
+      // let accessToken;
+      // if (localStorage && localStorage.getItem("_GresponseV2")) {
+      //   accessToken = JSON.parse(
+      //     (localStorage && localStorage.getItem("_GresponseV2")) || "{}"
+      //   );
+      // }
+
+      // axios
+      //   .put(
+      //     `https://dev-api.morrisons.com/commercial-user/v1/usergroups/${groupId}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
+      //     formData,
+      //     {
+      //       headers: {
+      //         "Cache-Control": "no-cache",
+      //         Authorization: `Bearer ${accessToken.access_token}`,
+      //       },
+      //     }
+      //   )
+      putUserGroupAPI &&
+        putUserGroupAPI(formData, groupId)
+          .then((res) => {
+            //console.log(res);
+            //console.log(res.data.message);
+            setIsProgressLoader(false)
+            if (navigator.clipboard) {
+              navigator.clipboard.writeText(groupId)
+            }
+            toast.current.show({
+              severity: 'success',
+              summary: '',
+              detail: `${res.data.message}.\n ${allMessages.success.successGroupCopy}`,
+              life: life,
+              className: 'login-toast',
+            })
+            // timeit = setTimeout(() => goBack(), life)
           })
-          setTimeout(() => goBack(), life)
-        })
-        .catch((err) => {
-          setDisabled1(false)
-          setIsProgressLoader(false)
-          //console.log(err);
-          // let statusCode = err.response.data.errorMessage
-          // console.log(statusCode)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: err.response.data.errorMessage,
-            life: life,
-            className: 'login-toast',
+          .catch((err) => {
+            setDisabled1(false)
+            setIsProgressLoader(false)
+            //console.log(err);
+            // let statusCode = err.response.data.errorMessage
+            // console.log(statusCode)
+            toast.current.show({
+              severity: 'error',
+              summary: 'Error!',
+              detail: err.response.data.errorMessage,
+              life: life,
+              className: 'login-toast',
+            })
           })
-        })
+    }
   }
 
   const handleCancelSubmit = (e: any) => {
@@ -1133,6 +1257,9 @@ function UserGroupUpdate(props: any) {
     let flag = 1
     if (groupname === '') {
       setErrorGroupName(allMessages.error.noGroupName)
+      flag = 0
+    }
+    if (errorStatus !== '') {
       flag = 0
     }
     // if (status === '') {
@@ -1180,7 +1307,13 @@ function UserGroupUpdate(props: any) {
 
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
+        }}
+      />
       <Paper className={classes.root} elevation={0}>
         <Box
           sx={{ flexGrow: 1, p: 1, display: 'flex' }}

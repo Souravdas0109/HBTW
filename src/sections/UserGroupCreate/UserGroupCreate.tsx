@@ -502,9 +502,9 @@ function UserGroupCreate(props: any) {
     history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
   }
 
-  const ongroupIDChange = (e: any) => {
-    setGroupId(e.target.value)
-  }
+  // const ongroupIDChange = (e: any) => {
+  //   setGroupId(e.target.value)
+  // }
   const ongroupnameChange = (e: any) => {
     setErrorGroupName('')
     setGroupname(e.target.value)
@@ -934,7 +934,7 @@ function UserGroupCreate(props: any) {
             life: life,
             className: 'login-toast',
           })
-          setTimeout(() => goBack(), life)
+          // setTimeout(() => goBack(), life)
         })
         .catch((err) => {
           setDisabled1(false)
@@ -1022,7 +1022,13 @@ function UserGroupCreate(props: any) {
 
   return (
     <>
-      <Toast ref={toast} position="bottom-left" />
+      <Toast
+        ref={toast}
+        position="bottom-left"
+        onRemove={() => {
+          history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
+        }}
+      />
       <Paper className={classes.root} elevation={0}>
         <Box
           sx={{ flexGrow: 1, p: 1, display: 'flex' }}
@@ -1083,7 +1089,7 @@ function UserGroupCreate(props: any) {
                   </Box>
                 </Box>
                 <form onSubmit={handleCreateGroup}>
-                  <Box
+                  {/* <Box
                     sx={{
                       display: 'flex',
                       flexDirection: !active ? 'row' : 'column',
@@ -1122,7 +1128,7 @@ function UserGroupCreate(props: any) {
                         />
                       </Typography>
                     </Box>
-                  </Box>
+                  </Box> */}
                   <Box className={classes.eachRow}>
                     <Box
                       className={classes.inputLabel}
