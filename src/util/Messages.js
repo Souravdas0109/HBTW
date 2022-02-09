@@ -7,8 +7,8 @@ export const allMessages = {
     noRoles: 'Please select atleast one role',
     noGroups: 'Please select atleast one group',
     invalidEmployee: 'Invalid Employee ID',
-    existingEmp: 'Cannot create an already existing Employee',
-    modifyEmp: 'Cannot modify for a non existing Employee',
+    existingEmp: 'User already exists in webapp',
+    modifyEmp: 'User does not exist in webapp',
     inprogressError:
       'Only New request can be raised for user status Inprogress. Either change Status or the Request Type',
     inactiveError:
