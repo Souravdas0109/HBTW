@@ -129,6 +129,11 @@ function PendingActionUpdate(props: any) {
   const focusStatus = useRef<any>(null)
   const focusRole = useRef<any>(null)
   const focusGroup = useRef<any>(null)
+  //
+  const [requestorEmailId, setRequestorEmailId] = React.useState('')
+  const [requestorUserId, setRequestorUserId] = React.useState('')
+  const [requestorRoles, setRequestorRoles] = React.useState<Array<any>>([])
+  //
 
   useEffect(() => {
     return () => reset_pendingAction()
@@ -377,6 +382,10 @@ function PendingActionUpdate(props: any) {
       setErrorStatus('')
       setErrorRequestType('')
     }
+    if (e.target.value === 'D') {
+      setRoleAccess('rem_role')
+      setGroupAccess('rem_group')
+    }
   }
   const onrequestTypeChange = (e: any) => {
     if (e.target.value !== '') {
@@ -533,6 +542,16 @@ function PendingActionUpdate(props: any) {
             setMiddleName(res.data.tasklists[0].requestData.user.middleName)
             setLastName(res.data.tasklists[0].requestData.user.lastName)
             setEmail(res.data.tasklists[0].requestData.user.emailId)
+            setRequestorUserId(
+              res.data.tasklists[0].requestData.camunda.requestorDetails
+                .requestBy
+            )
+            setRequestorEmailId(
+              res.data.tasklists[0].requestData.camunda.requestorDetails.emailId
+            )
+            setRequestorRoles(
+              res.data.tasklists[0].requestData.camunda.requestorRoles
+            )
             // setAdditionalInfo(
             //   res.data.tasklists[0].requestData.user.additionalInfo
             // )
@@ -1884,19 +1903,22 @@ function PendingActionUpdate(props: any) {
     setDisabled(true)
     const formData = {
       requestorDetails: {
-        emailId: userDetail && userDetail.userdetails[0].user.emailId,
-        requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        //emailId: userDetail && userDetail.userdetails[0].user.emailId,
+        emailId: requestorEmailId,
+        //requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        requestBy: requestorUserId,
         requestDate: new Date().toISOString().split('T')[0],
         // requestType: requestType,
         requestType: 'Reassign',
       },
-      requestorRoles:
-        userDetail &&
-        userDetail.userdetails[0].roles.map((role: any) => {
-          return {
-            roleId: role.roleId,
-          }
-        }),
+      // requestorRoles:
+      //   userDetail &&
+      //   userDetail.userdetails[0].roles.map((role: any) => {
+      //     return {
+      //       roleId: role.roleId,
+      //     }
+      //   }),
+      requestorRoles: requestorRoles,
       // submitFlag: 'Reassign',
     }
     console.log(formData)

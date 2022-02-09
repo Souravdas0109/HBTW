@@ -55,6 +55,38 @@ export const userTaskDashboard = [
       myGroupInprogressTaskURL: '#',
     },
   },
+  // {
+  //   title: 'Retail Price Change',
+  //   value: 'retailpricechange',
+  //   my: {
+  //     pendingActions: 0,
+  //     pendingActionURL: '#',
+  //     inProgressTask: 0,
+  //     inProgressTaskURL: '#',
+  //   },
+  //   myGroup: {
+  //     pendingActions: 0,
+  //     myGrouppendingActionURL: '#',
+  //     inProgressTask: 0,
+  //     myGroupInprogressTaskURL: '#',
+  //   },
+  // },
+  // {
+  //   title: 'Suplier Portal',
+  //   value: 'suplierportal',
+  //   my: {
+  //     pendingActions: 0,
+  //     pendingActionURL: '#',
+  //     inProgressTask: 0,
+  //     inProgressTaskURL: '#',
+  //   },
+  //   myGroup: {
+  //     pendingActions: 0,
+  //     myGrouppendingActionURL: '#',
+  //     inProgressTask: 0,
+  //     myGroupInprogressTaskURL: '#',
+  //   },
+  // },
   {
     title: 'Product Portal',
     value: 'productportal',

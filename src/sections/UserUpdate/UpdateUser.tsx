@@ -418,6 +418,10 @@ function UpdateUser(props: any) {
       setErrorStatus('')
       setErrorRequestType('')
     }
+    if (e.target.value === 'D') {
+      setRoleAccess('rem_role')
+      setGroupAccess('rem_group')
+    }
   }
   const onrequestTypeChange = (e: any) => {
     if (e.target.value !== '') {
@@ -431,8 +435,14 @@ function UpdateUser(props: any) {
     }
     if (e.target.value.toLowerCase() === 'modify') {
       // setStatus('W')
-      setRoleAccess('mod_role')
-      setGroupAccess('mod_group')
+      if (status === 'D') {
+        setRoleAccess('rem_role')
+        setGroupAccess('rem_group')
+      } else {
+        setRoleAccess('mod_role')
+        setGroupAccess('mod_group')
+      }
+
       // setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
@@ -2627,7 +2637,7 @@ function UpdateUser(props: any) {
         ref={toast}
         position="bottom-left"
         onRemove={() => {
-          history.push(`${DEFAULT}${DASHBOARD}`)
+          history.push(`${DEFAULT}${USERCONFIG_USERMANAGE}`)
         }}
       />
       <Paper className={classes.root} elevation={0}>

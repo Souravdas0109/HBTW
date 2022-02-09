@@ -405,6 +405,10 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       setErrorStatus('')
       setErrorRequestType('')
     }
+    if (e.target.value === 'D') {
+      setRoleAccess('rem_role')
+      setGroupAccess('rem_group')
+    }
   }
   const onrequestTypeChange = (e: any) => {
     if (e.target.value !== '') {
@@ -418,8 +422,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     }
     if (e.target.value.toLowerCase() === 'modify') {
       // setStatus('W')
-      setRoleAccess('mod_role')
-      setGroupAccess('mod_group')
+      if (status === 'D') {
+        setRoleAccess('rem_role')
+        setGroupAccess('rem_group')
+      } else {
+        setRoleAccess('mod_role')
+        setGroupAccess('mod_group')
+      }
+
       // setStatus('A')
     }
     if (e.target.value.toLowerCase() === 'remove') {
