@@ -408,6 +408,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     if (e.target.value === 'D') {
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
+    } else {
+      setRoleAccess('mod_role')
+      setGroupAccess('mod_group')
     }
   }
   const onrequestTypeChange = (e: any) => {
@@ -441,6 +444,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     setRequestType(e.target.value)
     checkIt(e.target.value, emplAvailable)
   }
+  useEffect(() => {
+    console.log(status)
+  }, [status])
 
   const checkIt = (type: string, empAvail: boolean) => {
     if (empIdInput !== '' && type.toLowerCase() === 'new' && empAvail) {
