@@ -58,6 +58,7 @@ function PendingAction(props: any) {
   const requestIdTemplate = (rowData: any) => {
     return (
       <button
+        type="button"
         className={classes.exploreButtonforid}
         value={rowData.requestId}
         onClick={handleNameClick}
@@ -109,7 +110,11 @@ function PendingAction(props: any) {
                   paddingLeft: 20,
                 }}
               >
-                <button className={classes.backButton} onClick={goBack}>
+                <button
+                  className={classes.backButton}
+                  onClick={goBack}
+                  type="button"
+                >
                   Back
                 </button>
               </Box>

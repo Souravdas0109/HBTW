@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import React, { useRef, useState } from 'react'
 import Select, { StylesConfig } from 'react-select'
-import { Link } from 'react-router-dom'
+import { Link, Prompt } from 'react-router-dom'
 import { components } from 'react-select'
 import CloseIcon from '@material-ui/icons/Close'
 import { TextareaAutosize } from '@material-ui/core'
@@ -51,6 +51,7 @@ function UserGroupCreate(props: any) {
   const [locationNames, setLocationNames] = useState([])
   const [viewLocationEl, setViewLocationEl] = useState(null)
   const toast = useRef<any>(null)
+  const [back, setBack] = React.useState(false)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   //
@@ -90,6 +91,7 @@ function UserGroupCreate(props: any) {
   const [errorGroupName, setErrorGroupName] = useState('')
   const [errorStatus, setErrorStatus] = useState('')
   const focusGroupName = useRef<any>(null)
+  const [isPageModified, setIsPageModified] = React.useState(false)
   //product changes end ................................................
 
   //product changes start...........................................
@@ -366,6 +368,7 @@ function UserGroupCreate(props: any) {
   }
 
   const handleHierarchyChange = (e: any) => {
+    setIsPageModified(true)
     let values = []
 
     for (let i = 0; i < e.length; i++) {
@@ -404,6 +407,7 @@ function UserGroupCreate(props: any) {
   // const viewProductOpen = Boolean(viewProductEl)
   // const viewLocationOpen = Boolean(viewLocationEl)
   const handleLocationChange = (selected: any) => {
+    setIsPageModified(true)
     setLocationNames(selected)
     // console.log(selected);
   }
@@ -506,13 +510,16 @@ function UserGroupCreate(props: any) {
   //   setGroupId(e.target.value)
   // }
   const ongroupnameChange = (e: any) => {
+    setIsPageModified(true)
     setErrorGroupName('')
     setGroupname(e.target.value)
   }
   const ondescriptionChange = (e: any) => {
+    setIsPageModified(true)
     setDescription(e.target.value)
   }
   const onstatusChange = (e: any) => {
+    setIsPageModified(true)
     setErrorStatus('')
     setStatus(e.target.value)
   }
@@ -662,6 +669,7 @@ function UserGroupCreate(props: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -761,7 +769,7 @@ function UserGroupCreate(props: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="submit"
+            // type="submit"
             variant="contained"
             color="primary"
             onClick={updateHierarchy}
@@ -773,6 +781,11 @@ function UserGroupCreate(props: any) {
       </Box>
     </Dialog>
   )
+
+  const handleBack = (e: any) => {
+    e.preventDefault()
+    setBack((p) => !p)
+  }
   // const viewLocation = (
   //   <Dialog
   //     id="basic-menu"
@@ -858,6 +871,11 @@ function UserGroupCreate(props: any) {
   //   //console.log(startdate);
   //   setCurrentDate(startdate)
   // }, [locationNames])
+
+  const handleBackAfterDialog = (e: any) => {
+    e.preventDefault()
+    setBack(true)
+  }
 
   const handleCreateGroup = () => {
     // e.preventDefault()
@@ -1010,6 +1028,16 @@ function UserGroupCreate(props: any) {
     />
   )
 
+  const viewConfirmBack = (
+    <ConfirmBox
+      cancelOpen={back}
+      handleCancel={handleBack}
+      handleProceed={goBack}
+      label1="Sure to go Back?"
+      label2="All your data will be lost"
+    />
+  )
+
   const viewConfirmReset = (
     <ConfirmBox
       cancelOpen={cancelOpenReset}
@@ -1022,6 +1050,10 @@ function UserGroupCreate(props: any) {
 
   return (
     <>
+      <Prompt
+        when={isPageModified}
+        message={allMessages.success.promptMessage}
+      />
       <Toast
         ref={toast}
         position="bottom-left"
@@ -1078,13 +1110,14 @@ function UserGroupCreate(props: any) {
                         paddingLeft: 5,
                       }}
                     >
-                      <Link
-                        to="#"
+                      <button
+                        type="button"
                         onClick={goBack}
+                        //onClick={handleBackAfterDialog}
                         className={classes.backButton}
                       >
                         Back
-                      </Link>
+                      </button>
                     </Box>
                   </Box>
                 </Box>
@@ -1376,7 +1409,7 @@ function UserGroupCreate(props: any) {
                       }}
                     >
                       <Button
-                        type="reset"
+                        // type="reset"
                         variant="contained"
                         className={classes.whiteButton}
                         // onClick={handleReset}
@@ -1395,7 +1428,7 @@ function UserGroupCreate(props: any) {
                       <Button
                         variant="contained"
                         color="primary"
-                        type="submit"
+                        // type="submit"
                         className={classes.buttons}
                         // onClick={handleCreateGroup}
                         onClick={handleCreateGroupAfterDialog}
@@ -1417,6 +1450,7 @@ function UserGroupCreate(props: any) {
       </Paper>
       {viewConfirmReset}
       {viewConfirmSubmit}
+      {viewConfirmBack}
     </>
   )
 }

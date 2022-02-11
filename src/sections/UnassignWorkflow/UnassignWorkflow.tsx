@@ -210,7 +210,11 @@ function UnassignWorkflow(props: any) {
                     paddingLeft: 20,
                   }}
                 >
-                  <button className={classes.backButton} onClick={goBack}>
+                  <button
+                    className={classes.backButton}
+                    onClick={goBack}
+                    type="button"
+                  >
                     Back
                   </button>
                 </Box>
@@ -346,7 +350,7 @@ function UnassignWorkflow(props: any) {
                 <Button
                   variant="contained"
                   color="primary"
-                  type="submit"
+                  // type="submit"
                   size="small"
                   onClick={handleAssign}
                 >

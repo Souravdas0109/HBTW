@@ -15,7 +15,7 @@ import { connect } from 'react-redux'
 import { teal } from '@material-ui/core/colors'
 import { Toast } from 'primereact/toast'
 import React, { useRef, useEffect } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Prompt } from 'react-router-dom'
 import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import { fieldWidth, useStyles } from './Styles'
@@ -97,6 +97,7 @@ function PendingActionUpdate(props: any) {
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [cancelOpenReassign, setCancelOpenReassign] = React.useState(false)
   const [cancelOpenReject, setCancelOpenReject] = React.useState(false)
+  const [back, setBack] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
@@ -123,6 +124,7 @@ function PendingActionUpdate(props: any) {
     []
   )
   const [logDataIn, setLogDataIn] = React.useState({})
+  const [isPageModified, setIsPageModified] = React.useState(false)
   //
   const focusRequestType = useRef<any>(null)
   const focusEmpId = useRef<any>(null)
@@ -377,6 +379,7 @@ function PendingActionUpdate(props: any) {
     }),
   }
   const onstatusChange = (e: any) => {
+    setIsPageModified(true)
     setStatus(e.target.value)
     if (e.target.value !== '') {
       setErrorStatus('')
@@ -438,6 +441,7 @@ function PendingActionUpdate(props: any) {
 
         // reader.onload = (e: any) => {
         //   console.log(e.target.result);
+        setIsPageModified(true)
         setReferenceDocData((prevState) => [
           ...prevState,
           {
@@ -467,6 +471,7 @@ function PendingActionUpdate(props: any) {
   }
 
   const handleRoleChange1 = (selected: any) => {
+    setIsPageModified(true)
     console.log(selected)
     setRoleNames(selected)
     if (selected.length > 0) setErrorRoles('')
@@ -665,6 +670,7 @@ function PendingActionUpdate(props: any) {
   }
 
   const handleGroupsInput = (selected: any) => {
+    setIsPageModified(true)
     setGroupInput(selected)
     if (selected.length > 0) setErrorGroups('')
   }
@@ -712,6 +718,7 @@ function PendingActionUpdate(props: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -763,7 +770,7 @@ function PendingActionUpdate(props: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="submit"
+            // type="submit"
             variant="contained"
             color="primary"
             onClick={updateGroups}
@@ -845,6 +852,7 @@ function PendingActionUpdate(props: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -1017,6 +1025,7 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -1139,6 +1148,7 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -1230,6 +1240,11 @@ function PendingActionUpdate(props: any) {
     setCancelOpenSubmit((p) => !p)
   }
 
+  const handleBack = (e: any) => {
+    e.preventDefault()
+    setBack((p) => !p)
+  }
+
   const handleCancelReassign = (e: any) => {
     // let text = 'are you really want to go back? All your Data will be lost.'
     // if (window.confirm(text) === true) {
@@ -1303,6 +1318,10 @@ function PendingActionUpdate(props: any) {
     e.preventDefault()
     checkForm('approve')
     // canSubmit && shoutOut === '' && setCancelOpenApprove(true)
+  }
+  const handleBackAfterDialog = (e: any) => {
+    e.preventDefault()
+    setBack(true)
   }
 
   const handleSubmitAfterDialog = (e: any) => {
@@ -1928,7 +1947,8 @@ function PendingActionUpdate(props: any) {
     setReturnText('')
     pendingActionDetails &&
       putClaimTaskAPI &&
-      putClaimTaskAPI(formData, pendingActionDetails[0].taskId)
+      //putClaimTaskAPI(formData,pendingActionDetails[0].taskId)
+      putClaimTaskAPI(formData, `${pendingActionDetails[0].taskId}moreinfo`)
         .then((res) => {
           console.log(res)
           setReturnText(res.data.comments)
@@ -2166,6 +2186,16 @@ function PendingActionUpdate(props: any) {
     />
   )
 
+  const viewConfirmBack = (
+    <ConfirmBox
+      cancelOpen={back}
+      handleCancel={handleBack}
+      handleProceed={goBack}
+      label1="Sure to go Back?"
+      label2="All your data will be lost"
+    />
+  )
+
   const viewConfirmReassign = (
     <ConfirmBox
       cancelOpen={cancelOpenReassign}
@@ -2241,6 +2271,7 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <button
+              type="button"
               className={classes.backButton}
               onClick={handleOpenViewLog}
               disabled={viewLogRows.length > 0 ? false : true}
@@ -2260,7 +2291,12 @@ function PendingActionUpdate(props: any) {
               paddingLeft: 5,
             }}
           >
-            <button className={classes.backButton} onClick={goBack}>
+            <button
+              className={classes.backButton}
+              onClick={goBack}
+              // onClick={handleBackAfterDialog}
+              type="button"
+            >
               Back
             </button>
           </Box>
@@ -2269,7 +2305,11 @@ function PendingActionUpdate(props: any) {
       <Box sx={{ overflow: 'auto' }} className={classes.inputLabelHead}>
         <Typography variant="subtitle1">{requestedId}</Typography>
       </Box>
-      <form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
         <Box className={classes.eachRow}>
           <Box
             sx={{
@@ -2661,6 +2701,7 @@ function PendingActionUpdate(props: any) {
               }}
             >
               <button
+                type="button"
                 className={
                   UtilityFunctions.isHidden(
                     '8',
@@ -2670,7 +2711,17 @@ function PendingActionUpdate(props: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={colleagueData || additionalInfo ? false : true}
+                disabled={
+                  UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    'addl_data'
+                  )
+                    ? true
+                    : colleagueData || additionalInfo
+                    ? false
+                    : true
+                }
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
@@ -2852,6 +2903,7 @@ function PendingActionUpdate(props: any) {
             {groups ? (
               groups.length > 0 ? (
                 <button
+                  type="button"
                   className={classes.backButton}
                   onClick={handleOpenGroups}
                   ref={focusGroup}
@@ -2869,6 +2921,7 @@ function PendingActionUpdate(props: any) {
                   //     ? classes.hideit
                   //     : classes.backButton
                   // }
+                  type="button"
                   className={classes.backButton}
                   disabled={UtilityFunctions.isHidden(
                     '8',
@@ -2883,6 +2936,7 @@ function PendingActionUpdate(props: any) {
               )
             ) : (
               <button
+                type="button"
                 className={classes.backButton}
                 onClick={handleOpenGroups}
                 ref={focusGroup}
@@ -2901,6 +2955,7 @@ function PendingActionUpdate(props: any) {
               //     ? classes.hideit
               //     : classes.backButton
               // }
+              type="button"
               className={classes.hideit}
               onClick={handleOpenTasks}
             >
@@ -3103,6 +3158,7 @@ function PendingActionUpdate(props: any) {
                 className={classes.textArea}
                 placeholder={comments1}
                 onChange={(e) => {
+                  setIsPageModified(true)
                   setComments(e.target.value)
                 }}
                 // value={comments}
@@ -3156,7 +3212,7 @@ function PendingActionUpdate(props: any) {
             }}
           >
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -3197,7 +3253,7 @@ function PendingActionUpdate(props: any) {
             </Button>
 
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -3225,6 +3281,10 @@ function PendingActionUpdate(props: any) {
   )
   return (
     <>
+      <Prompt
+        when={isPageModified}
+        message={allMessages.success.promptMessage}
+      />
       <Toast
         ref={toast}
         position="bottom-left"
@@ -3252,6 +3312,7 @@ function PendingActionUpdate(props: any) {
             {viewConfirmSubmit}
             {viewConfirmReassign}
             {viewConfirmReject}
+            {viewConfirmBack}
           </Grid>
           {/* </Grid> */}
         </Box>

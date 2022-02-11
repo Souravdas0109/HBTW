@@ -215,7 +215,8 @@ export const getAppsAPI = () => {
 export const getUserAPI = (userId) => {
   let url = `${BASE_URL}${GET_USER_DETAILS_ID}`
   url = url.replace('{userId}', userId)
-  return serviceRequest(url, 'GET', undefined)
+  const params = 'limit=1000&statusIn=A,I,D'
+  return serviceRequest(url, 'GET', undefined, params)
 }
 
 export const getUserGroupAPI = () => {

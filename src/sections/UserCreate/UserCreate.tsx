@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core'
 import { styled } from '@material-ui/styles'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Prompt } from 'react-router-dom'
 import Select from 'react-select'
 import { useState, useEffect, useRef } from 'react'
 import { components } from 'react-select'
@@ -55,7 +55,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const classes = useStyles()
   const history = useHistory()
   const theme = useTheme()
-  const { DEFAULT, DASHBOARD } = routes
+  const { DEFAULT, DASHBOARD, USERCONFIG_USERCREATE } = routes
   const active = useMediaQuery(theme.breakpoints.down(750))
   const forbutton = useMediaQuery(theme.breakpoints.down(400))
   const width = useMediaQuery(theme.breakpoints.up('md'))
@@ -88,6 +88,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [groupOpen, setGroupOpen] = React.useState(false)
   const [cancelOpenApprove, setCancelOpenApprove] = React.useState(false)
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
+  const [back, setBack] = React.useState(false)
   const [openAdditional, setOpenAdditional] = useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
   const [submitFn, setSubmitFn] = React.useState<any>()
@@ -106,6 +107,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     []
   )
   const [logDataIn, setLogDataIn] = React.useState({})
+  const [isPageModified, setIsPageModified] = React.useState(false)
   //
   //integration changes start
   const [roles, setRoles] = useState([])
@@ -386,6 +388,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
         // reader.onload = (e: any) => {
         //   console.log(e.target.result);
+        setIsPageModified(true)
         setReferenceDocData((prevState) => [
           ...prevState,
           {
@@ -400,6 +403,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     }
   }
   const onstatusChange = (e: any) => {
+    setIsPageModified(true)
     setStatus(e.target.value)
     if (e.target.value !== '') {
       setErrorStatus('')
@@ -414,6 +418,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     }
   }
   const onrequestTypeChange = (e: any) => {
+    setIsPageModified(true)
     if (e.target.value !== '') {
       setErrorRequestType('')
       setErrorStatus('')
@@ -468,6 +473,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   }, [requestType])
 
   const handleRoleChange1 = (selected: any) => {
+    setIsPageModified(true)
     console.log(selected)
     setRoleNames(selected)
     if (selected.length > 0) setErrorRoles('')
@@ -544,6 +550,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   const handleGroupsInput = (selected: any) => {
     console.log(selected)
+    setIsPageModified(true)
     setGroupInput(selected)
     if (selected.length > 0) setErrorGroups('')
   }
@@ -593,6 +600,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -645,7 +653,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="submit"
+            // type="submit"
             variant="contained"
             color="primary"
             onClick={updateGroups}
@@ -766,6 +774,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -884,6 +893,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -972,6 +982,11 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     // }
     e.preventDefault()
     setCancelOpenSubmit((p) => !p)
+  }
+
+  const handleBack = (e: any) => {
+    e.preventDefault()
+    setBack((p) => !p)
   }
 
   // const viewCancel = (
@@ -1087,7 +1102,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   //   return startdate
   // }
 
-  const handleSearchEmployee = () => {
+  const handleSearchEmployee = (e: any) => {
+    e.preventDefault()
+    setOpenAdditional(false)
     // let selectedEmp = userData.filter((user: any) => {
     //   return user.user.userId === empIdInput
     // })
@@ -1277,6 +1294,10 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     e.preventDefault()
     checkForm('approve')
     // canSubmit && shoutOut === '' && setCancelOpenApprove(true)
+  }
+  const handleBackAfterDialog = (e: any) => {
+    e.preventDefault()
+    setBack(true)
   }
 
   const handleSubmitAfterDialog = (e: any) => {
@@ -1763,6 +1784,16 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     />
   )
 
+  const viewConfirmBack = (
+    <ConfirmBox
+      cancelOpen={back}
+      handleCancel={handleBack}
+      handleProceed={goBack}
+      label1="Sure to go Back?"
+      label2="All your data will be lost"
+    />
+  )
+
   const createForm = (
     <Box
       sx={{
@@ -1824,13 +1855,22 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               paddingLeft: 5,
             }}
           >
-            <button className={classes.backButton} onClick={goBack}>
+            <button
+              className={classes.backButton}
+              onClick={goBack}
+              // onClick={handleBackAfterDialog}
+              type="button"
+            >
               Back
             </button>
           </Box>
         </Box>
       </Box>
-      <form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -1924,10 +1964,12 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               <OutlinedInput
                 value={empIdInput}
                 inputRef={focusEmpId}
+                onKeyPress={(e) => {}}
                 onChange={(e) => {
                   // if (e.target.value === '') {
                   setEmpAvailable(false)
                   // }
+                  setIsPageModified(true)
                   setEmpIdInput(e.target.value)
                   setFirstName('')
                   setMiddleName('')
@@ -1935,6 +1977,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   setEmail('')
                   setDesignation('')
                   setErrorEmployeeId('')
+                  setOpenAdditional(false)
                 }}
                 className={classes.inputFields}
                 style={{ backgroundColor: 'white' }}
@@ -2108,6 +2151,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               }}
             >
               <button
+                type="button"
                 className={
                   UtilityFunctions.isHidden(
                     '8',
@@ -2117,11 +2161,22 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={colleagueData || additionalInfo ? false : true}
+                disabled={
+                  UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    'addl_data'
+                  )
+                    ? true
+                    : colleagueData || additionalInfo
+                    ? false
+                    : true
+                }
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
                 }}
+                // size="small"
               >
                 Additional Data
               </button>
@@ -2282,6 +2337,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             {groups ? (
               groups.length > 0 ? (
                 <button
+                  type="button"
                   className={classes.backButton}
                   onClick={handleOpenGroups}
                   ref={focusGroup}
@@ -2299,6 +2355,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                   //     ? classes.hideit
                   //     : classes.backButton
                   // }
+                  type="button"
                   className={classes.backButton}
                   disabled={UtilityFunctions.isHidden(
                     '8',
@@ -2313,6 +2370,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
               )
             ) : (
               <button
+                type="button"
                 className={classes.backButton}
                 onClick={handleOpenGroups}
                 ref={focusGroup}
@@ -2517,6 +2575,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
                 className={classes.textArea}
                 placeholder="Please provide comments"
                 onChange={(e) => {
+                  setIsPageModified(true)
                   setComments(e.target.value)
                 }}
                 value={comments}
@@ -2569,7 +2628,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             }}
           >
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -2611,7 +2670,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             </Button>
 
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -2640,6 +2699,10 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
 
   return (
     <>
+      <Prompt
+        when={isPageModified}
+        message={allMessages.success.promptMessage}
+      />
       <Toast
         ref={toast}
         position="bottom-left"
@@ -2664,6 +2727,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             {viewAdditionalInfo}
             {viewConfirmApprove}
             {viewConfirmSubmit}
+            {viewConfirmBack}
           </Grid>
           {/* </Grid> */}
         </Box>

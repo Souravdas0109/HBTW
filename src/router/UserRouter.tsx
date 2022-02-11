@@ -20,15 +20,27 @@ import UserUnassignWorkflow from '../pages/UserUnassignWorkflow/UserUnassignWork
 import UserInprogressTask from '../pages/UserInprogressTask/UserInprogressTask'
 import UserGroupPendingAction from '../pages/UserGroupPendingAction/UserGroupPendingAction'
 import { routes } from '../util/Constants'
+import { makeStyles } from '@material-ui/core'
+
+const useStyles = makeStyles((theme) => ({
+  background: {
+    opacity: 0.6,
+  },
+  root: {},
+}))
 
 const UserRouter = ({
   path,
   serviceError,
   userDetail,
+  handleDrawerToggle,
+  open,
 }: {
   path: string
   serviceError: boolean
   userDetail: any
+  handleDrawerToggle: any
+  open: boolean
 }) => {
   const {
     DASHBOARD,
@@ -49,6 +61,7 @@ const UserRouter = ({
     USERCONFIG_GROUPUPDATE,
     USERCONFIG_USERUPDATE,
   } = routes
+  const classes = useStyles()
   const getPermission = (url: string) => {
     if (userDetail[0].user.status.toLowerCase() === 'a') {
       const value = userDetail[0].appmenu.findIndex(
@@ -67,134 +80,139 @@ const UserRouter = ({
     }
   }
   return (
-    <Switch>
-      <AuthRoute
-        path={`${path}${DASHBOARD}`}
-        component={DashboardMain}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${DASHBOARD_PENDINGACTION}`}
-        component={UserPendingAction}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${DASHBOARD_PENDINGACTIONS_UPDATE}`}
-        component={UserPendingActionUpdate}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${DASHBOARD_UNASSIGNWORKFLOW}`}
-        component={UserUnassignWorkflow}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${DASHBOARD_INPROGRESSTASK}`}
-        component={UserInprogressTask}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${DASHBOARD_MYGROUPPENDINGTASKS}`}
-        component={UserGroupPendingAction}
-        isAuthorized={userDetail && getPermission(DASHBOARD)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${RANGEAMEND}`}
-        component={RangeAmend}
-        isAuthorized={userDetail && getPermission(RANGEAMEND)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${PROMOFUNDNG}`}
-        component={PromotionFunding}
-        isAuthorized={userDetail && getPermission(PROMOFUNDNG)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${RETAILPRICE}`}
-        component={RetailPrice}
-        isAuthorized={userDetail && getPermission(RETAILPRICE)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${SUPPLIERPORT}`}
-        component={SupplierPortal}
-        isAuthorized={userDetail && getPermission(SUPPLIERPORT)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${PRODUCTPORT}`}
-        component={ProductPortal}
-        isAuthorized={userDetail && getPermission(PRODUCTPORT)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_USERCREATE}`}
-        component={UserManageCreate}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERCREATE)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_USERMANAGE}`}
-        component={UserManageManage}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_USERGROUP}`}
-        component={UserManageGroup}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_GROUPCREATE}`}
-        component={UserManageGroupCreate}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_GROUPUPDATE}`}
-        component={UserManageGroupUpdate}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}${USERCONFIG_USERUPDATE}`}
-        component={UserManageUpdate}
-        isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
-        serviceError={serviceError}
-        arb={false}
-      />
-      <AuthRoute
-        path={`${path}/*`}
-        component={PageNotFound}
-        isAuthorized={false}
-        serviceError={serviceError}
-        arb={true}
-      />
-    </Switch>
+    <div
+      onClick={handleDrawerToggle}
+      className={open ? classes.background : classes.root}
+    >
+      <Switch>
+        <AuthRoute
+          path={`${path}${DASHBOARD}`}
+          component={DashboardMain}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_PENDINGACTION}`}
+          component={UserPendingAction}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_PENDINGACTIONS_UPDATE}`}
+          component={UserPendingActionUpdate}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_UNASSIGNWORKFLOW}`}
+          component={UserUnassignWorkflow}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_INPROGRESSTASK}`}
+          component={UserInprogressTask}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_MYGROUPPENDINGTASKS}`}
+          component={UserGroupPendingAction}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${RANGEAMEND}`}
+          component={RangeAmend}
+          isAuthorized={userDetail && getPermission(RANGEAMEND)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${PROMOFUNDNG}`}
+          component={PromotionFunding}
+          isAuthorized={userDetail && getPermission(PROMOFUNDNG)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${RETAILPRICE}`}
+          component={RetailPrice}
+          isAuthorized={userDetail && getPermission(RETAILPRICE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${SUPPLIERPORT}`}
+          component={SupplierPortal}
+          isAuthorized={userDetail && getPermission(SUPPLIERPORT)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${PRODUCTPORT}`}
+          component={ProductPortal}
+          isAuthorized={userDetail && getPermission(PRODUCTPORT)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_USERCREATE}`}
+          component={UserManageCreate}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERCREATE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_USERMANAGE}`}
+          component={UserManageManage}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_USERGROUP}`}
+          component={UserManageGroup}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_GROUPCREATE}`}
+          component={UserManageGroupCreate}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_GROUPUPDATE}`}
+          component={UserManageGroupUpdate}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${USERCONFIG_USERUPDATE}`}
+          component={UserManageUpdate}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}/*`}
+          component={PageNotFound}
+          isAuthorized={false}
+          serviceError={serviceError}
+          arb={true}
+        />
+      </Switch>
+    </div>
   )
 }
 

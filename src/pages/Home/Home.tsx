@@ -56,6 +56,9 @@ const Home = (props: any) => {
   const handleDrawerToggle = () => {
     setOpen(!open)
   }
+  const handleClose = () => {
+    setOpen(false)
+  }
   const handleClick = (url: string) => {
     history.push(url)
     handleDrawerToggle()
@@ -136,6 +139,8 @@ const Home = (props: any) => {
       <br />
       <ScrollToTop />
       <UserRouter
+        open={open}
+        handleDrawerToggle={handleClose}
         path={path}
         serviceError={serviceError}
         userDetail={userDetail && userDetail.userdetails}

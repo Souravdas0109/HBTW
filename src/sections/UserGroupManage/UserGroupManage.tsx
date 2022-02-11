@@ -104,13 +104,14 @@ function UserGroupManage(props: any) {
       <>
         {rowData.locationHierarchy.length > 0 ? (
           <button
+            type="button"
             className={classes.exploreButton}
             onClick={() => handleOpenLocation(rowData.locationHierarchy)}
           >
             View
           </button>
         ) : (
-          <button disabled className={classes.fontbutton}>
+          <button disabled className={classes.fontbutton} type="button">
             View
           </button>
         )}
@@ -122,13 +123,14 @@ function UserGroupManage(props: any) {
       <>
         {rowData.productHierarchy.length > 0 ? (
           <button
+            type="button"
             className={classes.exploreButton}
             onClick={() => handleOpenProduct(rowData.productHierarchy)}
           >
             View
           </button>
         ) : (
-          <button disabled className={classes.fontbutton}>
+          <button disabled className={classes.fontbutton} type="button">
             View
           </button>
         )}
@@ -185,6 +187,7 @@ function UserGroupManage(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -297,6 +300,7 @@ function UserGroupManage(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -372,6 +376,7 @@ function UserGroupManage(props: any) {
   const groupIDTemplate = (rowData: any) => {
     return (
       <button
+        type="button"
         value={rowData.groupId}
         onClick={handleNameClick}
         className={classes.exploreButton}
@@ -428,6 +433,7 @@ function UserGroupManage(props: any) {
                 }}
               >
                 <button
+                  type="button"
                   className={classes.exploreButton}
                   onClick={() =>
                     history.push(`${DEFAULT}${USERCONFIG_GROUPCREATE}`)
@@ -485,6 +491,7 @@ function UserGroupManage(props: any) {
                 }}
               >
                 <button
+                  type="button"
                   className={classes.exploreButton}
                   onClick={() =>
                     history.push(`${DEFAULT}${USERCONFIG_GROUPCREATE}`)

@@ -123,6 +123,7 @@ function UserManage(props: any) {
         className={classes.exploreButtonforid}
         value={rowData.userId}
         onClick={handleNameClick}
+        type="button"
       >
         {rowData.userId}
       </button>

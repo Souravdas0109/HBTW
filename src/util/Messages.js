@@ -32,5 +32,6 @@ export const allMessages = {
     successAssign: 'All tasks assigned successfully',
     successCopy: 'RequestId has been autocopied to clipboard',
     successGroupCopy: 'GroupId has been autocopied to clipboard',
+    promptMessage: 'Unsaved changes will be lost. Do you want to continue ?',
   },
 }

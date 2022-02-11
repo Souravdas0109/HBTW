@@ -10,7 +10,7 @@ import {
 } from '@material-ui/core'
 import { styled } from '@material-ui/styles'
 import React, { useRef } from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Prompt } from 'react-router-dom'
 // import SideBar from '../Layout/SideBar'
 import Select from 'react-select'
 import { components } from 'react-select'
@@ -87,6 +87,7 @@ function UpdateUser(props: any) {
   const [groupOpen, setGroupOpen] = React.useState(false)
   const [cancelOpenApprove, setCancelOpenApprove] = React.useState(false)
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
+  const [back, setBack] = React.useState(false)
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
@@ -114,6 +115,7 @@ function UpdateUser(props: any) {
     []
   )
   const [logDataIn, setLogDataIn] = React.useState({})
+  const [isPageModified, setIsPageModified] = React.useState(false)
   //
   const focusRequestType = useRef<any>(null)
   const focusEmpId = useRef<any>(null)
@@ -398,6 +400,7 @@ function UpdateUser(props: any) {
 
         // reader.onload = (e: any) => {
         //   console.log(e.target.result);
+        setIsPageModified(true)
         setReferenceDocData((prevState) => [
           ...prevState,
           {
@@ -413,6 +416,7 @@ function UpdateUser(props: any) {
   }
   // };
   const onstatusChange = (e: any) => {
+    setIsPageModified(true)
     setStatus(e.target.value)
     if (e.target.value !== '') {
       setErrorStatus('')
@@ -427,6 +431,7 @@ function UpdateUser(props: any) {
     }
   }
   const onrequestTypeChange = (e: any) => {
+    setIsPageModified(true)
     if (e.target.value !== '') {
       setErrorRequestType('')
       setErrorStatus('')
@@ -476,6 +481,7 @@ function UpdateUser(props: any) {
   }
 
   const handleRoleChange1 = (selected: any) => {
+    setIsPageModified(true)
     console.log(selected)
     setRoleNames(selected)
     if (selected.length > 0) setErrorRoles('')
@@ -632,6 +638,7 @@ function UpdateUser(props: any) {
   }
 
   const handleGroupsInput = (selected: any) => {
+    setIsPageModified(true)
     setGroupInput(selected)
     if (selected.length > 0) setErrorGroups('')
   }
@@ -680,6 +687,7 @@ function UpdateUser(props: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -731,7 +739,7 @@ function UpdateUser(props: any) {
           className={classes.inputFieldBox}
         >
           <Button
-            type="submit"
+            // type="submit"
             variant="contained"
             color="primary"
             onClick={updateGroups}
@@ -814,6 +822,7 @@ function UpdateUser(props: any) {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
@@ -986,6 +995,7 @@ function UpdateUser(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -1108,6 +1118,7 @@ function UpdateUser(props: any) {
             }}
           >
             <button
+              type="button"
               style={{
                 border: 0,
                 padding: 0,
@@ -1199,6 +1210,11 @@ function UpdateUser(props: any) {
     setCancelOpenSubmit((p) => !p)
   }
 
+  const handleBack = (e: any) => {
+    e.preventDefault()
+    setBack((p) => !p)
+  }
+
   const checkForm = (btnName: string) => {
     let flag = 1
     if (errorRequestType !== '') {
@@ -1250,6 +1266,10 @@ function UpdateUser(props: any) {
     e.preventDefault()
     checkForm('approve')
     // canSubmit && shoutOut === '' && setCancelOpenApprove(true)
+  }
+  const handleBackAfterDialog = (e: any) => {
+    e.preventDefault()
+    setBack(true)
   }
 
   const handleSubmitAfterDialog = (e: any) => {
@@ -1747,6 +1767,16 @@ function UpdateUser(props: any) {
       label2="Please click Ok to proceed"
     />
   )
+
+  const viewConfirmBack = (
+    <ConfirmBox
+      cancelOpen={back}
+      handleCancel={handleBack}
+      handleProceed={goBack}
+      label1="Sure to go Back?"
+      label2="All your data will be lost"
+    />
+  )
   const createForm = (
     <Box
       sx={{
@@ -1802,6 +1832,7 @@ function UpdateUser(props: any) {
             }}
           >
             <button
+              type="button"
               className={classes.backButton}
               onClick={handleOpenViewLog}
               disabled={viewLogRows.length > 0 ? false : true}
@@ -1821,13 +1852,22 @@ function UpdateUser(props: any) {
               paddingLeft: 5,
             }}
           >
-            <button className={classes.backButton} onClick={goBack}>
+            <button
+              className={classes.backButton}
+              onClick={goBack}
+              // onClick={handleBackAfterDialog}
+              type="button"
+            >
               Back
             </button>
           </Box>
         </Box>
       </Box>
-      <form>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
@@ -2076,6 +2116,7 @@ function UpdateUser(props: any) {
               }}
             >
               <button
+                type="button"
                 className={
                   UtilityFunctions.isHidden(
                     '8',
@@ -2085,7 +2126,17 @@ function UpdateUser(props: any) {
                     ? classes.hideit
                     : classes.backButton
                 }
-                disabled={colleagueData || additionalInfo ? false : true}
+                disabled={
+                  UtilityFunctions.isHidden(
+                    '8',
+                    appFuncList ? appFuncList : [],
+                    'addl_data'
+                  )
+                    ? true
+                    : colleagueData || additionalInfo
+                    ? false
+                    : true
+                }
                 onClick={(e) => {
                   e.preventDefault()
                   setOpenAdditional((prevState) => !prevState)
@@ -2267,6 +2318,7 @@ function UpdateUser(props: any) {
             {groups ? (
               groups.length > 0 ? (
                 <button
+                  type="button"
                   className={classes.backButton}
                   onClick={handleOpenGroups}
                   ref={focusGroup}
@@ -2284,6 +2336,7 @@ function UpdateUser(props: any) {
                   //     ? classes.hideit
                   //     : classes.backButton
                   // }
+                  type="button"
                   className={classes.backButton}
                   disabled={UtilityFunctions.isHidden(
                     '8',
@@ -2298,6 +2351,7 @@ function UpdateUser(props: any) {
               )
             ) : (
               <button
+                type="button"
                 className={classes.backButton}
                 onClick={handleOpenGroups}
                 ref={focusGroup}
@@ -2307,6 +2361,7 @@ function UpdateUser(props: any) {
             )}
             &nbsp;&nbsp; &nbsp;&nbsp;
             <button
+              type="button"
               // className={
               //   UtilityFunctions.isHidden(
               //     '8',
@@ -2518,6 +2573,7 @@ function UpdateUser(props: any) {
                 className={classes.textArea}
                 placeholder="Please provide comments"
                 onChange={(e) => {
+                  setIsPageModified(true)
                   setComments(e.target.value)
                 }}
                 value={comments}
@@ -2569,7 +2625,7 @@ function UpdateUser(props: any) {
             }}
           >
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -2608,7 +2664,7 @@ function UpdateUser(props: any) {
             </Button>
 
             <Button
-              type="submit"
+              // type="submit"
               variant="contained"
               color="primary"
               className={
@@ -2636,6 +2692,10 @@ function UpdateUser(props: any) {
 
   return (
     <>
+      <Prompt
+        when={isPageModified}
+        message={allMessages.success.promptMessage}
+      />
       <Toast
         ref={toast}
         position="bottom-left"
@@ -2661,6 +2721,7 @@ function UpdateUser(props: any) {
             {viewAdditionalInfo}
             {viewConfirmApprove}
             {viewConfirmSubmit}
+            {viewConfirmBack}
           </Grid>
           {/* </Grid> */}
         </Box>

@@ -89,7 +89,11 @@ function InprogressTask(props: any) {
                   paddingLeft: 20,
                 }}
               >
-                <button className={classes.backButton} onClick={goBack}>
+                <button
+                  className={classes.backButton}
+                  onClick={goBack}
+                  type="button"
+                >
                   Back
                 </button>
               </Box>

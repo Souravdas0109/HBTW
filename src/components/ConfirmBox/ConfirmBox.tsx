@@ -42,6 +42,7 @@ const ConfirmBox = (props: any) => {
               }}
             >
               <button
+                type="button"
                 style={{
                   border: 0,
                   padding: 0,
