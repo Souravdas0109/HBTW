@@ -119,6 +119,7 @@ function PendingActionUpdate(props: any) {
   const toast = useRef<any>(null)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   const [returnText, setReturnText] = React.useState('')
   const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
     []
@@ -1649,6 +1650,7 @@ function PendingActionUpdate(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           if (navigator.clipboard) {
             navigator.clipboard.writeText(res.data.requestId)
@@ -1731,6 +1733,7 @@ function PendingActionUpdate(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err.response)
           // let statusCode = err.response.status
           // console.log(statusCode)
@@ -1832,6 +1835,7 @@ function PendingActionUpdate(props: any) {
       putCompleteTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(res.data.status)
           const rolelog =
             userDetail &&
@@ -1906,6 +1910,7 @@ function PendingActionUpdate(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err.response)
           toast.current.show({
             severity: 'error',
@@ -1931,7 +1936,7 @@ function PendingActionUpdate(props: any) {
         requestBy: requestorUserId,
         requestDate: new Date().toISOString().split('T')[0],
         // requestType: requestType,
-        requestType: 'Reassign',
+        requestType: 'moreinfo',
       },
       // requestorRoles:
       //   userDetail &&
@@ -1947,10 +1952,11 @@ function PendingActionUpdate(props: any) {
     setReturnText('')
     pendingActionDetails &&
       putClaimTaskAPI &&
-      //putClaimTaskAPI(formData,pendingActionDetails[0].taskId)
-      putClaimTaskAPI(formData, `${pendingActionDetails[0].taskId}moreinfo`)
+      putClaimTaskAPI(formData, pendingActionDetails[0].taskId)
+        // putClaimTaskAPI(formData, `${pendingActionDetails[0].taskId}moreinfo`)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(res.data.comments)
           // if (res.data.status.toLowerCase() !== 'failed') {
           const rolelog =
@@ -2036,6 +2042,7 @@ function PendingActionUpdate(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err.response)
           toast.current.show({
             severity: 'error',
@@ -2078,6 +2085,7 @@ function PendingActionUpdate(props: any) {
       putRejectTaskAPI(formData, pendingActionDetails[0].businessKey)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(res.data.status)
           const rolelog =
             userDetail &&
@@ -2152,6 +2160,7 @@ function PendingActionUpdate(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err.response)
           toast.current.show({
             severity: 'error',
@@ -3279,10 +3288,11 @@ function PendingActionUpdate(props: any) {
       <LoadingComponent showLoader={isProgressLoader} />
     </Box>
   )
+
   return (
     <>
       <Prompt
-        when={isPageModified}
+        when={isPageModified && isSuccessCall}
         message={allMessages.success.promptMessage}
       />
       <Toast

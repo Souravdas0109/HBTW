@@ -219,6 +219,13 @@ export const getUserAPI = (userId) => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getUserForAllStatusAPI = (userId) => {
+  let url = `${BASE_URL}${GET_USER_DETAILS_ID}`
+  url = url.replace('{userId}', userId)
+  const params = 'limit=1000'
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const getUserGroupAPI = () => {
   const url = `${BASE_URL}${GET_USER_GROUPS_ALL}`
   const params = 'limit=1000'

@@ -2,7 +2,7 @@ import {
   getUserDetailsAPI,
   getRoleAPI,
   getAppsAPI,
-  getUserAPI,
+  getUserForAllStatusAPI,
   userV2Login,
 } from '../../../api/Fetch'
 import { ServiceResponse } from '../../../pages/Login/Messages'
@@ -239,7 +239,7 @@ export const getAppsArray = (userdetails: Array<any>) => (dispatch: any) => {
 }
 
 export const getUserDetails = (empId: String) => (dispatch: any) => {
-  getUserAPI(empId)
+  getUserForAllStatusAPI(empId)
     .then((response: any) => {
       dispatch(getUserSuccess(response && response.data))
       dispatch(
@@ -295,56 +295,58 @@ export const setMenuList = (value: Array<any>) => {
   }
 }
 
-export const mapExtraAppToUserdetails =
-  (userdetails: Array<any>, appsArray: Array<any>) => (dispatch: any) => {
-    for (let i = 0; i < userdetails[0].appmenu.length; i++) {
-      const windex = appsArray.findIndex(
-        (item) =>
-          item.appMenuId === userdetails[0].appmenu[i].appmenuId.toString()
-      )
-      if (windex > -1) {
-        userdetails[0].appmenu[i]['appCode'] = appsArray[windex].appCode
-        userdetails[0].appmenu[i]['appName'] = appsArray[windex].appName
-        userdetails[0].appmenu[i]['menu1Code'] = appsArray[windex].menu1Code
-        userdetails[0].appmenu[i]['menu1Desc'] = appsArray[windex].menu1Desc
-        userdetails[0].appmenu[i]['menu2Code'] = appsArray[windex].menu2Code
-        userdetails[0].appmenu[i]['menu2Desc'] = appsArray[windex].menu2Desc
-      }
-      const index = apps.findIndex(
-        (item) =>
-          item.appMenuId.toString() ===
-          userdetails[0].appmenu[i].appmenuId.toString()
-      )
-      if (index > -1) {
-        userdetails[0].appmenu[i]['url'] = apps[index].url
-      }
-    }
-    let uniqueAppCode: Array<any> = []
-    for (let i = 0; i < appsArray.length; i++) {
-      const name = appsArray[i].appCode
-      if (!uniqueAppCode.includes(name)) {
-        uniqueAppCode.push(name)
-      }
-    }
-    let menuMap: Array<any> = []
-    for (let i = 0; i < uniqueAppCode.length; i++) {
-      const value = userdetails[0].appmenu.filter(
-        (item: any) => item.appCode === uniqueAppCode[i]
-      )
-      if (value.length > 0) {
-        const submenu = value.filter((item: any) => item.menu1Code !== null)
-        menuMap.push({
-          appmenuId: value[0].appmenuId,
-          appCode: value[0].appCode,
-          appName: value[0].appName,
-          url: value[0].url,
-          more: submenu,
-        })
-      }
-    }
-    menuMap.sort((a, b) =>
-      a.appmenuId > b.appmenuId ? 1 : b.appmenuId > a.appmenuId ? -1 : 0
+export const mapExtraAppToUserdetails = (
+  userdetails: Array<any>,
+  appsArray: Array<any>
+) => (dispatch: any) => {
+  for (let i = 0; i < userdetails[0].appmenu.length; i++) {
+    const windex = appsArray.findIndex(
+      (item) =>
+        item.appMenuId === userdetails[0].appmenu[i].appmenuId.toString()
     )
-    dispatch(getUserSuccess({ userdetails: userdetails }))
-    dispatch(setMenuList(menuMap))
+    if (windex > -1) {
+      userdetails[0].appmenu[i]['appCode'] = appsArray[windex].appCode
+      userdetails[0].appmenu[i]['appName'] = appsArray[windex].appName
+      userdetails[0].appmenu[i]['menu1Code'] = appsArray[windex].menu1Code
+      userdetails[0].appmenu[i]['menu1Desc'] = appsArray[windex].menu1Desc
+      userdetails[0].appmenu[i]['menu2Code'] = appsArray[windex].menu2Code
+      userdetails[0].appmenu[i]['menu2Desc'] = appsArray[windex].menu2Desc
+    }
+    const index = apps.findIndex(
+      (item) =>
+        item.appMenuId.toString() ===
+        userdetails[0].appmenu[i].appmenuId.toString()
+    )
+    if (index > -1) {
+      userdetails[0].appmenu[i]['url'] = apps[index].url
+    }
   }
+  let uniqueAppCode: Array<any> = []
+  for (let i = 0; i < appsArray.length; i++) {
+    const name = appsArray[i].appCode
+    if (!uniqueAppCode.includes(name)) {
+      uniqueAppCode.push(name)
+    }
+  }
+  let menuMap: Array<any> = []
+  for (let i = 0; i < uniqueAppCode.length; i++) {
+    const value = userdetails[0].appmenu.filter(
+      (item: any) => item.appCode === uniqueAppCode[i]
+    )
+    if (value.length > 0) {
+      const submenu = value.filter((item: any) => item.menu1Code !== null)
+      menuMap.push({
+        appmenuId: value[0].appmenuId,
+        appCode: value[0].appCode,
+        appName: value[0].appName,
+        url: value[0].url,
+        more: submenu,
+      })
+    }
+  }
+  menuMap.sort((a, b) =>
+    a.appmenuId > b.appmenuId ? 1 : b.appmenuId > a.appmenuId ? -1 : 0
+  )
+  dispatch(getUserSuccess({ userdetails: userdetails }))
+  dispatch(setMenuList(menuMap))
+}

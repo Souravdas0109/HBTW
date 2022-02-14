@@ -19,7 +19,7 @@ import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 // import { pendingStatusDetails } from './DataConstant'
 import { userTaskDashboard } from './DataConstant'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
-
+import { admins } from '../../util/Constants'
 import {
   set_mygrouppendingAction,
   set_mygroupunassignAction,
@@ -103,6 +103,7 @@ function Dashboard(props: any) {
     set_mygrouppendingAction,
     set_mygroupunassignAction,
     reset_all,
+    userDetail,
   } = props
   const classes = useStyles()
 
@@ -179,37 +180,54 @@ function Dashboard(props: any) {
       mypendingAction &&
       myinprogressTasks &&
       mygroupPendingAction &&
-      mygroupUnassignTasks
+      mygroupUnassignTasks &&
+      userDetail
     ) {
-      const newMap1 = userTaskDashboard.map((item) => {
-        if (item.value.toLowerCase() === 'usermanagement') {
-          item.my.pendingActions =
-            mypendingAction.length > 0 && mypendingAction[0].tasks.length > 0
-              ? mypendingAction[0].tasks.length
-              : 0
-          item.my.inProgressTask =
-            myinprogressTasks.length > 0 &&
-            myinprogressTasks[0].tasks.length > 0
-              ? myinprogressTasks[0].tasks.length
-              : 0
-          item.myGroup.pendingActions =
-            mygroupPendingAction.length > 0 &&
-            mygroupPendingAction[0].tasks.length > 0
-              ? mygroupPendingAction[0].tasks.length
-              : 0
-          item.myGroup.inProgressTask =
-            mygroupUnassignTasks.length > 0 &&
-            mygroupUnassignTasks[0].tasks.length > 0
-              ? mygroupUnassignTasks[0].tasks.length
-              : 0
+      const rolelist =
+        userDetail &&
+        userDetail.userdetails &&
+        userDetail.userdetails[0].roles.map((rl: any) => rl.roleId)
+      let adminqn = false
+      for (let ad = 0; ad < admins.length; ad++) {
+        if (rolelist.includes(admins[ad])) {
+          adminqn = true
+          break
         }
+      }
+      const newMap1 =
+        userDetail &&
+        userTaskDashboard.map((item) => {
+          if (item.value.toLowerCase() === 'usermanagement') {
+            item.my.pendingActions =
+              mypendingAction.length > 0 && mypendingAction[0].tasks.length > 0
+                ? mypendingAction[0].tasks.length
+                : 0
+            item.my.inProgressTask =
+              myinprogressTasks.length > 0 &&
+              myinprogressTasks[0].tasks.length > 0
+                ? myinprogressTasks[0].tasks.length
+                : 0
+            item.myGroup.pendingActions =
+              adminqn &&
+              mygroupPendingAction.length > 0 &&
+              mygroupPendingAction[0].tasks.length > 0
+                ? mygroupPendingAction[0].tasks.length
+                : 0
+            item.myGroup.inProgressTask =
+              adminqn &&
+              mygroupUnassignTasks.length > 0 &&
+              mygroupUnassignTasks[0].tasks.length > 0
+                ? mygroupUnassignTasks[0].tasks.length
+                : 0
+          }
 
-        return item
-      })
+          return item
+        })
 
       setNewMap([...newMap1])
     }
   }, [
+    userDetail,
     mypendingAction,
     myinprogressTasks,
     mygroupPendingAction,
@@ -406,6 +424,7 @@ const mapStateToProps = (state: any) => {
     myinprogressTasks: state.pendingActionReducer.myinprogressTasks,
     mygroupPendingAction: state.pendingActionReducer.mygroupPendingAction,
     mygroupUnassignTasks: state.pendingActionReducer.mygroupUnassignTasks,
+    userDetail: state.loginReducer.userDetail,
   }
 }
 

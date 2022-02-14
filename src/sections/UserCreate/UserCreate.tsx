@@ -74,7 +74,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [employeeID, setEmployeeID] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [designation, setDesignation] = React.useState('')
-  const [status, setStatus] = React.useState('W')
+  const [status, setStatus] = React.useState('A')
   const [comments, setComments] = React.useState('')
   const [wrongExtn, setWrongExtn] = React.useState(false)
   const [referenceDoc, setReferenceDoc] = React.useState<any>('')
@@ -102,6 +102,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
   const [disabled, setDisabled] = React.useState(false)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   const [returnText, setReturnText] = React.useState('')
   const [attachmentUrlArr, setAttachmentUrlArr] = React.useState<Array<string>>(
     []
@@ -188,6 +189,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           //   severity = 'error'
         }
         setIsProgressLoader(false)
+        setIsSuccessCall(false)
         toast.current.show([
           {
             severity: 'success',
@@ -352,7 +354,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
     setLastName('')
     setEmail('')
     setDesignation('')
-    setStatus('W')
+    setStatus('A')
     setRoleNames([])
     setGroupInput([])
     setGroups([])
@@ -1384,6 +1386,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         putUserDetailsCamundaAPI(formData)
           .then((res) => {
             console.log(res)
+            setIsSuccessCall(false)
             setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
             if (navigator.clipboard) {
               navigator.clipboard.writeText(res.data.requestId)
@@ -1471,6 +1474,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           .catch((err) => {
             setDisabled(false)
             setIsProgressLoader(false)
+            setIsSuccessCall(false)
             console.log(err.response)
             // let statusCode = err.status
             //console.log(statusCode)
@@ -1615,6 +1619,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
         putUserDetailsCamundaAPI(formData)
           .then((res) => {
             console.log(res)
+            setIsSuccessCall(false)
             setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
             if (navigator.clipboard) {
               navigator.clipboard.writeText(res.data.requestId)
@@ -1699,6 +1704,7 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
           .catch((err) => {
             setDisabled(false)
             setIsProgressLoader(false)
+            setIsSuccessCall(false)
             console.log(err)
             // let statusCode = err.status
             //console.log(statusCode)
@@ -2696,11 +2702,14 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       <LoadingComponent showLoader={isProgressLoader} />
     </Box>
   )
+  useEffect(() => {
+    console.log(isSuccessCall)
+  }, [isSuccessCall])
 
   return (
     <>
       <Prompt
-        when={isPageModified}
+        when={isPageModified && isSuccessCall}
         message={allMessages.success.promptMessage}
       />
       <Toast

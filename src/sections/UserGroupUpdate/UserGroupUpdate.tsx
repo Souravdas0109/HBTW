@@ -96,6 +96,7 @@ function UserGroupUpdate(props: any) {
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
   const [isPageModified, setIsPageModified] = React.useState(false)
+  const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   //
   //product changes end ................................................
 
@@ -1094,6 +1095,7 @@ function UserGroupUpdate(props: any) {
                 putUserGroupAPI(formData, groupId)
                   .then((res) => {
                     setIsProgressLoader(false)
+                    setIsSuccessCall(false)
                     if (navigator.clipboard) {
                       navigator.clipboard.writeText(groupId)
                     }
@@ -1108,6 +1110,7 @@ function UserGroupUpdate(props: any) {
                   .catch((err) => {
                     setDisabled1(false)
                     setIsProgressLoader(false)
+                    setIsSuccessCall(false)
                     toast.current.show({
                       severity: 'error',
                       summary: 'Error!',
@@ -1147,6 +1150,7 @@ function UserGroupUpdate(props: any) {
               putUserGroupAPI(formData, groupId)
                 .then((res) => {
                   setIsProgressLoader(false)
+                  setIsSuccessCall(false)
                   if (navigator.clipboard) {
                     navigator.clipboard.writeText(groupId)
                   }
@@ -1161,6 +1165,7 @@ function UserGroupUpdate(props: any) {
                 .catch((err) => {
                   setDisabled1(false)
                   setIsProgressLoader(false)
+                  setIsSuccessCall(false)
                   toast.current.show({
                     severity: 'error',
                     summary: 'Error!',
@@ -1222,6 +1227,7 @@ function UserGroupUpdate(props: any) {
             //console.log(res);
             //console.log(res.data.message);
             setIsProgressLoader(false)
+            setIsSuccessCall(false)
             if (navigator.clipboard) {
               navigator.clipboard.writeText(groupId)
             }
@@ -1237,6 +1243,7 @@ function UserGroupUpdate(props: any) {
           .catch((err) => {
             setDisabled1(false)
             setIsProgressLoader(false)
+            setIsSuccessCall(false)
             //console.log(err);
             // let statusCode = err.response.data.errorMessage
             // console.log(statusCode)
@@ -1333,7 +1340,7 @@ function UserGroupUpdate(props: any) {
   return (
     <>
       <Prompt
-        when={isPageModified}
+        when={isPageModified && isSuccessCall}
         message={allMessages.success.promptMessage}
       />
       <Toast
@@ -1592,31 +1599,31 @@ function UserGroupUpdate(props: any) {
                           payload.length > 0 ? ( */}
                         {hierarchy ? (
                           hierarchy.length > 0 ? (
-                            <Link
-                              to="#"
+                            <button
+                              type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
                               {/* Product Hierarchies({payload.length}) */}
                               Product Hierarchies({hierarchy.length})
-                            </Link>
+                            </button>
                           ) : (
-                            <Link
-                              to="#"
+                            <button
+                              type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
                               Add
-                            </Link>
+                            </button>
                           )
                         ) : (
-                          <Link
-                            to="#"
+                          <button
+                            type="button"
                             className={classes.underlineRemove}
                             onClick={handleOpenViewProduct}
                           >
                             Add
-                          </Link>
+                          </button>
                         )}
                       </Typography>
                       {viewProduct}

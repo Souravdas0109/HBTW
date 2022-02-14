@@ -92,6 +92,7 @@ function UserGroupCreate(props: any) {
   const [errorStatus, setErrorStatus] = useState('')
   const focusGroupName = useRef<any>(null)
   const [isPageModified, setIsPageModified] = React.useState(false)
+  const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   //product changes end ................................................
 
   //product changes start...........................................
@@ -933,6 +934,7 @@ function UserGroupCreate(props: any) {
           //console.log(res);
           //console.log(res.data.message);
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           setGroupId(res.data.message.split('groupId:')[1].trim())
           if (navigator.clipboard) {
             navigator.clipboard.writeText(
@@ -959,6 +961,7 @@ function UserGroupCreate(props: any) {
           // //console.log(err);
           // let statusCode = err.response.data.error
           // console.log(statusCode)
+          setIsSuccessCall(false)
           setIsProgressLoader(false)
           toast.current.show({
             severity: 'error',
@@ -1051,7 +1054,7 @@ function UserGroupCreate(props: any) {
   return (
     <>
       <Prompt
-        when={isPageModified}
+        when={isPageModified && isSuccessCall}
         message={allMessages.success.promptMessage}
       />
       <Toast
@@ -1305,31 +1308,31 @@ function UserGroupCreate(props: any) {
                           payload.length > 0 ? ( */}
                         {hierarchy ? (
                           hierarchy.length > 0 ? (
-                            <Link
-                              to="#"
+                            <button
+                              type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
                               {/* Product Hierarchies({payload.length}) */}
                               Product Hierarchies({hierarchy.length})
-                            </Link>
+                            </button>
                           ) : (
-                            <Link
-                              to="#"
+                            <button
+                              type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
                               Add
-                            </Link>
+                            </button>
                           )
                         ) : (
-                          <Link
-                            to="#"
+                          <button
+                            type="button"
                             className={classes.underlineRemove}
                             onClick={handleOpenViewProduct}
                           >
                             Add
-                          </Link>
+                          </button>
                         )}
                       </Typography>
                       {viewProduct}

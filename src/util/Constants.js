@@ -23,6 +23,8 @@ export const taskList = [
 
 export const life = 10000
 
+export const admins = ['ADMIN']
+
 export let routes
 routes = {
   DEFAULT: '/commercial-webapp',

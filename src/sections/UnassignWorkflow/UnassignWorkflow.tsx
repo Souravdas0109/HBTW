@@ -100,7 +100,7 @@ function UnassignWorkflow(props: any) {
         requestorDetails: {
           emailId: userDetail && userDetail.userdetails[0].user.emailId,
           requestBy: userDetail && userDetail.userdetails[0].user.userId,
-          requestType: 'Assign',
+          requestType: 'complete',
           requestDate: new Date().toISOString().split('T')[0],
         },
         requestorRoles:

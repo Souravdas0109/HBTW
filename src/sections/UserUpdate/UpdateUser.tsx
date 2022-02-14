@@ -116,6 +116,7 @@ function UpdateUser(props: any) {
   )
   const [logDataIn, setLogDataIn] = React.useState({})
   const [isPageModified, setIsPageModified] = React.useState(false)
+  const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   //
   const focusRequestType = useRef<any>(null)
   const focusEmpId = useRef<any>(null)
@@ -1352,6 +1353,7 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           if (navigator.clipboard) {
             navigator.clipboard.writeText(res.data.requestId)
@@ -1437,6 +1439,7 @@ function UpdateUser(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err.response)
           // let statusCode = err.response.status
           // console.log(statusCode)
@@ -1589,6 +1592,7 @@ function UpdateUser(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
+          setIsSuccessCall(false)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           if (navigator.clipboard) {
             navigator.clipboard.writeText(res.data.requestId)
@@ -1671,6 +1675,7 @@ function UpdateUser(props: any) {
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
+          setIsSuccessCall(false)
           console.log(err)
           // let statusCode = err.response.status
           // console.log(statusCode)
@@ -2689,11 +2694,13 @@ function UpdateUser(props: any) {
       <LoadingComponent showLoader={isProgressLoader} />
     </Box>
   )
-
+  useEffect(() => {
+    console.log(isSuccessCall)
+  }, [isSuccessCall])
   return (
     <>
       <Prompt
-        when={isPageModified}
+        when={isPageModified && isSuccessCall}
         message={allMessages.success.promptMessage}
       />
       <Toast
