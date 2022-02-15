@@ -223,7 +223,7 @@ function PendingActionUpdate(props: any) {
           {
             severity: 'success',
             summary: '',
-            detail: `${returnText}.\n ${allMessages.success.successCopy}`,
+            detail: `${returnText}`,
             life: life,
             className: 'login-toast',
           },
@@ -261,7 +261,7 @@ function PendingActionUpdate(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
+                  detail: `${returnText}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -283,7 +283,7 @@ function PendingActionUpdate(props: any) {
                 {
                   severity: 'success',
                   summary: '',
-                  detail: `${returnText}.\n ${allMessages.success.successCopy}`,
+                  detail: `${returnText}`,
                   life: life,
                   className: 'login-toast',
                 },
@@ -1342,14 +1342,8 @@ function PendingActionUpdate(props: any) {
   }
 
   const handleUpdateUserforApprove = () => {
-    // e.preventDefault()
     setIsProgressLoader(true)
     setDisabled(true)
-    // const colleague: any =
-    //   colleagueData && constants.getColleagueDetails(colleagueData)
-    // const colleaguestring =
-    //   colleagueData &&
-    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
     const formData = {
       camunda: {
         submitFlag: 'Approved',
@@ -1396,19 +1390,6 @@ function PendingActionUpdate(props: any) {
           })
         : [],
     }
-    console.log(formData)
-
-    // axios
-    //   .put(
-    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Cache-Control": "no-cache",
-    //         Authorization: `Bearer ${accessToken.access_token}`,
-    //       },
-    //     }
-    //   )
     setReturnText('')
     userDetail &&
       putUserDetailsCamundaAPI(formData)
@@ -1418,12 +1399,6 @@ function PendingActionUpdate(props: any) {
           if (navigator.clipboard) {
             navigator.clipboard.writeText(res.data.requestId)
           }
-          // else {
-          //   ;(window as any).clipboardData.setData(
-          //     'text/plain',
-          //     res.data.requestId
-          //   )
-          // }
           const rolelog =
             userDetail &&
             userDetail.userdetails[0].roles
@@ -1467,17 +1442,6 @@ function PendingActionUpdate(props: any) {
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
-                    // toast.current.show({
-                    //   severity: 'error',
-                    //   summary: 'Error!',
-                    //   // detail: `${err.response.status} from tasklistapi`,
-                    //   detail: err.response.data.errorMessage,
-                    //   // detail: `${err.data.errorMessage} ${statusCode}`,
-                    //   life: life,
-                    //   className: 'login-toast',
-                    // })
-                    // logData.attachmentUrl = null
-                    // postTasklog(logData)
                   })
               return null
             })
@@ -1486,23 +1450,11 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          // toast.current.show({
-          //   severity: 'success',
-          //   summary: '',
-          //   detail: res.data.comments,
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-
-          // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
           console.log(err.response)
-          // let statusCode = err.response.status
-          // console.log(statusCode)
-          // alert(err)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
@@ -1514,230 +1466,82 @@ function PendingActionUpdate(props: any) {
           })
           //history.push('/commercial-webapp/dashboard')
         })
-
-    // const formDataforAttachment: any = {
-    //   requestId: 'SYSTCS175',
-    //   timestamp: '2021-12-12',
-    //   userId: employeeID,
-    //   role: 'ADMIN',
-    //   camundaRequestId: 'C1234567',
-    //   actionTaken: 'New',
-    //   comments: comments,
-    // }
-
-    // const formdata = new FormData()
-    // formdata.append('fileIn', referenceDocData)
-    // formdata.append(
-    //   'postData',
-    //   new Blob([JSON.stringify(formDataforAttachment)], {
-    //     type: 'application/json',
-    //   })
-    // )
-
-    // //start
-    // // axios
-    // //   .post(
-    // //     `https://dev-api.morrisons.com/commercial-user/v1/tasklogs?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    // //     formdata,
-    // //     {
-    // //       headers: {
-    // //         "Cache-Control": "no-cache",
-    // //         Authorization: `Bearer ${accessToken.access_token}`,
-    // //         "content-type": "application/json",
-    // //       },
-    // //     }
-    // //   )
-    // postTaskLogsAPI(formData)
-    //   .then((res) => {
-    //     console.log(res)
-    //     let statusCode = res.status
-    //     if (statusCode === 200) {
-    //       toast.current.show({
-    //         severity: 'success',
-    //         summary: '',
-    //         detail: res.data.message,
-    //         life: 6000,
-    //         className: 'login-toast',
-    //       })
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err.response)
-    //     let statusCode = err.response.status
-    //     console.log(statusCode)
-    //     // alert(err)
-    //     toast.current.show({
-    //       severity: 'error',
-    //       summary: 'Error!',
-    //       detail: `${err.response.data.errorMessage} ${statusCode}`,
-    //       life: 6000,
-    //       className: 'login-toast',
-    //     })
-    //   })
   }
 
   const handleUpdateUserforSubmit = () => {
-    // e.preventDefault()
     setDisabled(true)
     setIsProgressLoader(true)
-    // const colleague: any =
-    //   colleagueData && constants.getColleagueDetails(colleagueData)
-    // const colleaguestring =
-    //   colleagueData &&
-    //   `${colleague[0].managerId}#!#${colleague[0].managerName}#!#${colleague[0].managersManagerId}#!#${colleague[0].hiringmanager}#!#${colleague[0].leavingDate}#!#${colleague[0].businessUnit}#!#${colleague[0].locationName}#!#${colleague[0].division}`
     const formData = {
-      camunda: {
-        submitFlag: 'Submit',
-        requestorDetails: {
-          emailId: userDetail && userDetail.userdetails[0].user.emailId,
-          requestBy: userDetail && userDetail.userdetails[0].user.userId,
-          requestDate: new Date().toISOString().split('T')[0],
-          // requestedDate: new Date().toISOString().split('T')[0],
-          requestType: requestType,
-        },
-        requestorRoles:
-          userDetail &&
-          userDetail.userdetails[0].roles.map((role: any) => {
-            return {
-              roleId: role.roleId,
-            }
-          }),
+      requestorDetails: {
+        emailId: userDetail && userDetail.userdetails[0].user.emailId,
+        requestBy: userDetail && userDetail.userdetails[0].user.userId,
+        requestDate: new Date().toISOString().split('T')[0],
+        requestType: 'Approve',
       },
-      user: {
-        employeeId: employeeID,
-        // EmployeeId: employeeID,
-        firstName: firstName,
-        middleName: middleName,
-        lastName: lastName,
-        emailId: email,
-        additionalInfo: '',
-        // colleagueData !== '' ? colleaguestring : additionalInfo,
-        designation: designation.toUpperCase(),
-        status: status,
-      },
-      roles: roleNames
-        ? roleNames.map((role: any) => {
-            return {
-              roleId: role.value,
-            }
-          })
-        : [],
-      usergroups: groups
-        ? groups.map((group: any) => {
-            return {
-              groupId: group.value,
-              status: group.status,
-            }
-          })
-        : [],
+      requestorRoles:
+        userDetail &&
+        userDetail.userdetails[0].roles.map((role: any) => {
+          return {
+            roleId: role.roleId,
+          }
+        }),
     }
-    console.log(formData)
-
-    // axios
-    //   .put(
-    //     `https://dev-api.morrisons.com/commercial-workflow/v1/users/userdetails/${employeeID}?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    //     formData,
-    //     {
-    //       headers: {
-    //         "Cache-Control": "no-cache",
-    //         Authorization: `Bearer ${accessToken.access_token}`,
-    //       },
-    //     }
-    //   )
     setReturnText('')
-    userDetail &&
-      putUserDetailsCamundaAPI &&
-      putUserDetailsCamundaAPI(formData)
+    pendingActionDetails &&
+      putCompleteTaskAPI &&
+      putCompleteTaskAPI(formData, pendingActionDetails[0].taskId)
         .then((res) => {
           console.log(res)
-          // setIsSuccessCall(false)
-          setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(res.data.requestId)
+          setIsSuccessCall(false)
+          setReturnText(res.data.status)
+          const rolelog =
+            userDetail &&
+            userDetail.userdetails[0].roles
+              .map((role: any) => role.roleId)
+              .join(',')
+          const time = new Date().toISOString()
+          const datepart = time.split('T')[0]
+          const timepart = time.split('T')[1].split('.')[0]
+          const logData = {
+            // requestId: userDetail && userDetail.userdetails[0].user.userId,
+            requestId: pendingActionDetails[0].requestId,
+            // timestamp: `${datepart} ${timepart}`,
+            timestamp: `${datepart}`,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            role: rolelog,
+            camundaRequestId: pendingActionDetails[0].businessKey,
+            actionTaken: 'Submitted',
+            comments: comments,
+            attachmentUrl: null,
           }
-          const formData2 = {
-            requestorDetails: {
-              emailId: userDetail && userDetail.userdetails[0].user.emailId,
-              requestBy: userDetail && userDetail.userdetails[0].user.userId,
-              requestDate: new Date().toISOString().split('T')[0],
-              requestType: 'Approve',
-            },
-            requestorRoles:
+          setLogDataIn({ ...logData })
+          if (referenceDocData.length > 0) {
+            setFailureCount(referenceDocData.length)
+            setCheckCount(referenceDocData.length)
+            referenceDocData.map((rf) => {
+              const formdata1 = new FormData()
+              formdata1.append('fileIn', rf.data)
               userDetail &&
-              userDetail.userdetails[0].roles.map((role: any) => {
-                return {
-                  roleId: role.roleId,
-                }
-              }),
-          }
-          pendingActionDetails &&
-            putCompleteTaskAPI &&
-            putCompleteTaskAPI(formData2, pendingActionDetails[0].taskId)
-              .then((res: any) => {
-                setIsSuccessCall(false)
-                const rolelog =
-                  userDetail &&
-                  userDetail.userdetails[0].roles
-                    .map((role: any) => role.roleId)
-                    .join(',')
-                const time = new Date().toISOString()
-                const datepart = time.split('T')[0]
-                const timepart = time.split('T')[1].split('.')[0]
-                const logData = {
-                  // requestId: userDetail && userDetail.userdetails[0].user.userId,
-                  requestId: res.data.requestId,
-                  // timestamp: `${datepart} ${timepart}`,
-                  timestamp: `${datepart}`,
-                  userId: userDetail && userDetail.userdetails[0].user.userId,
-                  role: rolelog,
-                  camundaRequestId: res.data.businessKey
-                    ? res.data.businessKey
-                    : '',
-                  actionTaken: 'Submitted',
-                  comments: comments,
-                  attachmentUrl: null,
-                }
-                setLogDataIn({ ...logData })
-                if (referenceDocData.length > 0) {
-                  setFailureCount(referenceDocData.length)
-                  setCheckCount(referenceDocData.length)
-                  referenceDocData.map((rf) => {
-                    const formdata1 = new FormData()
-                    formdata1.append('fileIn', rf.data)
-                    userDetail &&
-                      postFileAttachmentAPI &&
-                      postFileAttachmentAPI(formdata1, employeeID)
-                        .then((res) => {
-                          setAttachmentUrlArr((prevState) => [
-                            ...prevState,
-                            res.data.attachmentUrl,
-                          ])
-                          setFailureCount((prevState) => prevState - 1)
-                          setCheckCount((prevState) => prevState - 1)
-                        })
-                        .catch((err) => {
-                          setCheckCount((prevState) => prevState - 1)
-                        })
-                    return null
+                postFileAttachmentAPI &&
+                postFileAttachmentAPI(formdata1, employeeID)
+                  .then((res) => {
+                    setAttachmentUrlArr((prevState) => [
+                      ...prevState,
+                      res.data.attachmentUrl,
+                    ])
+                    setFailureCount((prevState) => prevState - 1)
+                    setCheckCount((prevState) => prevState - 1)
                   })
-                } else {
-                  setFailureCount(1)
-                  setCheckCount(1)
-                  postTasklog(logData)
-                }
-              })
-              .catch((err: any) => {
-                setDisabled(false)
-                setIsProgressLoader(false)
-                setIsSuccessCall(false)
-                toast.current.show({
-                  severity: 'error',
-                  summary: 'Error!',
-                  detail: `${err.response.data.errorMessage} while Submitting request`,
-                  life: life,
-                  className: 'login-toast',
-                })
-              })
+                  .catch((err) => {
+                    setCheckCount((prevState) => prevState - 1)
+                  })
+              return null
+            })
+          } else {
+            setFailureCount(1)
+            setCheckCount(1)
+            postTasklog(logData)
+          }
         })
         .catch((err) => {
           setDisabled(false)
@@ -1755,67 +1559,8 @@ function PendingActionUpdate(props: any) {
           })
           //history.push('/commercial-webapp/dashboard')
         })
-
-    // const formDataforAttachment: any = {
-    //   requestId: 'SYSTCS175',
-    //   timestamp: '2021-12-12',
-    //   userId: employeeID,
-    //   role: 'ADMIN',
-    //   camundaRequestId: 'C1234567',
-    //   actionTaken: 'New',
-    //   comments: comments,
-    // }
-
-    // const formdata = new FormData()
-    // formdata.append('fileIn', referenceDocData)
-    // formdata.append(
-    //   'postData',
-    //   new Blob([JSON.stringify(formDataforAttachment)], {
-    //     type: 'application/json',
-    //   })
-    // )
-
-    // //start
-    // // axios
-    // //   .post(
-    // //     `https://dev-api.morrisons.com/commercial-user/v1/tasklogs?apikey=vqaiDRZzSQhA6CPAy0rSotsQAkRepprX`,
-    // //     formdata,
-    // //     {
-    // //       headers: {
-    // //         "Cache-Control": "no-cache",
-    // //         Authorization: `Bearer ${accessToken.access_token}`,
-    // //         "content-type": "application/json",
-    // //       },
-    // //     }
-    // //   )
-    // postTaskLogsAPI(formData)
-    //   .then((res) => {
-    //     console.log(res)
-    //     let statusCode = res.status
-    //     if (statusCode === 200) {
-    //       toast.current.show({
-    //         severity: 'success',
-    //         summary: '',
-    //         detail: res.data.message,
-    //         life: 6000,
-    //         className: 'login-toast',
-    //       })
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err.response)
-    //     let statusCode = err.response.status
-    //     console.log(statusCode)
-    //     // alert(err)
-    //     toast.current.show({
-    //       severity: 'error',
-    //       summary: 'Error!',
-    //       detail: `${err.response.data.errorMessage} ${statusCode}`,
-    //       life: 6000,
-    //       className: 'login-toast',
-    //     })
-    //   })
   }
+
   const handleApprove = () => {
     setDisabled(true)
     setIsProgressLoader(true)
@@ -1834,7 +1579,6 @@ function PendingActionUpdate(props: any) {
           }
         }),
     }
-    console.log(formData)
     setReturnText('')
     pendingActionDetails &&
       putCompleteTaskAPI &&
@@ -1885,15 +1629,6 @@ function PendingActionUpdate(props: any) {
                   })
                   .catch((err) => {
                     setCheckCount((prevState) => prevState - 1)
-                    // toast.current.show({
-                    //   severity: 'error',
-                    //   summary: 'Error!',
-                    //   //detail: `${err.response.status} from tasklistapi`,
-                    //   detail: err.response.data.errorMessage,
-                    //   // detail: `${err.data.errorMessage} ${statusCode}`,
-                    //   life: life,
-                    //   className: 'login-toast',
-                    // })
                   })
               return null
             })
@@ -1902,16 +1637,6 @@ function PendingActionUpdate(props: any) {
             setCheckCount(1)
             postTasklog(logData)
           }
-          // toast.current.show({
-          //   severity: 'success',
-          //   summary: '',
-          //   detail: res.data.status,
-          //   // detail: 'Success',
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-
-          // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
         })
         .catch((err) => {
           setDisabled(false)
@@ -2001,7 +1726,7 @@ function PendingActionUpdate(props: any) {
                   userId: userDetail && userDetail.userdetails[0].user.userId,
                   role: rolelog,
                   camundaRequestId: pendingActionDetails[0].businessKey,
-                  actionTaken: 'Reassign',
+                  actionTaken: 'Reassigned',
                   comments: comments,
                   attachmentUrl: null,
                 }
@@ -2130,7 +1855,7 @@ function PendingActionUpdate(props: any) {
                   userId: userDetail && userDetail.userdetails[0].user.userId,
                   role: rolelog,
                   camundaRequestId: pendingActionDetails[0].businessKey,
-                  actionTaken: 'Reject',
+                  actionTaken: 'Rejected',
                   comments: comments,
                   attachmentUrl: null,
                 }
