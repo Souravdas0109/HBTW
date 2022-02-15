@@ -1650,94 +1650,100 @@ function PendingActionUpdate(props: any) {
       putUserDetailsCamundaAPI(formData)
         .then((res) => {
           console.log(res)
-          setIsSuccessCall(false)
+          // setIsSuccessCall(false)
           setReturnText(`${res.data.comments} with ID ${res.data.requestId}`)
           if (navigator.clipboard) {
             navigator.clipboard.writeText(res.data.requestId)
           }
-          // else {
-          //   ;(window as any).clipboardData.setData(
-          //     'text/plain',
-          //     res.data.requestId
-          //   )
-          // }
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: res.data.requestId,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: res.data.businessKey ? res.data.businessKey : '',
-            actionTaken: 'Submitted',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          setLogDataIn({ ...logData })
-          if (referenceDocData.length > 0) {
-            setFailureCount(referenceDocData.length)
-            setCheckCount(referenceDocData.length)
-            referenceDocData.map((rf) => {
-              const formdata1 = new FormData()
-              formdata1.append('fileIn', rf.data)
+          const formData2 = {
+            requestorDetails: {
+              emailId: userDetail && userDetail.userdetails[0].user.emailId,
+              requestBy: userDetail && userDetail.userdetails[0].user.userId,
+              requestDate: new Date().toISOString().split('T')[0],
+              requestType: 'Approve',
+            },
+            requestorRoles:
               userDetail &&
-                postFileAttachmentAPI &&
-                postFileAttachmentAPI(formdata1, employeeID)
-                  .then((res) => {
-                    // logData.attachmentUrl = res.data.attachmentUrl
-                    setAttachmentUrlArr((prevState) => [
-                      ...prevState,
-                      res.data.attachmentUrl,
-                    ])
-                    setFailureCount((prevState) => prevState - 1)
-                    setCheckCount((prevState) => prevState - 1)
-                    // postTasklog(logData)
-                  })
-                  .catch((err) => {
-                    setCheckCount((prevState) => prevState - 1)
-                    // toast.current.show({
-                    //   severity: 'error',
-                    //   summary: 'Error!',
-                    //   // detail: `${err.response.status} from tasklistapi`,
-                    //   detail: err.response.data.errorMessage,
-                    //   // detail: `${err.data.errorMessage} ${statusCode}`,
-                    //   life: life,
-                    //   className: 'login-toast',
-                    // })
-                  })
-              return null
-            })
-          } else {
-            setFailureCount(1)
-            setCheckCount(1)
-            postTasklog(logData)
+              userDetail.userdetails[0].roles.map((role: any) => {
+                return {
+                  roleId: role.roleId,
+                }
+              }),
           }
-          // toast.current.show({
-          //   severity: 'success',
-          //   summary: '',
-          //   detail: res.data.comments,
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-
-          // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          pendingActionDetails &&
+            putCompleteTaskAPI &&
+            putCompleteTaskAPI(formData2, pendingActionDetails[0].taskId)
+              .then((res: any) => {
+                setIsSuccessCall(false)
+                const rolelog =
+                  userDetail &&
+                  userDetail.userdetails[0].roles
+                    .map((role: any) => role.roleId)
+                    .join(',')
+                const time = new Date().toISOString()
+                const datepart = time.split('T')[0]
+                const timepart = time.split('T')[1].split('.')[0]
+                const logData = {
+                  // requestId: userDetail && userDetail.userdetails[0].user.userId,
+                  requestId: res.data.requestId,
+                  // timestamp: `${datepart} ${timepart}`,
+                  timestamp: `${datepart}`,
+                  userId: userDetail && userDetail.userdetails[0].user.userId,
+                  role: rolelog,
+                  camundaRequestId: res.data.businessKey
+                    ? res.data.businessKey
+                    : '',
+                  actionTaken: 'Submitted',
+                  comments: comments,
+                  attachmentUrl: null,
+                }
+                setLogDataIn({ ...logData })
+                if (referenceDocData.length > 0) {
+                  setFailureCount(referenceDocData.length)
+                  setCheckCount(referenceDocData.length)
+                  referenceDocData.map((rf) => {
+                    const formdata1 = new FormData()
+                    formdata1.append('fileIn', rf.data)
+                    userDetail &&
+                      postFileAttachmentAPI &&
+                      postFileAttachmentAPI(formdata1, employeeID)
+                        .then((res) => {
+                          setAttachmentUrlArr((prevState) => [
+                            ...prevState,
+                            res.data.attachmentUrl,
+                          ])
+                          setFailureCount((prevState) => prevState - 1)
+                          setCheckCount((prevState) => prevState - 1)
+                        })
+                        .catch((err) => {
+                          setCheckCount((prevState) => prevState - 1)
+                        })
+                    return null
+                  })
+                } else {
+                  setFailureCount(1)
+                  setCheckCount(1)
+                  postTasklog(logData)
+                }
+              })
+              .catch((err: any) => {
+                setDisabled(false)
+                setIsProgressLoader(false)
+                setIsSuccessCall(false)
+                toast.current.show({
+                  severity: 'error',
+                  summary: 'Error!',
+                  detail: `${err.response.data.errorMessage} while Submitting request`,
+                  life: life,
+                  className: 'login-toast',
+                })
+              })
         })
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
           setIsSuccessCall(false)
           console.log(err.response)
-          // let statusCode = err.response.status
-          // console.log(statusCode)
-          // alert(err)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
@@ -1956,94 +1962,95 @@ function PendingActionUpdate(props: any) {
         // putClaimTaskAPI(formData, `${pendingActionDetails[0].taskId}moreinfo`)
         .then((res) => {
           console.log(res)
-          setIsSuccessCall(false)
+          // setIsSuccessCall(false)
           setReturnText(res.data.comments)
-          // if (res.data.status.toLowerCase() !== 'failed') {
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: pendingActionDetails[0].requestId,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: pendingActionDetails[0].businessKey,
-            actionTaken: 'Reassign',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          setLogDataIn({ ...logData })
-          if (referenceDocData.length > 0) {
-            setFailureCount(referenceDocData.length)
-            setCheckCount(referenceDocData.length)
-            referenceDocData.map((rf) => {
-              const formdata1 = new FormData()
-              formdata1.append('fileIn', rf.data)
+          const formData2 = {
+            requestorDetails: {
+              emailId: userDetail && userDetail.userdetails[0].user.emailId,
+              requestBy: userDetail && userDetail.userdetails[0].user.userId,
+              requestDate: new Date().toISOString().split('T')[0],
+              requestType: 'Approve',
+            },
+            requestorRoles:
               userDetail &&
-                postFileAttachmentAPI &&
-                postFileAttachmentAPI(formdata1, employeeID)
-                  .then((res) => {
-                    // logData.attachmentUrl = res.data.attachmentUrl
-                    setAttachmentUrlArr((prevState) => [
-                      ...prevState,
-                      res.data.attachmentUrl,
-                    ])
-                    setFailureCount((prevState) => prevState - 1)
-                    setCheckCount((prevState) => prevState - 1)
-                    // postTasklog(logData)
-                  })
-                  .catch((err) => {
-                    setCheckCount((prevState) => prevState - 1)
-                    // toast.current.show({
-                    //   severity: 'error',
-                    //   summary: 'Error!',
-                    //   // detail: `${err.response.status} from tasklistapi`,
-                    //   detail: err.response.data.errorMessage,
-                    //   // detail: `${err.data.errorMessage} ${statusCode}`,
-                    //   life: life,
-                    //   className: 'login-toast',
-                    // })
-                  })
-              return null
-            })
-          } else {
-            setFailureCount(1)
-            setCheckCount(1)
-            postTasklog(logData)
+              userDetail.userdetails[0].roles.map((role: any) => {
+                return {
+                  roleId: role.roleId,
+                }
+              }),
           }
-          // toast.current.show({
-          //   severity: 'success',
-          //   summary: '',
-          //   detail: res.data.comments,
-          //   // detail: 'Success',
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-
-          // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
-          // } else {
-          //   toast.current.show({
-          //     severity: 'error',
-          //     summary: 'Error!',
-          //     detail: `${res.data.comments}`,
-          //     // detail: `${err.response.data.errorMessage} ${statusCode}`,
-          //     life: 6000,
-          //     className: 'login-toast',
-          //   })
-          // }
+          pendingActionDetails &&
+            putCompleteTaskAPI &&
+            putCompleteTaskAPI(formData2, pendingActionDetails[0].taskId)
+              .then((res: any) => {
+                setIsSuccessCall(false)
+                // setReturnText(res.data.comments)
+                const rolelog =
+                  userDetail &&
+                  userDetail.userdetails[0].roles
+                    .map((role: any) => role.roleId)
+                    .join(',')
+                const time = new Date().toISOString()
+                const datepart = time.split('T')[0]
+                const timepart = time.split('T')[1].split('.')[0]
+                const logData = {
+                  // requestId: userDetail && userDetail.userdetails[0].user.userId,
+                  requestId: pendingActionDetails[0].requestId,
+                  // timestamp: `${datepart} ${timepart}`,
+                  timestamp: `${datepart}`,
+                  userId: userDetail && userDetail.userdetails[0].user.userId,
+                  role: rolelog,
+                  camundaRequestId: pendingActionDetails[0].businessKey,
+                  actionTaken: 'Reassign',
+                  comments: comments,
+                  attachmentUrl: null,
+                }
+                setLogDataIn({ ...logData })
+                if (referenceDocData.length > 0) {
+                  setFailureCount(referenceDocData.length)
+                  setCheckCount(referenceDocData.length)
+                  referenceDocData.map((rf) => {
+                    const formdata1 = new FormData()
+                    formdata1.append('fileIn', rf.data)
+                    userDetail &&
+                      postFileAttachmentAPI &&
+                      postFileAttachmentAPI(formdata1, employeeID)
+                        .then((res) => {
+                          setAttachmentUrlArr((prevState) => [
+                            ...prevState,
+                            res.data.attachmentUrl,
+                          ])
+                          setFailureCount((prevState) => prevState - 1)
+                          setCheckCount((prevState) => prevState - 1)
+                        })
+                        .catch((err) => {
+                          setCheckCount((prevState) => prevState - 1)
+                        })
+                    return null
+                  })
+                } else {
+                  setFailureCount(1)
+                  setCheckCount(1)
+                  postTasklog(logData)
+                }
+              })
+              .catch((err: any) => {
+                setDisabled(false)
+                setIsProgressLoader(false)
+                setIsSuccessCall(false)
+                toast.current.show({
+                  severity: 'error',
+                  summary: 'Error!',
+                  detail: `${err.response.data.errorMessage} while Reassigning task`,
+                  life: life,
+                  className: 'login-toast',
+                })
+              })
         })
         .catch((err) => {
           setDisabled(false)
           setIsProgressLoader(false)
           setIsSuccessCall(false)
-          console.log(err.response)
           toast.current.show({
             severity: 'error',
             summary: 'Error!',
@@ -2085,77 +2092,91 @@ function PendingActionUpdate(props: any) {
       putRejectTaskAPI(formData, pendingActionDetails[0].businessKey)
         .then((res) => {
           console.log(res)
-          setIsSuccessCall(false)
+          // setIsSuccessCall(false)
           setReturnText(res.data.status)
-          const rolelog =
-            userDetail &&
-            userDetail.userdetails[0].roles
-              .map((role: any) => role.roleId)
-              .join(',')
-          const time = new Date().toISOString()
-          const datepart = time.split('T')[0]
-          const timepart = time.split('T')[1].split('.')[0]
-          const logData = {
-            // requestId: userDetail && userDetail.userdetails[0].user.userId,
-            requestId: pendingActionDetails[0].requestId,
-            // timestamp: `${datepart} ${timepart}`,
-            timestamp: `${datepart}`,
-            userId: userDetail && userDetail.userdetails[0].user.userId,
-            role: rolelog,
-            camundaRequestId: pendingActionDetails[0].businessKey,
-            actionTaken: 'Reject',
-            comments: comments,
-            attachmentUrl: null,
-          }
-          setLogDataIn({ ...logData })
-          if (referenceDocData.length > 0) {
-            setFailureCount(referenceDocData.length)
-            setCheckCount(referenceDocData.length)
-            referenceDocData.map((rf) => {
-              const formdata1 = new FormData()
-              formdata1.append('fileIn', rf.data)
+          const formData2 = {
+            requestorDetails: {
+              emailId: userDetail && userDetail.userdetails[0].user.emailId,
+              requestBy: userDetail && userDetail.userdetails[0].user.userId,
+              requestDate: new Date().toISOString().split('T')[0],
+              requestType: 'Approve',
+            },
+            requestorRoles:
               userDetail &&
-                postFileAttachmentAPI &&
-                postFileAttachmentAPI(formdata1, employeeID)
-                  .then((res) => {
-                    // logData.attachmentUrl = res.data.attachmentUrl
-                    setAttachmentUrlArr((prevState) => [
-                      ...prevState,
-                      res.data.attachmentUrl,
-                    ])
-                    setFailureCount((prevState) => prevState - 1)
-                    setCheckCount((prevState) => prevState - 1)
-                    // postTasklog(logData)
-                  })
-                  .catch((err) => {
-                    setCheckCount((prevState) => prevState - 1)
-                    // toast.current.show({
-                    //   severity: 'error',
-                    //   summary: 'Error!',
-                    //   //detail: `${err.response.status} from tasklistapi`,
-                    //   detail: err.response.data.errorMessage,
-                    //   // detail: `${err.data.errorMessage} ${statusCode}`,
-                    //   life: life,
-                    //   className: 'login-toast',
-                    // })
-                  })
-              return null
-            })
-          } else {
-            setFailureCount(1)
-            setCheckCount(1)
-            postTasklog(logData)
+              userDetail.userdetails[0].roles.map((role: any) => {
+                return {
+                  roleId: role.roleId,
+                }
+              }),
           }
-          // toast.current.show({
-          //   severity: 'success',
-          //   summary: '',
-          //   //  detail: res.data.comments,
-          //   detail: 'Success',
-          //   life: life,
-          //   className: 'login-toast',
-          // })
-
-          // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), 6000)
+          pendingActionDetails &&
+            putCompleteTaskAPI &&
+            putCompleteTaskAPI(formData2, pendingActionDetails[0].taskId)
+              .then((res: any) => {
+                setIsSuccessCall(false)
+                const rolelog =
+                  userDetail &&
+                  userDetail.userdetails[0].roles
+                    .map((role: any) => role.roleId)
+                    .join(',')
+                const time = new Date().toISOString()
+                const datepart = time.split('T')[0]
+                const timepart = time.split('T')[1].split('.')[0]
+                const logData = {
+                  // requestId: userDetail && userDetail.userdetails[0].user.userId,
+                  requestId: pendingActionDetails[0].requestId,
+                  // timestamp: `${datepart} ${timepart}`,
+                  timestamp: `${datepart}`,
+                  userId: userDetail && userDetail.userdetails[0].user.userId,
+                  role: rolelog,
+                  camundaRequestId: pendingActionDetails[0].businessKey,
+                  actionTaken: 'Reject',
+                  comments: comments,
+                  attachmentUrl: null,
+                }
+                setLogDataIn({ ...logData })
+                if (referenceDocData.length > 0) {
+                  setFailureCount(referenceDocData.length)
+                  setCheckCount(referenceDocData.length)
+                  referenceDocData.map((rf) => {
+                    const formdata1 = new FormData()
+                    formdata1.append('fileIn', rf.data)
+                    userDetail &&
+                      postFileAttachmentAPI &&
+                      postFileAttachmentAPI(formdata1, employeeID)
+                        .then((res) => {
+                          // logData.attachmentUrl = res.data.attachmentUrl
+                          setAttachmentUrlArr((prevState) => [
+                            ...prevState,
+                            res.data.attachmentUrl,
+                          ])
+                          setFailureCount((prevState) => prevState - 1)
+                          setCheckCount((prevState) => prevState - 1)
+                          // postTasklog(logData)
+                        })
+                        .catch((err) => {
+                          setCheckCount((prevState) => prevState - 1)
+                        })
+                    return null
+                  })
+                } else {
+                  setFailureCount(1)
+                  setCheckCount(1)
+                  postTasklog(logData)
+                }
+              })
+              .catch((err: any) => {
+                setDisabled(false)
+                setIsProgressLoader(false)
+                setIsSuccessCall(false)
+                toast.current.show({
+                  severity: 'error',
+                  summary: 'Error!',
+                  detail: `${err.response.data.errorMessage} while Rejecting task`,
+                  life: life,
+                  className: 'login-toast',
+                })
+              })
         })
         .catch((err) => {
           setDisabled(false)

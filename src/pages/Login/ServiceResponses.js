@@ -20,11 +20,12 @@ export const ServiceResponses = {
         </div>
         <div>
           <span style={{ fontWeight: 'bold' }}>&#8226; Pending:</span> User can
-          see the list of task(s) which is not yet started.
+          see the list of task(s) which is assigned to and pending with them.
         </div>{' '}
         <div>
-          <span style={{ fontWeight: 'bold' }}>&#8226; In Progress:</span> User
-          can see the list of task(s) which is started but incomplete.
+          <span style={{ fontWeight: 'bold' }}>&#8226; Requested:</span> User
+          can see the list of task(s) which were initiated by the self but
+          incomplete.
         </div>{' '}
         <br />
         <div>
@@ -32,12 +33,13 @@ export const ServiceResponses = {
         </div>{' '}
         <div>
           <span style={{ fontWeight: 'bold' }}>&#8226; Pending:</span> User can
-          see the list of task(s) which is pending by self and/or others from
-          the same group.
+          see the list of task(s) which is assigned to and pending with self
+          and/or others from the same group.
         </div>{' '}
         <div>
           <span style={{ fontWeight: 'bold' }}>&#8226; Unassigned:</span> User
-          can see the list of task(s) which is yet to be assigned.
+          can see the list of task(s) which is yet to be assigned but are
+          pending with the same User Group and Role.
         </div>
       </div>
     ),
