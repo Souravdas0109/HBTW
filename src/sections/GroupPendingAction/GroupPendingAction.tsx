@@ -272,7 +272,7 @@ function GroupPendingAction(props: any) {
                         // body={
                         //   column.field === 'requestedId' && requestIdTemplate
                         // }
-                        // sortable
+                        sortable
                       />
                     )
                   })}

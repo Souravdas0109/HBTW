@@ -1477,7 +1477,7 @@ export const pendingStatusDetails = {
       ],
     },
     {
-      details: 'myInProgressTasks',
+      details: 'myRequestedTasks',
       count: '1',
       tasks: [
         {

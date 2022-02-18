@@ -40,9 +40,10 @@ export const pendingActionTableHeaders = [
     width: 100,
   },
   {
-    field: 'assignedTimeStamp',
+    // field: 'assignedTimeStamp',
+    field: 'requestTimestamp',
     headerName: 'timestamp',
-    width: 100,
+    width: 150,
   },
   {
     field: 'requestorFullName',
@@ -59,11 +60,11 @@ export const pendingActionTableHeaders = [
     headerName: 'Action',
     width: 200,
   },
-  {
-    field: 'comments',
-    headerName: 'Comments',
-    width: 200,
-  },
+  // {
+  //   field: 'comments',
+  //   headerName: 'Comments',
+  //   width: 200,
+  // },
   {
     field: 'userFirstName',
     headerName: 'First Name',

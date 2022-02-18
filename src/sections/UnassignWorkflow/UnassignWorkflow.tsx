@@ -275,7 +275,7 @@ function UnassignWorkflow(props: any) {
                         // body={
                         //   column.field === 'requestedId' && requestIdTemplate
                         // }
-                        // sortable
+                        sortable
                       />
                     )
                   })}
