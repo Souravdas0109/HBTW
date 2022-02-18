@@ -20,10 +20,12 @@ export const allMessages = {
     logFailureAttach: 'files failed to upload due to service error',
     noGroupName: 'Please provide Group Name',
     invalidExtension:
-      'Empty Files and,or Files with invalid extensions omitted.',
+      'Empty Files or FileSize > 5MB or Files with invalid extensions omitted.',
     errorAssign: 'tasks failed to assign due to service error',
     errorGroupDelInac:
       'Cannot Inactive/Delete groups which are already assigned to existing users',
+    errorReassign:
+      'Cannot reassign in case of user with status Inactive/Deleted',
   },
   success: {
     successPost: 'Log posted successfully',

@@ -374,8 +374,9 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
             'i'
           ).test(event.target.files[i].name)
         : false
+      const fileSize = event.target.files[i].size / 1024 / 1024
       if (
-        (!checkextension || event.target.files[i].size === 0) &&
+        (!checkextension || event.target.files[i].size === 0 || fileSize > 5) &&
         event.target.files[i]
       ) {
         setWrongExtn(true)
@@ -383,7 +384,8 @@ function UserCreate({ rolesArray, appFuncList, userDetail }: any) {
       if (
         event.target.files[i] &&
         checkextension &&
-        event.target.files[i].size !== 0
+        event.target.files[i].size !== 0 &&
+        fileSize <= 5
       ) {
         // let reader = new FileReader();
         // reader.readAsDataURL(event.target.files[0]);
