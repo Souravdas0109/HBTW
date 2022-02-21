@@ -25,7 +25,7 @@ export const allMessages = {
     errorGroupDelInac:
       'Cannot Inactive/Delete groups which are already assigned to existing users',
     errorReassign:
-      'Cannot reassign in case of user with status Inactive/Deleted',
+      'Cannot reassign in case the status of requestor is Inactive/Deleted',
   },
   success: {
     successPost: 'Log posted successfully',

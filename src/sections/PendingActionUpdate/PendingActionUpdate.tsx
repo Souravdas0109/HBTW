@@ -33,6 +33,7 @@ import {
   putRejectTaskAPI,
   putClaimTaskAPI,
   putCompleteTaskAPI,
+  getUserIdAPI,
 } from '../../api/Fetch'
 import { UtilityFunctions } from '../../util/UtilityFunctions'
 import { constants } from '../UserCreate/DataConstants'
@@ -101,6 +102,7 @@ function PendingActionUpdate(props: any) {
   const [additionalInfo, setAdditionalInfo] = React.useState('')
   const [openAdditional, setOpenAdditional] = React.useState(false)
   const [colleagueData, setColleagueData] = React.useState('')
+  const [errorReassign, setErrorReassign] = React.useState('')
   const [errorRequestType, setErrorRequestType] = React.useState('')
   const [errorEmployeeId, setErrorEmployeeId] = React.useState('')
   const [errorStatus, setErrorStatus] = React.useState('')
@@ -141,6 +143,7 @@ function PendingActionUpdate(props: any) {
   //
 
   useEffect(() => {
+    setErrorReassign('')
     return () => reset_pendingAction()
   }, [])
 
@@ -1319,30 +1322,33 @@ function PendingActionUpdate(props: any) {
       setErrorGroups(allMessages.error.noGroups)
       flag = 0
     }
-    if ((status === 'D' || status === 'I') && btnName === 'reassign') {
-      focusStatus.current.focus()
-      setErrorStatus(allMessages.error.errorReassign)
-      flag = 0
-    } else if ((status === 'D' || status === 'I') && btnName === 'approve') {
-      setErrorStatus('')
-      flag = 1
-    } else if ((status === 'D' || status === 'I') && btnName === 'submit') {
-      setErrorStatus('')
-      flag = 1
-    } else if ((status === 'D' || status === 'I') && btnName === 'reject') {
-      setErrorStatus('')
-      flag = 1
+    if (btnName === 'reassign') {
+      setIsProgressLoader(true)
+      setDisabled(true)
+      requestorUserId &&
+        getUserIdAPI &&
+        getUserIdAPI(requestorUserId)
+          .then((res: any) => {
+            setErrorReassign(allMessages.error.errorReassign)
+            setIsProgressLoader(false)
+            setDisabled(false)
+            window.scrollTo(0, 0)
+          })
+          .catch((err: any) => {
+            setErrorReassign('')
+            setIsProgressLoader(false)
+            setDisabled(false)
+            setCancelOpenReassign(true)
+          })
     }
     if (flag === 1 && btnName === 'approve') {
       setCancelOpenApprove(true)
     } else if (flag === 1 && btnName === 'submit') {
       setCancelOpenSubmit(true)
-    } else if (flag === 1 && btnName === 'reassign') {
-      setCancelOpenReassign(true)
     } else if (flag === 1 && btnName === 'reject') {
       setCancelOpenReject(true)
     }
-    if (flag === 0) {
+    if (flag === 0 && btnName !== 'reassign') {
       window.scrollTo(0, 0)
     }
   }
@@ -2205,6 +2211,16 @@ function PendingActionUpdate(props: any) {
             )}
           </Box>
         </Box>
+        {errorReassign !== '' && (
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}></Box>
+            <Box className={classes.inputFieldBox} justifyContent="center">
+              <Typography variant="subtitle2" color="error">
+                {errorReassign}
+              </Typography>
+            </Box>
+          </Box>
+        )}
         <Box
           sx={{
             display: 'flex',

@@ -42,7 +42,7 @@ export const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.primary.main,
     fontSize: '18px',
     '&:hover': {
-      color: 'yellow',
+      color: theme.palette.secondary.main,
       backgroundColor: 'green',
       cursor: 'pointer',
     },

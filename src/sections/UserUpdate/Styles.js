@@ -123,7 +123,8 @@ export const useStyles = makeStyles((theme) => {
       // height: 40,
       display: 'inline',
       '&:hover': {
-        fontSize: 'large',
+        // fontSize: 'large',
+        color: theme.palette.secondary.main,
       },
       marginBottom: '10px',
       marginRight: '10px',
@@ -134,7 +135,8 @@ export const useStyles = makeStyles((theme) => {
       borderColor: theme.palette.primary.main,
       // height: 40,
       '&:hover': {
-        fontSize: 'large',
+        // fontSize: 'large',
+        color: theme.palette.secondary.main,
       },
       marginBottom: '10px',
       marginRight: '10px',
@@ -204,7 +206,7 @@ export const useStyles = makeStyles((theme) => {
       backgroundColor: theme.palette.primary.main,
       fontSize: '18px',
       '&:hover': {
-        color: 'yellow',
+        color: theme.palette.secondary.main,
         backgroundColor: 'green',
         cursor: 'pointer',
       },
