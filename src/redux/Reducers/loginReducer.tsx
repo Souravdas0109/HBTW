@@ -37,6 +37,7 @@ const initLoginState = {
   appFuncList: undefined,
   isTokenExpired: false,
   value: 1,
+  logoutClicked: false,
 }
 
 const loginReducer = (state = initLoginState, action: any) => {
@@ -50,6 +51,7 @@ const loginReducer = (state = initLoginState, action: any) => {
         errorMessage: '',
         error: false,
         isTokenExpired: false,
+        logoutClicked: false,
       }
     case LOGIN_USER_FAILURE:
       return {
@@ -57,6 +59,7 @@ const loginReducer = (state = initLoginState, action: any) => {
         isLoading: false,
         error: true,
         errorMessage: payload,
+        logoutClicked: false,
       }
     case LOGIN_USER_SUCCESS:
       return {
@@ -65,6 +68,7 @@ const loginReducer = (state = initLoginState, action: any) => {
         user: payload,
         error: false,
         value: 0,
+        logoutClicked: false,
       }
     case GET_USER_REQUEST:
       return {
@@ -81,6 +85,7 @@ const loginReducer = (state = initLoginState, action: any) => {
         user: undefined,
         error: false,
         errorMessage: '',
+        logoutClicked: true,
       }
     case GET_USER_SUCCESS:
       return {

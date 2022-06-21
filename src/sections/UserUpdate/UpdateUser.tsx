@@ -6,10 +6,13 @@ import {
   useTheme,
   useMediaQuery,
   Paper,
+  OutlinedInput,
   Grid,
 } from '@material-ui/core'
 import { styled } from '@material-ui/styles'
-import React, { useRef } from 'react'
+import { DatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers'
+import DateFnsUtils from '@date-io/date-fns'
+import React, { useRef, useState } from 'react'
 import { useHistory, Prompt } from 'react-router-dom'
 // import SideBar from '../Layout/SideBar'
 import Select from 'react-select'
@@ -46,6 +49,7 @@ import { routes, extensions, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../util/Messages'
+import { admins } from '../../util/Constants'
 
 const Input = styled('input')({
   display: 'none',
@@ -82,9 +86,9 @@ function UpdateUser(props: any) {
   const [roleAccess, setRoleAccess] = React.useState('')
   const [groupAccess, setGroupAccess] = React.useState('')
   const [groupData, setGroupData] = React.useState<Array<any>>([])
-  const [groups, setGroups] = React.useState([])
+  // const [groups, setGroups] = React.useState([])
   const [groupInput, setGroupInput] = React.useState([])
-  const [groupOpen, setGroupOpen] = React.useState(false)
+  // const [groupOpen, setGroupOpen] = React.useState(false)
   const [cancelOpenApprove, setCancelOpenApprove] = React.useState(false)
   const [cancelOpenSubmit, setCancelOpenSubmit] = React.useState(false)
   const [back, setBack] = React.useState(false)
@@ -123,6 +127,11 @@ function UpdateUser(props: any) {
   const focusStatus = useRef<any>(null)
   const focusRole = useRef<any>(null)
   const focusGroup = useRef<any>(null)
+  const focusEffectiveDate = useRef<any>(null)
+  const [effectiveDate, setEffectiveDate] = useState<any>(
+    `${new Date().toISOString().split('T')[0]}`
+  )
+  const [errorEffectiveDate, setErrorEffectiveDate] = useState<any>('')
   useEffect(() => {
     return () => reset_empID()
   }, [])
@@ -136,18 +145,50 @@ function UpdateUser(props: any) {
       setTasks(taskList)
 
       if (rolesArray) {
+        const rolelist =
+          userDetail &&
+          userDetail.userdetails &&
+          userDetail.userdetails[0].roles.map((rl: any) => rl.roleId)
+        let adminqn = false
+        for (let ad = 0; ad < admins.length; ad++) {
+          if (rolelist.includes(admins[ad])) {
+            adminqn = true
+            break
+          }
+        }
         const rolesArrayCopy = JSON.parse(JSON.stringify(rolesArray))
         const rolesValues =
-          rolesArrayCopy &&
-          rolesArrayCopy.roles.map((role: any) => {
-            return {
-              label: role.roleName,
-              value: role.roleId,
-              roleId: role.roleId,
-              roleName: role.roleName,
-              roleDesc: role.roleDesc,
-            }
-          })
+          // rolesArrayCopy &&
+          // rolesArrayCopy.roles.map((role: any) => {
+          //   return {
+          //     label: role.roleName,
+          //     value: role.roleId,
+          //     roleId: role.roleId,
+          //     roleName: role.roleName,
+          //     roleDesc: role.roleDesc,
+          //   }
+          // })
+          rolesArrayCopy && adminqn
+            ? rolesArrayCopy.roles.map((role: any) => {
+                return {
+                  label: role.roleName,
+                  value: role.roleId,
+                  roleId: role.roleId,
+                  roleName: role.roleName,
+                  roleDesc: role.roleDesc,
+                }
+              })
+            : rolesArrayCopy.roles
+                .filter((role: any) => !admins.includes(role.roleId))
+                .map((role: any) => {
+                  return {
+                    label: role.roleName,
+                    value: role.roleId,
+                    roleId: role.roleId,
+                    roleName: role.roleName,
+                    roleDesc: role.roleDesc,
+                  }
+                })
         setRoles(rolesValues)
         console.log(rolesValues)
       }
@@ -183,7 +224,14 @@ function UpdateUser(props: any) {
             setViewLogRows([])
           })
     }
-  }, [rolesArray, empDetails, history, USERCONFIG_USERMANAGE, DEFAULT])
+  }, [
+    rolesArray,
+    empDetails,
+    history,
+    USERCONFIG_USERMANAGE,
+    DEFAULT,
+    userDetail,
+  ])
 
   useEffect(() => {
     // console.log('Check count: ', checkCount)
@@ -358,9 +406,9 @@ function UpdateUser(props: any) {
   const customStyles = {
     option: (provided: any, state: any) => ({
       ...provided,
-      borderColor: '#004d40',
-      backgroundColor: state.isSelected ? '#004d40' : 'white',
-      color: state.isSelected ? 'white' : '#004d40',
+      borderColor: teal[900],
+      backgroundColor: state.isSelected ? teal[900] : 'white',
+      color: state.isSelected ? 'white' : teal[900],
     }),
   }
 
@@ -420,12 +468,15 @@ function UpdateUser(props: any) {
   // };
   const onstatusChange = (e: any) => {
     setIsPageModified(true)
-    setStatus(e.target.value)
-    if (e.target.value !== '') {
+    // setStatus(e.target.value)
+    setStatus(e.value)
+    // if (e.target.value !== '') {
+    if (e.value !== '') {
       setErrorStatus('')
       setErrorRequestType('')
     }
-    if (e.target.value === 'D') {
+    // if (e.target.value === 'D') {
+    if (e.value === 'D') {
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
     } else {
@@ -435,16 +486,19 @@ function UpdateUser(props: any) {
   }
   const onrequestTypeChange = (e: any) => {
     setIsPageModified(true)
-    if (e.target.value !== '') {
+    // if (e.target.value !== '') {
+    if (e.value !== '') {
       setErrorRequestType('')
       setErrorStatus('')
     }
-    if (e.target.value.toLowerCase() === 'new') {
+    // if (e.target.value.toLowerCase() === 'new') {
+    if (e.value.toLowerCase() === 'new') {
       // setStatus('W')
       setRoleAccess('new_role')
       setGroupAccess('new_group')
     }
-    if (e.target.value.toLowerCase() === 'modify') {
+    // if (e.target.value.toLowerCase() === 'modify') {
+    if (e.value.toLowerCase() === 'modify') {
       // setStatus('W')
       if (status === 'D') {
         setRoleAccess('rem_role')
@@ -456,13 +510,15 @@ function UpdateUser(props: any) {
 
       // setStatus('A')
     }
-    if (e.target.value.toLowerCase() === 'remove') {
+    // if (e.target.value.toLowerCase() === 'remove') {
+    if (e.value.toLowerCase() === 'remove') {
       // setStatus('W')
       setRoleAccess('rem_role')
       setGroupAccess('rem_group')
       // setStatus('A')
     }
-    setRequestType(e.target.value)
+    // setRequestType(e.target.value)
+    setRequestType(e.value)
   }
   useEffect(() => {
     console.log(requestType)
@@ -489,6 +545,25 @@ function UpdateUser(props: any) {
     setRoleNames(selected)
     if (selected.length > 0) setErrorRoles('')
   }
+
+  const handleEffectiveDate = (e: any) => {
+    setIsPageModified(true)
+    setEffectiveDate(e)
+  }
+  useEffect(() => {
+    const systemDate = new Date().toISOString().split('T')[0]
+    console.log(systemDate)
+    var date1 = new Date(effectiveDate)
+    console.log(effectiveDate)
+    var date2 = new Date(systemDate)
+    var date3 = (date1.getTime() - date2.getTime()) / (1000 * 60 * 60 * 24)
+    console.log(date3)
+    if (date3 < 0 || date3 > 14) {
+      setErrorEffectiveDate(allMessages.error.effectiveDateError)
+    } else {
+      setErrorEffectiveDate('')
+    }
+  }, [effectiveDate])
 
   const postTasklog = (logData: any) => {
     postTaskLogsAPI &&
@@ -567,8 +642,10 @@ function UpdateUser(props: any) {
       // }
       setStatus(
         constants.statuses
-          .filter((stat: any) => stat.text === selectEmployeeID.status)
-          .map((stat: any) => stat.statusID)
+          // .filter((stat: any) => stat.text === selectEmployeeID.status)
+          .filter((stat: any) => stat.label === selectEmployeeID.status)
+          //.map((stat: any) => stat.statusID)
+          .map((stat: any) => stat.value)
           .toString()
       )
       // if (selectEmployeeID.status === 'A') {
@@ -602,15 +679,15 @@ function UpdateUser(props: any) {
           }
         })
       )
-      setGroups(
-        selectEmployeeID.usergroups.map((group: any) => {
-          return {
-            label: group.groupId,
-            value: group.groupId,
-            status: group.status,
-          }
-        })
-      )
+      // setGroups(
+      //   selectEmployeeID.usergroups.map((group: any) => {
+      //     return {
+      //       label: group.groupName,
+      //       value: group.groupId,
+      //       status: group.status,
+      //     }
+      //   })
+      // )
       // setComments(selectEmployeeID.comments)
     } else {
       setEmployeeID('')
@@ -622,146 +699,173 @@ function UpdateUser(props: any) {
       setStatus('')
       setRoleNames([])
       setGroupInput([])
-      setGroups([])
+      // setGroups([])
     }
   }, [selectEmployeeID, groupData])
 
-  const handleOpenGroups = (e: any) => {
-    e.preventDefault()
-    setGroupOpen(true)
-  }
-  const handleCloseGroups = (e: any) => {
-    e.preventDefault()
-    setGroupInput(groups)
-    setGroupOpen(false)
-  }
-  const updateGroups = () => {
-    setGroups(groupInput)
-    setGroupOpen(false)
-  }
+  // const handleOpenGroups = (e: any) => {
+  //   e.preventDefault()
+  //   setGroupOpen(true)
+  // }
+  // const handleCloseGroups = (e: any) => {
+  //   e.preventDefault()
+  //   setGroupInput(groups)
+  //   setGroupOpen(false)
+  // }
+  // const updateGroups = () => {
+  //   setGroups(groupInput)
+  //   setGroupOpen(false)
+  // }
 
   const handleGroupsInput = (selected: any) => {
     setIsPageModified(true)
     setGroupInput(selected)
     if (selected.length > 0) setErrorGroups('')
   }
-
-  const viewGroups = (
-    <Dialog onClose={handleCloseGroups} open={groupOpen}>
-      <Box
-        sx={{
-          height: 450,
-          // width: dialogwidth,
-          width: 'auto',
-          p: 2,
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-        }}
-      >
-        <Box
-          className={classes.inputFieldBox}
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              height: 30,
-              flexDirection: 'row',
-            }}
-            className={classes.viewLogTitle}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                flexGrow: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant="subtitle1">Add Groups</Typography>
-            </Box>
-            <Box
-              sx={{
-                paddingRight: 2,
-              }}
-            >
-              <button
-                type="button"
-                style={{
-                  border: 0,
-                  padding: 0,
-                  height: 22,
-                  width: 22,
-                }}
-                className={classes.closeViewLog}
-                onClick={handleCloseGroups}
-              >
-                <b>X</b>
-              </button>
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              alignItems: 'flex-start',
-              marginTop: '30px',
-            }}
-          >
-            <Select
-              options={groupData}
-              isMulti
-              onChange={handleGroupsInput}
-              components={{
-                Option,
-              }}
-              value={groupInput}
-              closeMenuOnSelect={false}
-              hideSelectedOptions={false}
-              className={classes.multiSelect}
-              styles={customStyles}
-              isDisabled={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  groupAccess
-                )
-                  ? true
-                  : false
-              }
-            />
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'end',
-          }}
-          className={classes.inputFieldBox}
-        >
-          <Button
-            // type="submit"
-            variant="contained"
-            color="primary"
-            onClick={updateGroups}
-            disabled={
-              UtilityFunctions.isHidden(
-                '8',
-                appFuncList ? appFuncList : [],
-                groupAccess
-              )
-                ? true
-                : false
-            }
-          >
-            Save
-          </Button>
-        </Box>
-      </Box>
-    </Dialog>
+  const groupSelect = (
+    <Select
+      // options={groupTypes}
+      options={groupData}
+      isMulti
+      ref={focusGroup}
+      onChange={handleGroupsInput}
+      components={{
+        Option,
+      }}
+      value={groupInput}
+      closeMenuOnSelect={false}
+      hideSelectedOptions={false}
+      className={classes.multiSelect}
+      styles={customStyles}
+      isDisabled={
+        UtilityFunctions.isHidden(
+          '8',
+          appFuncList ? appFuncList : [],
+          groupAccess
+        )
+          ? true
+          : false
+      }
+    />
   )
+  // const viewGroups = (
+  //   <Dialog onClose={handleCloseGroups} open={groupOpen}>
+  //     <Box
+  //       sx={{
+  //         height: 450,
+  //         // width: dialogwidth,
+  //         width: 'auto',
+  //         p: 2,
+  //         display: 'flex',
+  //         flexDirection: 'column',
+  //         justifyContent: 'space-between',
+  //       }}
+  //     >
+  //       <Box
+  //         // className={classes.inputFieldBox}
+  //         className={classes.inputFieldBoxPop}
+  //         sx={{
+  //           display: 'flex',
+  //           flexDirection: 'column',
+  //         }}
+  //       >
+  //         <Box
+  //           sx={{
+  //             display: 'flex',
+  //             height: 30,
+  //             flexDirection: 'row',
+  //           }}
+  //           className={classes.viewLogTitle}
+  //         >
+  //           <Box
+  //             sx={{
+  //               display: 'flex',
+  //               flexGrow: 1,
+  //               justifyContent: 'center',
+  //               alignItems: 'center',
+  //             }}
+  //           >
+  //             <Typography variant="subtitle1">Add Groups</Typography>
+  //           </Box>
+  //           <Box
+  //             sx={{
+  //               paddingRight: 2,
+  //             }}
+  //           >
+  //             <button
+  //               type="button"
+  //               style={{
+  //                 border: 0,
+  //                 padding: 0,
+  //                 height: 22,
+  //                 width: 22,
+  //               }}
+  //               className={classes.closeViewLog}
+  //               onClick={handleCloseGroups}
+  //             >
+  //               <b>X</b>
+  //             </button>
+  //           </Box>
+  //         </Box>
+  //         <Box
+  //           sx={{
+  //             alignItems: 'flex-start',
+  //             marginTop: '30px',
+  //           }}
+  //         >
+  //           <Select
+  //             options={groupData}
+  //             isMulti
+  //             onChange={handleGroupsInput}
+  //             components={{
+  //               Option,
+  //             }}
+  //             value={groupInput}
+  //             closeMenuOnSelect={false}
+  //             hideSelectedOptions={false}
+  //             className={classes.multiSelect}
+  //             styles={customStyles}
+  //             isDisabled={
+  //               UtilityFunctions.isHidden(
+  //                 '8',
+  //                 appFuncList ? appFuncList : [],
+  //                 groupAccess
+  //               )
+  //                 ? true
+  //                 : false
+  //             }
+  //           />
+  //         </Box>
+  //       </Box>
+  //       <Box
+  //         sx={{
+  //           display: 'flex',
+  //           justifyContent: 'end',
+  //         }}
+  //         // className={classes.inputFieldBox}
+  //         className={classes.inputFieldBoxPop}
+  //       >
+  //         <Button
+  //           // type="submit"
+  //           variant="contained"
+  //           color="primary"
+  //           onClick={updateGroups}
+  //           disabled={
+  //             UtilityFunctions.isHidden(
+  //               '8',
+  //               appFuncList ? appFuncList : [],
+  //               groupAccess
+  //             )
+  //               ? true
+  //               : false
+  //           }
+  //         >
+  //           Save
+  //         </Button>
+  //       </Box>
+  //     </Box>
+  //   </Dialog>
+  // )
 
   const handleOpenTasks = (e: any) => {
     console.log('open task')
@@ -795,7 +899,8 @@ function UpdateUser(props: any) {
         }}
       >
         <Box
-          className={classes.inputFieldBox}
+          // className={classes.inputFieldBox}
+          className={classes.inputFieldBoxPop}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -1061,6 +1166,7 @@ function UpdateUser(props: any) {
                     fontSize: '12px',
                     width: column.width,
                     overflowX: 'auto',
+                    height: '100px',
                   }}
                   headerStyle={{
                     fontSize: '12px',
@@ -1228,6 +1334,10 @@ function UpdateUser(props: any) {
       focusStatus.current.focus()
       flag = 0
     }
+    if (errorEffectiveDate !== '') {
+      focusEffectiveDate.current.focus()
+      flag = 0
+    }
     if (
       requestType !== 'new' &&
       requestType !== 'modify' &&
@@ -1251,7 +1361,7 @@ function UpdateUser(props: any) {
       setErrorRoles(allMessages.error.noRoles)
       flag = 0
     }
-    if (groups.length === 0) {
+    if (groupInput.length === 0) {
       focusGroup.current.focus()
       setErrorGroups(allMessages.error.noGroups)
       flag = 0
@@ -1298,6 +1408,12 @@ function UpdateUser(props: any) {
           emailId: userDetail && userDetail.userdetails[0].user.emailId,
           requestBy: userDetail && userDetail.userdetails[0].user.userId,
           requestDate: new Date().toISOString().split('T')[0],
+          requestorName:
+            userDetail &&
+            userDetail.userdetails[0].user.middleName &&
+            userDetail.userdetails[0].user.middleName !== ''
+              ? `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.middleName} ${userDetail.userdetails[0].user.lastName}`
+              : `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.lastName}`,
           // requestedDate: new Date().toISOString().split('T')[0],
           requestType: requestType,
         },
@@ -1309,6 +1425,7 @@ function UpdateUser(props: any) {
             }
           }),
       },
+      effectiveDate: effectiveDate,
       user: {
         employeeId: employeeID,
         // EmployeeId: employeeID,
@@ -1328,14 +1445,22 @@ function UpdateUser(props: any) {
             }
           })
         : [],
-      usergroups: groups
-        ? groups.map((group: any) => {
+      usergroups: groupInput
+        ? groupInput.map((group: any) => {
             return {
               groupId: group.value,
               status: group.status,
             }
           })
         : [],
+      // usergroups: groups
+      //   ? groups.map((group: any) => {
+      //       return {
+      //         groupId: group.value,
+      //         status: group.status,
+      //       }
+      //     })
+      //   : [],
     }
     console.log(formData)
 
@@ -1536,6 +1661,12 @@ function UpdateUser(props: any) {
           emailId: userDetail && userDetail.userdetails[0].user.emailId,
           requestBy: userDetail && userDetail.userdetails[0].user.userId,
           requestDate: new Date().toISOString().split('T')[0],
+          requestorName:
+            userDetail &&
+            userDetail.userdetails[0].user.middleName &&
+            userDetail.userdetails[0].user.middleName !== ''
+              ? `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.middleName} ${userDetail.userdetails[0].user.lastName}`
+              : `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.lastName}`,
           // requestedDate: new Date().toISOString().split('T')[0],
           requestType: requestType,
         },
@@ -1547,6 +1678,7 @@ function UpdateUser(props: any) {
             }
           }),
       },
+      effectiveDate: effectiveDate,
       user: {
         employeeId: employeeID,
         // EmployeeId: employeeID,
@@ -1566,14 +1698,22 @@ function UpdateUser(props: any) {
             }
           })
         : [],
-      usergroups: groups
-        ? groups.map((group: any) => {
+      usergroups: groupInput
+        ? groupInput.map((group: any) => {
             return {
               groupId: group.value,
               status: group.status,
             }
           })
         : [],
+      // usergroups: groups
+      //   ? groups.map((group: any) => {
+      //       return {
+      //         groupId: group.value,
+      //         status: group.status,
+      //       }
+      //     })
+      //   : [],
     }
     console.log(formData)
 
@@ -1786,6 +1926,7 @@ function UpdateUser(props: any) {
   )
   const createForm = (
     <Box
+      className="createRequest"
       sx={{
         flexDirection: 'column',
         display: 'flex',
@@ -1804,310 +1945,344 @@ function UpdateUser(props: any) {
         // width: width ? 700 : fieldWidth,
       }}
     >
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          // [theme.breakpoints.up("sm")]: {
-          //   flexDirection: "row",
-          // },
-          // [theme.breakpoints.down("sm")]: {
-          //   flexDirection: "column",
-          // },
-          paddingBottom: '20px',
-          paddingTop: '10px',
-          // width: fieldWidth
-        }}
-      >
-        <Box
-          sx={{
-            flexGrow: 1,
-          }}
-        >
-          <Typography variant="h6">Update User</Typography>
-        </Box>
-
+      <div className="createRequestContainer">
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'row',
-          }}
-        >
-          <Box
-            sx={{
-              paddingLeft: 5,
-            }}
-          >
-            <button
-              type="button"
-              className={classes.backButton}
-              onClick={handleOpenViewLog}
-              disabled={viewLogRows.length > 0 ? false : true}
-            >
-              View Log ({viewLogRows.length})
-            </button>
-          </Box>
-          <Box
-            sx={{
-              paddingLeft: 5,
-            }}
-          >
-            {' '}
-          </Box>
-          <Box
-            sx={{
-              paddingLeft: 5,
-            }}
-          >
-            <button
-              className={classes.backButton}
-              onClick={goBack}
-              // onClick={handleBackAfterDialog}
-              type="button"
-            >
-              Back
-            </button>
-          </Box>
-        </Box>
-      </Box>
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: !active ? 'row' : 'column',
             // [theme.breakpoints.up("sm")]: {
             //   flexDirection: "row",
             // },
             // [theme.breakpoints.down("sm")]: {
             //   flexDirection: "column",
             // },
-            // alignItems: "baseline",
+            paddingBottom: '20px',
+            paddingTop: '10px',
+            // width: fieldWidth
           }}
-          className={classes.eachRow}
         >
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">
-              Request Type &nbsp;
-              <span
-                style={{
-                  color: '#ff0000',
-                }}
-              >
-                *
-              </span>
-            </Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <select
-                name="requesttype"
-                ref={focusRequestType}
-                id="requesttype"
-                className={classes.selectField}
-                defaultValue=""
-                onChange={onrequestTypeChange}
-                required
-              >
-                <option disabled value="">
-                  --- Select Request Type ---
-                </option>
-                {constants.requestTypes.map((type) => {
-                  return (
-                    type.name.toLowerCase() !== 'new' && (
-                      <option value={type.name} key={type.name}>
-                        {type.text}
-                      </option>
-                    )
-                  )
-                })}
-              </select>
-            </Typography>
-          </Box>
-        </Box>
-        {errorRequestType !== '' && (
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox} justifyContent="center">
-              <Typography variant="subtitle2" color="error">
-                {errorRequestType}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">
-              Employee ID &nbsp;
-              <span
-                style={{
-                  color: '#ff0000',
-                }}
-              >
-                *
-              </span>
-            </Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <input
-                type="text"
-                ref={focusEmpId}
-                className={classes.inputFields}
-                value={employeeID}
-                onChange={() => {}}
-                disabled
-              />
-            </Typography>
-          </Box>
-        </Box>
-        {errorEmployeeId !== '' && (
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox} justifyContent="center">
-              <Typography variant="subtitle2" color="error">
-                {errorEmployeeId}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">First Name</Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <input
-                type="text"
-                name="firstname"
-                id="firstname"
-                placeholder="eg. Mike"
-                className={classes.inputFields}
-                // onChange={e => {
-                //   setFirstName(e.target.value);
-                // }}
-                value={firstName}
-                onChange={() => {}}
-                disabled
-              />
-            </Typography>
-          </Box>
-        </Box>
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Middle Name</Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <input
-                type="text"
-                name="middlename"
-                id="middlename"
-                placeholder="eg. Dallas"
-                className={classes.inputFields}
-                // onChange={e => {
-                //   setMiddleName(e.target.value);
-                // }}
-                value={middleName}
-                onChange={() => {}}
-                disabled
-              />
-            </Typography>
-          </Box>
-        </Box>
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Last Name</Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <input
-                type="text"
-                name="lastname"
-                id="lastname"
-                placeholder="eg. Black"
-                className={classes.inputFields}
-                // onChange={e => {
-                //   setLastName(e.target.value);
-                // }}
-                value={lastName}
-                onChange={() => {}}
-                disabled
-              />
-            </Typography>
-          </Box>
-        </Box>
-
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Email ID</Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              <input
-                type="email"
-                name="email"
-                id="email"
-                placeholder="eg. abc.xyz@morrisonsplc.co.uk"
-                className={classes.inputFields}
-                // onChange={e => {
-                //   setEmail(e.target.value);
-                // }}
-                value={email}
-                onChange={() => {}}
-                disabled
-              />
-            </Typography>
-          </Box>
-        </Box>
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Designation</Typography>
+          <Box
+            sx={{
+              flexGrow: 1,
+            }}
+          >
+            <Typography variant="h6">Update User</Typography>
           </Box>
 
           <Box
-            className={classes.inputFieldBox}
             sx={{
-              // [theme.breakpoints.up("sm")]: {
-              //   flexDirection: "row",
-              //   width: 400,
-              // },
-              // [theme.breakpoints.down("sm")]: {
-              //   flexDirection: "column",
-              //   width: fieldWidth,
-              // },
-              flexDirection: !active ? 'row' : 'column',
               display: 'flex',
-              justifyContent: 'space-between',
+              flexDirection: 'row',
             }}
           >
             <Box
               sx={{
-                // flexGrow: 1,
-                display: 'flex',
+                paddingLeft: 5,
               }}
             >
+              <button
+                type="button"
+                className={classes.backButton}
+                onClick={handleOpenViewLog}
+                disabled={viewLogRows.length > 0 ? false : true}
+              >
+                <span className="addUserGroup univPadding">
+                  View Log ({viewLogRows.length})
+                </span>
+              </button>
+            </Box>
+            <Box
+              sx={{
+                paddingLeft: 5,
+              }}
+            >
+              {' '}
+            </Box>
+            <Box
+              sx={{
+                paddingLeft: 5,
+              }}
+            >
+              <button
+                className="backButton"
+                //className={classes.backButton}
+                onClick={goBack}
+                // onClick={handleBackAfterDialog}
+                type="button"
+              >
+                <svg
+                  className="MuiSvgIcon-root"
+                  focusable="false"
+                  viewBox="0 0 34 34"
+                  aria-hidden="true"
+                >
+                  <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+                </svg>{' '}
+                Back
+              </button>
+            </Box>
+          </Box>
+        </Box>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: !active ? 'row' : 'column',
+              // [theme.breakpoints.up("sm")]: {
+              //   flexDirection: "row",
+              // },
+              // [theme.breakpoints.down("sm")]: {
+              //   flexDirection: "column",
+              // },
+              // alignItems: "baseline",
+            }}
+            className={classes.eachRow}
+          >
+            <Box className={classes.inputLabel}>
               <Typography variant="subtitle2">
-                <input
-                  type="text"
-                  placeholder="designation"
-                  disabled
-                  className={classes.designationField}
-                  value={designation}
-                  onChange={() => {}}
+                Request Type &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                {/* <select
+                  name="requesttype"
+                  ref={focusRequestType}
+                  id="requesttype"
+                  className={classes.selectField}
+                  defaultValue=""
+                  onChange={onrequestTypeChange}
+                  required
+                >
+                  <option disabled value="">
+                    --- Select Request Type ---
+                  </option>
+                  {constants.requestTypes.map((type) => {
+                    return (
+                      type.name.toLowerCase() !== 'new' && (
+                        <option value={type.name} key={type.name}>
+                          {type.text}
+                        </option>
+                      )
+                    )
+                  })}
+                </select> */}
+                <Select
+                  value={constants.requestTypes.filter(
+                    (item) => item.value === requestType
+                  )}
+                  // isDisabled={data !== [] ? false : true}
+                  isLoading={false}
+                  // components={{
+                  //   Option,
+                  // }}
+                  placeholder={'Select..'}
+                  ref={focusRequestType}
+                  isRtl={false}
+                  isSearchable={true}
+                  name="color"
+                  options={constants.requestTypes.filter(
+                    (i) => i.value !== 'new'
+                  )}
+                  onChange={onrequestTypeChange}
+                  className={classes.multiSelect}
+                  styles={customStyles}
+                  //value={hierLevel}
                 />
               </Typography>
             </Box>
-            {/* <Box
+          </Box>
+          {errorRequestType !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorRequestType}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">
+                Employee ID &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                <input
+                  type="text"
+                  ref={focusEmpId}
+                  className={classes.inputFields}
+                  value={employeeID}
+                  onChange={() => {}}
+                  disabled
+                />
+              </Typography>
+            </Box>
+          </Box>
+          {errorEmployeeId !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorEmployeeId}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">First Name</Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                <input
+                  type="text"
+                  name="firstname"
+                  id="firstname"
+                  //placeholder="eg. Mike"
+                  className={classes.inputFields}
+                  // onChange={e => {
+                  //   setFirstName(e.target.value);
+                  // }}
+                  value={firstName}
+                  onChange={() => {}}
+                  disabled
+                />
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Middle Name</Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                <input
+                  type="text"
+                  name="middlename"
+                  id="middlename"
+                  //placeholder="eg. Dallas"
+                  className={classes.inputFields}
+                  // onChange={e => {
+                  //   setMiddleName(e.target.value);
+                  // }}
+                  value={middleName}
+                  onChange={() => {}}
+                  disabled
+                />
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Last Name</Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                <input
+                  type="text"
+                  name="lastname"
+                  id="lastname"
+                  // placeholder="eg. Black"
+                  className={classes.inputFields}
+                  // onChange={e => {
+                  //   setLastName(e.target.value);
+                  // }}
+                  value={lastName}
+                  onChange={() => {}}
+                  disabled
+                />
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Email ID</Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  // placeholder="eg. abc.xyz@morrisonsplc.co.uk"
+                  className={classes.inputFields}
+                  // onChange={e => {
+                  //   setEmail(e.target.value);
+                  // }}
+                  value={email}
+                  onChange={() => {}}
+                  disabled
+                />
+              </Typography>
+            </Box>
+          </Box>
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Job Title</Typography>
+            </Box>
+
+            <Box
+              className={classes.inputFieldBox}
+              sx={{
+                // [theme.breakpoints.up("sm")]: {
+                //   flexDirection: "row",
+                //   width: 400,
+                // },
+                // [theme.breakpoints.down("sm")]: {
+                //   flexDirection: "column",
+                //   width: fieldWidth,
+                // },
+                flexDirection: !active ? 'row' : 'column',
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box
+                sx={{
+                  // flexGrow: 1,
+                  display: 'flex',
+                }}
+              >
+                <Typography variant="subtitle2">
+                  <input
+                    type="text"
+                    // placeholder="designation"
+                    disabled
+                    className={classes.designationField}
+                    value={designation}
+                    onChange={() => {}}
+                  />
+                </Typography>
+              </Box>
+              {/* <Box
               sx={{
                 paddingLeft: 5,
                 paddingRight: 5,
@@ -2117,11 +2292,519 @@ function UpdateUser(props: any) {
             >
               {width && <>|</>}
             </Box> */}
+              <Box
+                sx={{
+                  display: 'flex',
+                }}
+              >
+                &nbsp;
+              </Box>
+            </Box>
+          </Box>
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">
+                Status &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="subtitle2">
+                {/* <select
+                  name="status"
+                  id="status"
+                  ref={focusStatus}
+                  className={classes.selectField}
+                  defaultValue=""
+                  onChange={onstatusChange}
+                  required
+                  // disabled={requestType === 'new' && status === 'W'}
+                  disabled={
+                    UtilityFunctions.isHidden(
+                      '8',
+                      appFuncList ? appFuncList : [],
+                      'status'
+                    ) ||
+                    requestType === 'new' ||
+                    requestType === 'remove'
+                  }
+                >
+                  {requestType === 'new'
+                    ? constants.statuses
+                        .filter((type) => type.statusID.toLowerCase() === 'w')
+                        .map((type) => {
+                          return (
+                            <option
+                              value={type.statusID}
+                              key={type.statusID}
+                              // selected={type.statusID === status ? true : false}
+                            >
+                              {type.text}
+                            </option>
+                          )
+                        })
+                    : // : requestType === 'modify'
+                      // ? constants.statuses
+                      //     .filter((type) => type.statusID.toLowerCase() !== 'w')
+                      //     .map((type) => {
+                      //       return (
+                      //         <option
+                      //           value={type.statusID}
+                      //           key={type.statusID}
+                      //           selected={type.statusID === status ? true : false}
+                      //         >
+                      //           {type.text}
+                      //         </option>
+                      //       )
+                      //     })
+                      // : requestType === 'remove'
+                      // ? constants.statuses
+                      //     .filter(
+                      //       (type) => type.statusID.toLowerCase() !== 'w'
+                      //       // &&
+                      //       // type.statusID.toLowerCase() !== 'i'
+                      //     )
+                      //     .map((type) => {
+                      //       return (
+                      //         <option
+                      //           value={type.statusID}
+                      //           key={type.statusID}
+                      //           selected={type.statusID === status ? true : false}
+                      //         >
+                      //           {type.text}
+                      //         </option>
+                      //       )
+                      //     })
+                      constants.statuses.map((type) => {
+                        return (
+                          <option
+                            value={type.statusID}
+                            key={type.statusID}
+                            selected={type.statusID === status ? true : false}
+                          >
+                            {type.text}
+                          </option>
+                        )
+                      })}
+                </select> */}
+                <Select
+                  value={
+                    requestType === 'new'
+                      ? constants.statuses.filter((i) => i.value === 'W')
+                      : constants.statuses.filter((i) => i.value === status)
+                  }
+                  isDisabled={
+                    UtilityFunctions.isHidden(
+                      '8',
+                      appFuncList ? appFuncList : [],
+                      'status'
+                    ) ||
+                    requestType === 'new' ||
+                    requestType === 'remove'
+                  }
+                  isLoading={false}
+                  // components={{
+                  //   Option,
+                  // }}
+                  ref={focusStatus}
+                  isRtl={false}
+                  isSearchable={true}
+                  name="color"
+                  options={constants.statuses}
+                  onChange={onstatusChange}
+                  className={classes.multiSelect}
+                  styles={customStyles}
+                  //value={hierLevel}
+                />
+              </Typography>
+            </Box>
+          </Box>
+          {errorStatus !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorStatus}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">
+                Role &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>{roleSelect1}</Box>
+          </Box>
+          {roleNames.length === 0 && errorRoles !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorRoles}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">
+                User Group &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              {/* {groups ? (
+                groups.length > 0 ? (
+                  <button
+                    type="button"
+                    className={classes.backButton}
+                    onClick={handleOpenGroups}
+                    ref={focusGroup}
+                  >
+                    <span className="addUserGroup">
+                      Groups ( {groups.length} )
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    // className={
+                    //   UtilityFunctions.isHidden(
+                    //     '8',
+                    //     appFuncList ? appFuncList : [],
+                    //     groupAccess
+                    //   )
+                    //     ? classes.hideit
+                    //     : classes.backButton
+                    // }
+                    type="button"
+                    className={classes.backButton}
+                    disabled={UtilityFunctions.isHidden(
+                      '8',
+                      appFuncList ? appFuncList : [],
+                      groupAccess
+                    )}
+                    onClick={handleOpenGroups}
+                    ref={focusGroup}
+                  >
+                    <span className="addUserGroup">Add</span>
+                  </button>
+                )
+              ) : (
+                <button
+                  type="button"
+                  className={classes.backButton}
+                  onClick={handleOpenGroups}
+                  ref={focusGroup}
+                >
+                  <span className="addUserGroup">Add</span>
+                </button>
+              )} */}
+              {groupSelect}
+              &nbsp;&nbsp; &nbsp;&nbsp;
+              <button
+                type="button"
+                // className={
+                //   UtilityFunctions.isHidden(
+                //     '8',
+                //     appFuncList ? appFuncList : [],
+                //     'manage_task'
+                //   )
+                //     ? classes.hideit
+                //     : classes.backButton
+                // }
+                className={classes.hideit}
+                onClick={handleOpenTasks}
+              >
+                Manage Task ( {tasks.length} )
+              </button>
+            </Box>
+          </Box>
+          {groupInput.length === 0 && errorGroups !== '' && (
+            // {groups.length === 0 && errorGroups !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorGroups}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">
+                Effective Date &nbsp;
+                <span
+                  style={{
+                    color: '#ff0000',
+                  }}
+                >
+                  *
+                </span>
+              </Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                <DatePicker
+                  format="dd/MM/yyyy"
+                  inputVariant="outlined"
+                  value={effectiveDate}
+                  // ref={focusLaunchDate}
+                  // onChange={handleLaunchDate}
+                  // maxDate={new Date('08/04/2022')}
+                  onChange={(e: any) =>
+                    handleEffectiveDate(e.toISOString().split('T')[0])
+                  }
+                  // KeyboardButtonProps={{
+                  //   'aria-label': 'change date',
+                  // }}
+                  emptyLabel="Enter Effective Date"
+                  TextFieldComponent={(props: any) => (
+                    <OutlinedInput
+                      margin="dense"
+                      inputRef={focusEffectiveDate}
+                      onClick={props.onClick}
+                      value={props.value}
+                      onChange={props.onChange}
+                      className={classes.dateFields}
+                    />
+                  )}
+                />
+              </MuiPickersUtilsProvider>
+            </Box>
+          </Box>
+          {errorEffectiveDate !== '' && (
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox} justifyContent="center">
+                <Typography variant="subtitle2" color="error">
+                  {errorEffectiveDate}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+          <Box className={classes.eachRow}>
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Reference Document</Typography>
+            </Box>
+
+            <Box
+              // className={classes.inputFieldBox}
+              sx={{
+                // [theme.breakpoints.up("sm")]: {
+                //   flexDirection: "row",
+                // },
+                // [theme.breakpoints.down("sm")]: {
+                //   flexDirection: "column",
+                // },
+                flexDirection: !active ? 'row' : 'column',
+                display: 'flex',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Box
+                sx={{
+                  // flexGrow: 1,
+                  display: 'flex',
+                }}
+              >
+                <Typography variant="subtitle2" className="browseArea">
+                  {
+                    <input
+                      type="text"
+                      // value={referenceDoc ? referenceDoc.name : ''}
+                      onClick={() =>
+                        document.getElementById('selectedFile')!.click()
+                      }
+                      className={classes.uploadTextfield}
+                      placeholder="No file selected"
+                      readOnly
+                    />
+                  }
+                  <Input
+                    type="file"
+                    id="selectedFile"
+                    multiple
+                    onChange={handleFileUpload}
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById('selectedFile')!.click()
+                    }
+                    className={classes.uploadButton}
+                  >
+                    Browse...
+                  </button>
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  paddingLeft: 5,
+                  paddingRight: 5,
+                  fontSize: 'x-large',
+                  display: 'flex',
+                }}
+              >
+                {/* {width && <>|</>}
+            </Box>
             <Box
               sx={{
                 display: 'flex',
               }}
             >
+              <button className={classes.backButton}>view(3)</button> */}
+              </Box>
+            </Box>
+          </Box>
+          {wrongExtn ? (
+            // && referenceDocData.length > 0
+            <Box className={classes.eachRow}>
+              <Box className={classes.inputLabel}></Box>
+              <Box className={classes.inputFieldBox}>
+                <Typography variant="subtitle2" color={'secondary'}>
+                  {allMessages.error.invalidExtension}
+                </Typography>
+              </Box>
+            </Box>
+          ) : null}
+          {referenceDocData.length > 0 && (
+            <Box className={classes.eachRow}>
+              {/* <Box
+              sx={{
+                flexDirection: 'column',
+                display: 'flex',
+              }}
+              className={classes.inputFieldBox}
+            > */}
+              {/* {referenceDocData.map((p: any) => (
+                <Box className={classes.inputFieldBox} sx={{}} key={p.name}>
+                  <a href={p.link} target="popup">
+                    {p.name}
+                  </a>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault()
+                      const newone = referenceDocData.filter(
+                        (dat) => dat.name !== p.name
+                      )
+                      setReferenceDocData([...newone])
+                    }}
+                  >
+                    X
+                  </Button>
+                </Box>             
+              ))} */}
+              <Box className={classes.inputLabel}></Box>
+              <Box
+                // className={!active ? classes.filelist : classes.inputFieldBox}
+                className={classes.inputFieldBox}
+                sx={{ overflow: 'auto' }}
+              >
+                <table>
+                  <tbody>
+                    {referenceDocData.map((p: any, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>
+                            <Button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                const newone = referenceDocData.filter(
+                                  (dat) => dat.name !== p.name
+                                )
+                                setReferenceDocData([...newone])
+                                if (newone.length === 0) {
+                                  setWrongExtn(false)
+                                }
+                              }}
+                              color="primary"
+                              size="small"
+                              style={{
+                                justifyContent: 'flex-start',
+                                minWidth: '30px',
+                              }}
+                            >
+                              X
+                            </Button>
+                          </td>
+                          <td>
+                            <a href={p.link} target="popup">
+                              {p.name}
+                            </a>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </Box>
+            </Box>
+            // </Box>
+          )}
+          <Box
+            sx={{
+              display: 'flex',
+              // [theme.breakpoints.up("sm")]: {
+              //   flexDirection: "row",
+              // },
+              // [theme.breakpoints.down("sm")]: {
+              //   flexDirection: "column",
+              // },
+              flexDirection: !active ? 'row' : 'column',
+              paddingTop: '20px',
+            }}
+          >
+            <Box className={classes.inputLabel}>
+              <Typography variant="subtitle2">Comments</Typography>
+            </Box>
+
+            <Box className={classes.inputFieldBox}>
+              <Typography variant="body2">
+                <textarea
+                  cols={10}
+                  rows={5}
+                  className={classes.textArea}
+                  placeholder="Please provide comments"
+                  onChange={(e) => {
+                    setIsPageModified(true)
+                    setComments(e.target.value)
+                  }}
+                  value={comments}
+                />
+              </Typography>
+            </Box>
+          </Box>
+          <Box
+            sx={{ display: 'flex', flexDirection: !active ? 'row' : 'column' }}
+          >
+            <Box className={classes.inputLabel}> &nbsp;</Box>
+            <Box className={classes.inputFieldBox}>
               <button
                 type="button"
                 className={
@@ -2149,551 +2832,118 @@ function UpdateUser(props: any) {
                   setOpenAdditional((prevState) => !prevState)
                 }}
               >
-                Additional Data
+                <span className="addUserGroup">Additional Data</span>
               </button>
             </Box>
           </Box>
-        </Box>
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">
-              Status &nbsp;
-              <span
-                style={{
-                  color: '#ff0000',
-                }}
-              >
-                *
-              </span>
-            </Typography>
-          </Box>
 
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="subtitle2">
-              {/* <input
-                type="text"
-                name="status"
-                id="status"
-                placeholder="eg. Active"
-                className={classes.inputFields}
-                // onChange={e => {
-                //   setStatus(e.target.value);
-                // }}
-                value={statusWithValue}
-                onChange={() => {}}
-                disabled={UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'status'
-                )}
-              /> */}
-              <select
-                name="status"
-                id="status"
-                ref={focusStatus}
-                className={classes.selectField}
-                defaultValue=""
-                onChange={onstatusChange}
-                required
-                // disabled={requestType === 'new' && status === 'W'}
-                disabled={
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: !active ? 'row' : 'column',
+              alignItems: !active ? 'center' : 'center',
+              paddingTop: '30px',
+              justifyContent: !active ? 'space-between' : 'center',
+            }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: !forbutton ? 'row' : 'column',
+                alignItems: !forbutton ? 'center' : 'center',
+                justifyContent: !forbutton ? 'space-between' : 'center',
+              }}
+            >
+              <Button
+                variant="contained"
+                color="primary"
+                // className={
+                //   UtilityFunctions.isHidden(
+                //     '8',
+                //     appFuncList ? appFuncList : [],
+                //     'reject'
+                //   )
+                //     ? classes.hideit
+                //     : classes.whiteButton
+                // }
+                className={classes.hideit}
+                size="small"
+              >
+                Reject
+              </Button>
+            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: !forbutton ? 'row' : 'column',
+                alignItems: !forbutton ? 'center' : 'center',
+                justifyContent: !forbutton ? 'space-between' : 'center',
+              }}
+            >
+              <Button
+                // type="submit"
+                variant="contained"
+                color="primary"
+                className={
                   UtilityFunctions.isHidden(
                     '8',
                     appFuncList ? appFuncList : [],
-                    'status'
-                  ) ||
-                  requestType === 'new' ||
-                  requestType === 'remove'
+                    'submit'
+                  )
+                    ? classes.hideit
+                    : classes.submitButton
                 }
+                size="small"
+                // onClick={handleUpdateUserforSubmit}
+                onClick={handleSubmitAfterDialog}
+                disabled={disabled}
               >
-                {/* <option disabled value="" className={classes.selectOptions}>
-                  None
-                </option> */}
-                {requestType === 'new'
-                  ? constants.statuses
-                      .filter((type) => type.statusID.toLowerCase() === 'w')
-                      .map((type) => {
-                        return (
-                          <option
-                            value={type.statusID}
-                            key={type.statusID}
-                            // selected={type.statusID === status ? true : false}
-                          >
-                            {type.text}
-                          </option>
-                        )
-                      })
-                  : // : requestType === 'modify'
-                    // ? constants.statuses
-                    //     .filter((type) => type.statusID.toLowerCase() !== 'w')
-                    //     .map((type) => {
-                    //       return (
-                    //         <option
-                    //           value={type.statusID}
-                    //           key={type.statusID}
-                    //           selected={type.statusID === status ? true : false}
-                    //         >
-                    //           {type.text}
-                    //         </option>
-                    //       )
-                    //     })
-                    // : requestType === 'remove'
-                    // ? constants.statuses
-                    //     .filter(
-                    //       (type) => type.statusID.toLowerCase() !== 'w'
-                    //       // &&
-                    //       // type.statusID.toLowerCase() !== 'i'
-                    //     )
-                    //     .map((type) => {
-                    //       return (
-                    //         <option
-                    //           value={type.statusID}
-                    //           key={type.statusID}
-                    //           selected={type.statusID === status ? true : false}
-                    //         >
-                    //           {type.text}
-                    //         </option>
-                    //       )
-                    //     })
-                    constants.statuses.map((type) => {
-                      return (
-                        <option
-                          value={type.statusID}
-                          key={type.statusID}
-                          selected={type.statusID === status ? true : false}
-                        >
-                          {type.text}
-                        </option>
-                      )
-                    })}
-              </select>
-            </Typography>
-          </Box>
-        </Box>
-        {errorStatus !== '' && (
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox} justifyContent="center">
-              <Typography variant="subtitle2" color="error">
-                {errorStatus}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">
-              Role &nbsp;
-              <span
-                style={{
-                  color: '#ff0000',
-                }}
-              >
-                *
-              </span>
-            </Typography>
-          </Box>
+                Submit
+              </Button>
 
-          <Box className={classes.inputFieldBox}>{roleSelect1}</Box>
-        </Box>
-        {roleNames.length === 0 && errorRoles !== '' && (
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox} justifyContent="center">
-              <Typography variant="subtitle2" color="error">
-                {errorRoles}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">
-              User Group &nbsp;
-              <span
-                style={{
-                  color: '#ff0000',
-                }}
+              <Button
+                variant="contained"
+                color="primary"
+                // className={
+                //   UtilityFunctions.isHidden(
+                //     '8',
+                //     appFuncList ? appFuncList : [],
+                //     'reassign'
+                //   )
+                //     ? classes.hideit
+                //     : classes.buttons
+                // }
+                className={classes.hideit}
+                size="small"
               >
-                *
-              </span>
-            </Typography>
-          </Box>
+                Reassign
+              </Button>
 
-          <Box className={classes.inputFieldBox}>
-            {/* <Typography variant="subtitle1"> */}
-            {groups ? (
-              groups.length > 0 ? (
-                <button
-                  type="button"
-                  className={classes.backButton}
-                  onClick={handleOpenGroups}
-                  ref={focusGroup}
-                >
-                  Groups ( {groups.length} )
-                </button>
-              ) : (
-                <button
-                  // className={
-                  //   UtilityFunctions.isHidden(
-                  //     '8',
-                  //     appFuncList ? appFuncList : [],
-                  //     groupAccess
-                  //   )
-                  //     ? classes.hideit
-                  //     : classes.backButton
-                  // }
-                  type="button"
-                  className={classes.backButton}
-                  disabled={UtilityFunctions.isHidden(
+              <Button
+                // type="submit"
+                variant="contained"
+                color="primary"
+                className={
+                  UtilityFunctions.isHidden(
                     '8',
                     appFuncList ? appFuncList : [],
-                    groupAccess
-                  )}
-                  onClick={handleOpenGroups}
-                  ref={focusGroup}
-                >
-                  Add
-                </button>
-              )
-            ) : (
-              <button
-                type="button"
-                className={classes.backButton}
-                onClick={handleOpenGroups}
-                ref={focusGroup}
-              >
-                Add
-              </button>
-            )}
-            &nbsp;&nbsp; &nbsp;&nbsp;
-            <button
-              type="button"
-              // className={
-              //   UtilityFunctions.isHidden(
-              //     '8',
-              //     appFuncList ? appFuncList : [],
-              //     'manage_task'
-              //   )
-              //     ? classes.hideit
-              //     : classes.backButton
-              // }
-              className={classes.hideit}
-              onClick={handleOpenTasks}
-            >
-              Manage Task ( {tasks.length} )
-            </button>
-            {/* </Typography> */}
-          </Box>
-        </Box>
-        {groups.length === 0 && errorGroups !== '' && (
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox} justifyContent="center">
-              <Typography variant="subtitle2" color="error">
-                {errorGroups}
-              </Typography>
-            </Box>
-          </Box>
-        )}
-        <Box className={classes.eachRow}>
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Reference Document</Typography>
-          </Box>
-
-          <Box
-            // className={classes.inputFieldBox}
-            sx={{
-              // [theme.breakpoints.up("sm")]: {
-              //   flexDirection: "row",
-              // },
-              // [theme.breakpoints.down("sm")]: {
-              //   flexDirection: "column",
-              // },
-              flexDirection: !active ? 'row' : 'column',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Box
-              sx={{
-                // flexGrow: 1,
-                display: 'flex',
-              }}
-            >
-              <Typography variant="subtitle2">
-                {
-                  <input
-                    type="text"
-                    // value={referenceDoc ? referenceDoc.name : ''}
-                    onClick={() =>
-                      document.getElementById('selectedFile')!.click()
-                    }
-                    className={classes.uploadTextfield}
-                    placeholder="No file selected"
-                    readOnly
-                  />
+                    'approve'
+                  )
+                    ? classes.hideit
+                    : classes.buttons
                 }
-                <Input
-                  type="file"
-                  id="selectedFile"
-                  multiple
-                  onChange={handleFileUpload}
-                />
-                <button
-                  type="button"
-                  onClick={() =>
-                    document.getElementById('selectedFile')!.click()
-                  }
-                  className={classes.uploadButton}
-                >
-                  Browse...
-                </button>
-              </Typography>
-            </Box>
-            <Box
-              sx={{
-                paddingLeft: 5,
-                paddingRight: 5,
-                fontSize: 'x-large',
-                display: 'flex',
-              }}
-            >
-              {/* {width && <>|</>}
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-              }}
-            >
-              <button className={classes.backButton}>view(3)</button> */}
+                size="small"
+                // onClick={handleUpdateUserforApprove}
+                onClick={handleApproveAfterDialog}
+                disabled={disabled}
+              >
+                Approve
+              </Button>
             </Box>
           </Box>
-        </Box>
-        {wrongExtn ? (
-          // && referenceDocData.length > 0
-          <Box className={classes.eachRow}>
-            <Box className={classes.inputLabel}></Box>
-            <Box className={classes.inputFieldBox}>
-              <Typography variant="subtitle2" color={'secondary'}>
-                {allMessages.error.invalidExtension}
-              </Typography>
-            </Box>
-          </Box>
-        ) : null}
-        {referenceDocData.length > 0 && (
-          <Box className={classes.eachRow}>
-            {/* <Box
-              sx={{
-                flexDirection: 'column',
-                display: 'flex',
-              }}
-              className={classes.inputFieldBox}
-            > */}
-            {/* {referenceDocData.map((p: any) => (
-                <Box className={classes.inputFieldBox} sx={{}} key={p.name}>
-                  <a href={p.link} target="popup">
-                    {p.name}
-                  </a>
-                  <Button
-                    onClick={(e) => {
-                      e.preventDefault()
-                      const newone = referenceDocData.filter(
-                        (dat) => dat.name !== p.name
-                      )
-                      setReferenceDocData([...newone])
-                    }}
-                  >
-                    X
-                  </Button>
-                </Box>             
-              ))} */}
-            <Box className={classes.inputLabel}></Box>
-            <Box
-              // className={!active ? classes.filelist : classes.inputFieldBox}
-              className={classes.inputFieldBox}
-              sx={{ overflow: 'auto' }}
-            >
-              <table>
-                <tbody>
-                  {referenceDocData.map((p: any, index) => {
-                    return (
-                      <tr key={index}>
-                        <td>
-                          <Button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              const newone = referenceDocData.filter(
-                                (dat) => dat.name !== p.name
-                              )
-                              setReferenceDocData([...newone])
-                              if (newone.length === 0) {
-                                setWrongExtn(false)
-                              }
-                            }}
-                            color="primary"
-                            size="small"
-                            style={{
-                              justifyContent: 'flex-start',
-                              minWidth: '30px',
-                            }}
-                          >
-                            X
-                          </Button>
-                        </td>
-                        <td>
-                          <a href={p.link} target="popup">
-                            {p.name}
-                          </a>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </Box>
-          </Box>
-          // </Box>
-        )}
-        <Box
-          sx={{
-            display: 'flex',
-            // [theme.breakpoints.up("sm")]: {
-            //   flexDirection: "row",
-            // },
-            // [theme.breakpoints.down("sm")]: {
-            //   flexDirection: "column",
-            // },
-            flexDirection: !active ? 'row' : 'column',
-            paddingTop: '20px',
-          }}
-        >
-          <Box className={classes.inputLabel}>
-            <Typography variant="subtitle2">Comments</Typography>
-          </Box>
-
-          <Box className={classes.inputFieldBox}>
-            <Typography variant="body2">
-              <textarea
-                cols={10}
-                rows={5}
-                className={classes.textArea}
-                placeholder="Please provide comments"
-                onChange={(e) => {
-                  setIsPageModified(true)
-                  setComments(e.target.value)
-                }}
-                value={comments}
-              />
-            </Typography>
-          </Box>
-        </Box>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: !active ? 'row' : 'column',
-            alignItems: !active ? 'center' : 'center',
-            paddingTop: '30px',
-            justifyContent: !active ? 'space-between' : 'center',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: !forbutton ? 'row' : 'column',
-              alignItems: !forbutton ? 'center' : 'center',
-              justifyContent: !forbutton ? 'space-between' : 'center',
-            }}
-          >
-            <Button
-              variant="contained"
-              color="primary"
-              // className={
-              //   UtilityFunctions.isHidden(
-              //     '8',
-              //     appFuncList ? appFuncList : [],
-              //     'reject'
-              //   )
-              //     ? classes.hideit
-              //     : classes.whiteButton
-              // }
-              className={classes.hideit}
-              size="small"
-            >
-              Reject
-            </Button>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: !forbutton ? 'row' : 'column',
-              alignItems: !forbutton ? 'center' : 'center',
-              justifyContent: !forbutton ? 'space-between' : 'center',
-            }}
-          >
-            <Button
-              // type="submit"
-              variant="contained"
-              color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'submit'
-                )
-                  ? classes.hideit
-                  : classes.submitButton
-              }
-              size="small"
-              // onClick={handleUpdateUserforSubmit}
-              onClick={handleSubmitAfterDialog}
-              disabled={disabled}
-            >
-              Submit
-            </Button>
-
-            <Button
-              variant="contained"
-              color="primary"
-              // className={
-              //   UtilityFunctions.isHidden(
-              //     '8',
-              //     appFuncList ? appFuncList : [],
-              //     'reassign'
-              //   )
-              //     ? classes.hideit
-              //     : classes.buttons
-              // }
-              className={classes.hideit}
-              size="small"
-            >
-              Reassign
-            </Button>
-
-            <Button
-              // type="submit"
-              variant="contained"
-              color="primary"
-              className={
-                UtilityFunctions.isHidden(
-                  '8',
-                  appFuncList ? appFuncList : [],
-                  'approve'
-                )
-                  ? classes.hideit
-                  : classes.buttons
-              }
-              size="small"
-              // onClick={handleUpdateUserforApprove}
-              onClick={handleApproveAfterDialog}
-              disabled={disabled}
-            >
-              Approve
-            </Button>
-          </Box>
-        </Box>
-      </form>
-      <LoadingComponent showLoader={isProgressLoader} />
+        </form>
+        <LoadingComponent showLoader={isProgressLoader} />
+      </div>
     </Box>
   )
   useEffect(() => {
@@ -2724,7 +2974,7 @@ function UpdateUser(props: any) {
             justifyContent="center"
           >
             {createForm}
-            {viewGroups}
+            {/* {viewGroups} */}
             {manageTasks}
             {viewLog}
             {viewAdditionalInfo}

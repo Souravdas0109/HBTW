@@ -25,7 +25,11 @@ import {
   LocationhierarchyTypes,
 } from './DataConstants'
 import config from '../../config/Config'
-import { getProductHierarchyAPI, putUserGroupAPI } from '../../api/Fetch'
+import {
+  getProductHierarchyAPI,
+  putUserGroupAPI,
+  getProductHierarchyListAPI,
+} from '../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { routes, life } from '../../util/Constants'
 import ConfirmBox from '../../components/ConfirmBox/ConfirmBox'
@@ -54,6 +58,7 @@ function UserGroupCreate(props: any) {
   const [back, setBack] = React.useState(false)
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [loaded, setLoaded] = useState(false)
   //
   //product changes start.............................................
   // const BASE = "https://pre-api.morrisons.com";
@@ -114,204 +119,281 @@ function UserGroupCreate(props: any) {
         case 'department':
           setDeppay([...payload])
           break
-        case 'class':
-          setClspay([...payload])
-          break
-        case 'subclass':
-          setSclspay([...payload])
-          break
+        // case 'class':
+        //   setClspay([...payload])
+        //   break
+        // case 'subclass':
+        //   setSclspay([...payload])
+        //   break
         default:
           break
       }
     }
   }, [payload])
 
-  useEffect(() => {
-    for (let d = 0; d < data.length; d++) {
-      data[d]['tag'] = data[d].name
-      let tag = `${data[d].name}#${data[d].tag}#${data[d].id}`
-      if (!uniquediv.includes(tag)) {
-        setUniqueDiv((prevState: any) => [...prevState, tag])
-        const splitted = tag.split('#')
-        setUniqueDivObj((prevState: any) => [
-          ...prevState,
-          {
-            value: splitted[0],
-            label: splitted[1],
-            id: splitted[2],
-            hierGroup: 'division',
-          },
-        ])
-      }
-      for (let g = 0; g < data[d].nodes.length; g++) {
-        data[d].nodes[g]['tag'] = `${data[d].tag} > ${data[d].nodes[g].name}`
-        let tag = `${data[d].nodes[g].name}#${data[d].nodes[g].tag}#${data[d].nodes[g].id}`
-        if (!uniquegrp.includes(tag)) {
-          setUniqueGrp((prevState: any) => [...prevState, tag])
-          const splitted = tag.split('#')
-          setUniqueGrpObj((prevState: any) => [
-            ...prevState,
-            {
-              value: splitted[0],
-              label: splitted[1],
-              id: splitted[2],
-              hierGroup: 'group',
-            },
-          ])
-        }
-        for (let c = 0; c < data[d].nodes[g].nodes.length; c++) {
-          data[d].nodes[g].nodes[c][
-            'tag'
-          ] = `${data[d].nodes[g].tag} > ${data[d].nodes[g].nodes[c].name}`
-          let tag = `${data[d].nodes[g].nodes[c].name}#${data[d].nodes[g].nodes[c].tag}#${data[d].nodes[g].nodes[c].id}`
-          if (!uniquecat.includes(tag)) {
-            setUniqueCat((prevState: any) => [...prevState, tag])
-            const splitted = tag.split('#')
-            setUniqueCatObj((prevState: any) => [
-              ...prevState,
-              {
-                value: splitted[0],
-                label: splitted[1],
-                id: splitted[2],
-                hierGroup: 'category',
-              },
-            ])
-          }
-          for (let dp = 0; dp < data[d].nodes[g].nodes[c].nodes.length; dp++) {
-            data[d].nodes[g].nodes[c].nodes[dp][
-              'tag'
-            ] = `${data[d].nodes[g].nodes[c].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].name}`
-            let tag = `${data[d].nodes[g].nodes[c].nodes[dp].name}#${data[d].nodes[g].nodes[c].nodes[dp].tag}#${data[d].nodes[g].nodes[c].nodes[dp].id}`
-            if (!uniquedep.includes(tag)) {
-              setUniqueDep((prevState: any) => [...prevState, tag])
-              const splitted = tag.split('#')
-              setUniqueDepObj((prevState: any) => [
-                ...prevState,
-                {
-                  value: splitted[0],
-                  label: splitted[1],
-                  id: splitted[2],
-                  hierGroup: 'department',
-                },
-              ])
-            }
-            for (
-              let cl = 0;
-              cl < data[d].nodes[g].nodes[c].nodes[dp].nodes.length;
-              cl++
-            ) {
-              data[d].nodes[g].nodes[c].nodes[dp].nodes[cl][
-                'tag'
-              ] = `${data[d].nodes[g].nodes[c].nodes[dp].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}`
-              let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].id}`
-              if (!uniquecls.includes(tag)) {
-                setUniqueCls((prevState: any) => [...prevState, tag])
-                const splitted = tag.split('#')
-                setUniqueClsObj((prevState: any) => [
-                  ...prevState,
-                  {
-                    value: splitted[0],
-                    label: splitted[1],
-                    id: splitted[2],
-                    hierGroup: 'class',
-                  },
-                ])
-              }
-              for (
-                let scl = 0;
-                scl <
-                data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes.length;
-                scl++
-              ) {
-                data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl][
-                  'tag'
-                ] = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}`
-                let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].id}`
-                if (!uniquescls.includes(tag)) {
-                  setUniqueScls((prevState: any) => [...prevState, tag])
-                  const splitted = tag.split('#')
-                  setUniqueSclsObj((prevState: any) => [
-                    ...prevState,
-                    {
-                      value: splitted[0],
-                      label: splitted[1],
-                      id: splitted[2],
-                      hierGroup: 'subclass',
-                    },
-                  ])
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }, [data])
+  // useEffect(() => {
+  //   for (let d = 0; d < data.length; d++) {
+  //     data[d]['tag'] = data[d].name
+  //     let tag = `${data[d].name}#${data[d].tag}#${data[d].id}`
+  //     if (!uniquediv.includes(tag)) {
+  //       setUniqueDiv((prevState: any) => [...prevState, tag])
+  //       const splitted = tag.split('#')
+  //       setUniqueDivObj((prevState: any) => [
+  //         ...prevState,
+  //         {
+  //           value: splitted[0],
+  //           label: splitted[1],
+  //           id: splitted[2],
+  //           hierGroup: 'division',
+  //         },
+  //       ])
+  //     }
+  //     for (let g = 0; g < data[d].nodes.length; g++) {
+  //       data[d].nodes[g]['tag'] = `${data[d].tag} > ${data[d].nodes[g].name}`
+  //       let tag = `${data[d].nodes[g].name}#${data[d].nodes[g].tag}#${data[d].nodes[g].id}`
+  //       if (!uniquegrp.includes(tag)) {
+  //         setUniqueGrp((prevState: any) => [...prevState, tag])
+  //         const splitted = tag.split('#')
+  //         setUniqueGrpObj((prevState: any) => [
+  //           ...prevState,
+  //           {
+  //             value: splitted[0],
+  //             label: splitted[1],
+  //             id: splitted[2],
+  //             hierGroup: 'group',
+  //           },
+  //         ])
+  //       }
+  //       for (let c = 0; c < data[d].nodes[g].nodes.length; c++) {
+  //         data[d].nodes[g].nodes[c][
+  //           'tag'
+  //         ] = `${data[d].nodes[g].tag} > ${data[d].nodes[g].nodes[c].name}`
+  //         let tag = `${data[d].nodes[g].nodes[c].name}#${data[d].nodes[g].nodes[c].tag}#${data[d].nodes[g].nodes[c].id}`
+  //         if (!uniquecat.includes(tag)) {
+  //           setUniqueCat((prevState: any) => [...prevState, tag])
+  //           const splitted = tag.split('#')
+  //           setUniqueCatObj((prevState: any) => [
+  //             ...prevState,
+  //             {
+  //               value: splitted[0],
+  //               label: splitted[1],
+  //               id: splitted[2],
+  //               hierGroup: 'category',
+  //             },
+  //           ])
+  //         }
+  //         for (let dp = 0; dp < data[d].nodes[g].nodes[c].nodes.length; dp++) {
+  //           data[d].nodes[g].nodes[c].nodes[dp][
+  //             'tag'
+  //           ] = `${data[d].nodes[g].nodes[c].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].name}`
+  //           let tag = `${data[d].nodes[g].nodes[c].nodes[dp].name}#${data[d].nodes[g].nodes[c].nodes[dp].tag}#${data[d].nodes[g].nodes[c].nodes[dp].id}`
+  //           if (!uniquedep.includes(tag)) {
+  //             setUniqueDep((prevState: any) => [...prevState, tag])
+  //             const splitted = tag.split('#')
+  //             setUniqueDepObj((prevState: any) => [
+  //               ...prevState,
+  //               {
+  //                 value: splitted[0],
+  //                 label: splitted[1],
+  //                 id: splitted[2],
+  //                 hierGroup: 'department',
+  //               },
+  //             ])
+  //           }
+  //           for (
+  //             let cl = 0;
+  //             cl < data[d].nodes[g].nodes[c].nodes[dp].nodes.length;
+  //             cl++
+  //           ) {
+  //             data[d].nodes[g].nodes[c].nodes[dp].nodes[cl][
+  //               'tag'
+  //             ] = `${data[d].nodes[g].nodes[c].nodes[dp].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}`
+  //             let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].id}`
+  //             if (!uniquecls.includes(tag)) {
+  //               setUniqueCls((prevState: any) => [...prevState, tag])
+  //               const splitted = tag.split('#')
+  //               setUniqueClsObj((prevState: any) => [
+  //                 ...prevState,
+  //                 {
+  //                   value: splitted[0],
+  //                   label: splitted[1],
+  //                   id: splitted[2],
+  //                   hierGroup: 'class',
+  //                 },
+  //               ])
+  //             }
+  //             for (
+  //               let scl = 0;
+  //               scl <
+  //               data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes.length;
+  //               scl++
+  //             ) {
+  //               data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl][
+  //                 'tag'
+  //               ] = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}`
+  //               let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].id}`
+  //               if (!uniquescls.includes(tag)) {
+  //                 setUniqueScls((prevState: any) => [...prevState, tag])
+  //                 const splitted = tag.split('#')
+  //                 setUniqueSclsObj((prevState: any) => [
+  //                   ...prevState,
+  //                   {
+  //                     value: splitted[0],
+  //                     label: splitted[1],
+  //                     id: splitted[2],
+  //                     hierGroup: 'subclass',
+  //                   },
+  //                 ])
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }, [data])
+
+  // useEffect(() => {
+  //   async function handleClick() {
+  //     setData([])
+  //     setUniqueDivObj([])
+  //     setUniqueGrpObj([])
+  //     setUniqueCatObj([])
+  //     setUniqueDepObj([])
+  //     setUniqueClsObj([])
+  //     setUniqueSclsObj([])
+  //     setUniqueDiv([])
+  //     setUniqueGrp([])
+  //     setUniqueCat([])
+  //     setUniqueDep([])
+  //     setUniqueCls([])
+  //     setUniqueScls([])
+  //     // setIsProgressLoader(true)
+  //     setDisabled(true)
+  //     let nexturl = `${BASE_URL_SIT}${PRODUCT_HIERARCHY_GET}?apikey=${API_KEY}`
+  //     // let nexturl = `${BASE}/product/v1/hierarchies/reporting?apikey=ArAaZlvKV09DlZst4aGqxicONzvtGbpI&offset=0`;
+  //     //   const start = new Date();
+  //     while (nexturl !== '') {
+  //       if (error !== '') {
+  //         // setIsProgressLoader(false)
+  //         setLoaded(true)
+  //         toast.current.show({
+  //           severity: 'error',
+  //           summary: 'Error!',
+  //           detail: 'Product hierarchy service has issue',
+  //           life: life,
+  //           className: 'login-toast',
+  //         })
+  //         break
+  //       }
+  //       // console.log("to visit url: ", nexturl);
+  //       // await axios
+  //       //   .get(nexturl, {
+  //       //     headers: {
+  //       //       Authorization:
+  //       //         "Basic QXJBYVpsdktWMDlEbFpzdDRhR3F4aWNPTnp2dEdicEk6d2txU0VjQWRHWllaRnc5Yg==",
+  //       //     },
+  //       //   })
+  //       await getProductHierarchyAPI(nexturl)
+  //         .then((res) => {
+  //           setData((prevState: any) => [
+  //             ...prevState,
+  //             ...res.data.hierarchy.nodes,
+  //           ])
+  //           nexturl = res.data.metaData.links.next
+  //             ? `${BASE_URL_SIT}${res.data.metaData.links.next}`
+  //             : ''
+  //           // console.log(`up next: ${res.data.metaData.links.next}`);
+  //           // console.log(res.data.hierarchy.nodes);
+  //         })
+  //         .catch((e) => {
+  //           nexturl = ''
+  //           setError(e.message)
+  //         })
+  //     }
+  //     if (nexturl === '') {
+  //       setIsProgressLoader(false)
+  //       setLoaded(true)
+  //     }
+  //     // const end = new Date();
+  //     // const timediff = end - start;
+  //     // console.log("Time taken for api calls: ", timediff);
+  //   }
+  //   // setIsProgressLoader(true)
+  //   setLoaded(false)
+  //   handleClick()
+  // }, [BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY, error])
 
   useEffect(() => {
-    async function handleClick() {
-      setData([])
-      setUniqueDivObj([])
-      setUniqueGrpObj([])
-      setUniqueCatObj([])
-      setUniqueDepObj([])
-      setUniqueClsObj([])
-      setUniqueSclsObj([])
-      setUniqueDiv([])
-      setUniqueGrp([])
-      setUniqueCat([])
-      setUniqueDep([])
-      setUniqueCls([])
-      setUniqueScls([])
-      setDisabled(true)
-      let nexturl = `${BASE_URL_SIT}${PRODUCT_HIERARCHY_GET}?apikey=${API_KEY}`
-      // let nexturl = `${BASE}/product/v1/hierarchies/reporting?apikey=ArAaZlvKV09DlZst4aGqxicONzvtGbpI&offset=0`;
-      //   const start = new Date();
-      while (nexturl !== '') {
-        if (error !== '') {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: 'Product hierarchy service has issue',
-            life: life,
-            className: 'login-toast',
+    setLoaded(false)
+    getProductHierarchyListAPI &&
+      getProductHierarchyListAPI('division')
+        .then((res: any) => {
+          const divList = res.data.hierarchyNode.map((item: any) => {
+            return {
+              value: item.divisionName,
+              label: item.divisionName,
+              id: item.division,
+              hierGroup: 'division',
+            }
           })
-          break
-        }
-        // console.log("to visit url: ", nexturl);
-        // await axios
-        //   .get(nexturl, {
-        //     headers: {
-        //       Authorization:
-        //         "Basic QXJBYVpsdktWMDlEbFpzdDRhR3F4aWNPTnp2dEdicEk6d2txU0VjQWRHWllaRnc5Yg==",
-        //     },
-        //   })
-        await getProductHierarchyAPI(nexturl)
-          .then((res) => {
-            setData((prevState: any) => [
-              ...prevState,
-              ...res.data.hierarchy.nodes,
-            ])
-            nexturl = res.data.metaData.links.next
-              ? `${BASE_URL_SIT}${res.data.metaData.links.next}`
-              : ''
-            // console.log(`up next: ${res.data.metaData.links.next}`);
-            // console.log(res.data.hierarchy.nodes);
+          setUniqueDivObj(divList)
+          console.log('division length: ', divList.length)
+        })
+        .catch((err: any) => setUniqueDivObj([]))
+
+    getProductHierarchyListAPI &&
+      getProductHierarchyListAPI('group')
+        .then((res: any) => {
+          const grpList = res.data.hierarchyNode.map((item: any) => {
+            return {
+              value: item.groupName,
+              label: `${item.divisionName} > ${item.groupName}`,
+              id: item.group,
+              hierGroup: 'group',
+            }
           })
-          .catch((e) => {
-            nexturl = ''
-            setError(e.message)
+          setUniqueGrpObj(grpList)
+          console.log('group length: ', grpList.length)
+        })
+        .catch((err: any) => setUniqueGrpObj([]))
+
+    getProductHierarchyListAPI &&
+      getProductHierarchyListAPI('category')
+        .then((res: any) => {
+          const catList = res.data.hierarchyNode.map((item: any) => {
+            return {
+              value: item.categoryName,
+              label: `${item.divisionName} > ${item.groupName} > ${item.categoryName}`,
+              id: item.category,
+              hierGroup: 'category',
+            }
           })
-      }
-      if (nexturl === '') setIsProgressLoader(false)
-      // const end = new Date();
-      // const timediff = end - start;
-      // console.log("Time taken for api calls: ", timediff);
-    }
-    setIsProgressLoader(true)
-    handleClick()
-  }, [BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY, error])
+          setUniqueCatObj(catList)
+          console.log('category length: ', catList.length)
+        })
+        .catch((err: any) => setUniqueCatObj([]))
+
+    getProductHierarchyListAPI &&
+      getProductHierarchyListAPI('department')
+        .then((res: any) => {
+          const depList = res.data.hierarchyNode.map((item: any) => {
+            return {
+              value: item.departmentName,
+              label: `${item.divisionName} > ${item.groupName} > ${item.categoryName} > ${item.departmentName}`,
+              id: item.department,
+              hierGroup: 'department',
+            }
+          })
+          setUniqueDepObj(depList)
+          console.log('department length: ', depList.length)
+          setLoaded(true)
+        })
+        .catch((err: any) => {
+          setUniqueDepObj([])
+          setLoaded(true)
+        })
+  }, [])
 
   const handleChange = (e: any) => {
     // setPayload('')
@@ -342,18 +424,18 @@ function UserGroupCreate(props: any) {
         // setPayload('')
         setSelected([...uniquedepobj])
         break
-      case 'class':
-        setDisabled(false)
-        clspay.length > 0 ? setPayload(clspay) : setPayload('')
-        // setPayload('')
-        setSelected([...uniqueclsobj])
-        break
-      case 'subclass':
-        setDisabled(false)
-        sclspay.length > 0 ? setPayload(sclspay) : setPayload('')
-        // setPayload('')
-        setSelected([...uniquesclsobj])
-        break
+      // case 'class':
+      //   setDisabled(false)
+      //   clspay.length > 0 ? setPayload(clspay) : setPayload('')
+      //   // setPayload('')
+      //   setSelected([...uniqueclsobj])
+      //   break
+      // case 'subclass':
+      //   setDisabled(false)
+      //   sclspay.length > 0 ? setPayload(sclspay) : setPayload('')
+      //   // setPayload('')
+      //   setSelected([...uniquesclsobj])
+      //   break
       default:
         setDisabled(true)
         setPayload('')
@@ -405,6 +487,15 @@ function UserGroupCreate(props: any) {
     }),
   }
 
+  const customStyles = {
+    option: (provided: any, state: any) => ({
+      ...provided,
+      borderColor: teal[900],
+      backgroundColor: state.isSelected ? teal[900] : 'white',
+      color: state.isSelected ? 'white' : teal[900],
+    }),
+  }
+
   // const viewProductOpen = Boolean(viewProductEl)
   // const viewLocationOpen = Boolean(viewLocationEl)
   const handleLocationChange = (selected: any) => {
@@ -424,8 +515,8 @@ function UserGroupCreate(props: any) {
     setGrppay([])
     setCatpay([])
     setDeppay([])
-    setClspay([])
-    setSclspay([])
+    // setClspay([])
+    // setSclspay([])
     setHierLevel(constants.mainvalues.filter((val) => val.value === 'none'))
     setHierLevelInput(
       constants.mainvalues.filter((val) => val.value === 'none')
@@ -522,52 +613,57 @@ function UserGroupCreate(props: any) {
   const onstatusChange = (e: any) => {
     setIsPageModified(true)
     setErrorStatus('')
-    setStatus(e.target.value)
+    // setStatus(e.target.value)
+    setStatus(e.value)
   }
   // const handleOpenViewProduct = (e: any) => {
   //   setViewProductEl(e.currentTarget)
   // }
   const handleOpenViewProduct = () => {
-    if (hierLevelInput.length > 0) {
-      switch (hierLevelInput[0].value) {
-        case 'division':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquedivobj])
-          break
-        case 'group':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquegrpobj])
-          break
-        case 'category':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquecatobj])
-          break
-        case 'department':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquedepobj])
-          break
-        case 'class':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniqueclsobj])
-          break
-        case 'subclass':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquesclsobj])
-          break
-        default:
-          // setDisabled(true)
-          // setPayload('')
-          setSelected([])
-          break
+    setViewProductEl(true)
+    setIsProgressLoader(true)
+    if (loaded) {
+      setIsProgressLoader(false)
+      if (hierLevelInput.length > 0) {
+        switch (hierLevelInput[0].value) {
+          case 'division':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquedivobj])
+            break
+          case 'group':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquegrpobj])
+            break
+          case 'category':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquecatobj])
+            break
+          case 'department':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquedepobj])
+            break
+          // case 'class':
+          //   // setDisabled(false)
+          //   // setPayload('')
+          //   setSelected([...uniqueclsobj])
+          //   break
+          // case 'subclass':
+          //   // setDisabled(false)
+          //   // setPayload('')
+          //   setSelected([...uniquesclsobj])
+          //   break
+          default:
+            // setDisabled(true)
+            // setPayload('')
+            setSelected([])
+            break
+        }
       }
     }
-    setViewProductEl(true)
   }
   const handleCloseViewProduct = () => {
     // setViewProductEl(null)
@@ -593,16 +689,16 @@ function UserGroupCreate(props: any) {
         // setPayload('')
         setSelected([...uniquedepobj])
         break
-      case 'class':
-        // setDisabled(false)
-        // setPayload('')
-        setSelected([...uniqueclsobj])
-        break
-      case 'subclass':
-        // setDisabled(false)
-        // setPayload('')
-        setSelected([...uniquesclsobj])
-        break
+      // case 'class':
+      //   // setDisabled(false)
+      //   // setPayload('')
+      //   setSelected([...uniqueclsobj])
+      //   break
+      // case 'subclass':
+      //   // setDisabled(false)
+      //   // setPayload('')
+      //   setSelected([...uniquesclsobj])
+      //   break
       default:
         // setDisabled(true)
         // setPayload('')
@@ -628,7 +724,7 @@ function UserGroupCreate(props: any) {
     >
       <Box
         sx={{
-          height: 450,
+          height: 600,
           // width: dialogwidth,
           width: 'auto',
           p: 2,
@@ -638,7 +734,8 @@ function UserGroupCreate(props: any) {
         }}
       >
         <Box
-          className={classes.inputFieldBox}
+          // className={classes.inputFieldBox}
+          className={classes.inputFieldBoxPop}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -691,7 +788,8 @@ function UserGroupCreate(props: any) {
             }}
           >
             <Box
-              className={classes.inputFieldBox}
+              // className={classes.inputFieldBox}
+              className={classes.inputFieldBoxPop}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -767,7 +865,8 @@ function UserGroupCreate(props: any) {
             display: 'flex',
             justifyContent: 'end',
           }}
-          className={classes.inputFieldBox}
+          // className={classes.inputFieldBox}
+          className={classes.inputFieldBoxPop}
         >
           <Button
             // type="submit"
@@ -901,7 +1000,8 @@ function UserGroupCreate(props: any) {
         return {
           hierarchyLevel: product.hierarchyLevel,
           hierarchyId: product.hierarchyId,
-          hierarchyName: product.value,
+          // hierarchyName: product.value,
+          hierarchyName: product.label,
           startDate: new Date().toISOString().split('T')[0],
           endDate: product.endDate,
         }
@@ -1078,6 +1178,7 @@ function UserGroupCreate(props: any) {
               alignItems="center"
             >
               <Box
+                className="createRequest"
                 sx={{
                   flexDirection: 'column',
                   display: 'flex',
@@ -1087,45 +1188,55 @@ function UserGroupCreate(props: any) {
                   textAlign: 'left',
                 }}
               >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    paddingBottom: '20px',
-                    paddingTop: '10px',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                    }}
-                  >
-                    <Typography variant="h6">Create Group</Typography>
-                  </Box>
+                <div className="createRequestContainer">
                   <Box
                     sx={{
                       display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
+                      flexDirection: 'row',
+                      paddingBottom: '20px',
+                      paddingTop: '10px',
                     }}
                   >
                     <Box
                       sx={{
-                        paddingLeft: 5,
+                        flexGrow: 1,
                       }}
                     >
-                      <button
-                        type="button"
-                        onClick={goBack}
-                        //onClick={handleBackAfterDialog}
-                        className={classes.backButton}
+                      <Typography variant="h6">Create Group</Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: !active ? 'row' : 'column',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          paddingLeft: 5,
+                        }}
                       >
-                        Back
-                      </button>
+                        <button
+                          type="button"
+                          onClick={goBack}
+                          //onClick={handleBackAfterDialog}
+                          //className={classes.backButton}
+                          className="backButton"
+                        >
+                          <svg
+                            className="MuiSvgIcon-root"
+                            focusable="false"
+                            viewBox="0 0 34 34"
+                            aria-hidden="true"
+                          >
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+                          </svg>{' '}
+                          Back
+                        </button>
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-                <form onSubmit={handleCreateGroup}>
-                  {/* <Box
+                  <form onSubmit={handleCreateGroup}>
+                    {/* <Box
                     sx={{
                       display: 'flex',
                       flexDirection: !active ? 'row' : 'column',
@@ -1165,189 +1276,206 @@ function UserGroupCreate(props: any) {
                       </Typography>
                     </Box>
                   </Box> */}
-                  <Box className={classes.eachRow}>
-                    <Box
-                      className={classes.inputLabel}
-                      sx={{
-                        display: !active ? null : 'flex',
-                      }}
-                    >
-                      <Typography variant="subtitle2">
-                        Group Name &nbsp;
-                        <span
-                          style={{
-                            color: '#ff0000',
-                          }}
-                        >
-                          *
-                        </span>
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <input
-                          type="text"
-                          name="groupname"
-                          ref={focusGroupName}
-                          id="groupname"
-                          placeholder="eg. group name 1"
-                          className={classes.inputFields}
-                          onChange={ongroupnameChange}
-                          value={groupname}
-                          required
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {errorGroupName !== '' && (
                     <Box className={classes.eachRow}>
-                      <Box className={classes.inputLabel}></Box>
                       <Box
-                        className={classes.inputFieldBox}
-                        justifyContent="center"
+                        className={classes.inputLabel}
+                        sx={{
+                          display: !active ? null : 'flex',
+                        }}
                       >
-                        <Typography variant="subtitle2" color="error">
-                          {errorGroupName}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
-                      paddingTop: '20px',
-                    }}
-                  >
-                    <Box
-                      className={classes.inputLabel}
-                      sx={{
-                        display: !active ? null : 'flex',
-                      }}
-                    >
-                      <Typography variant="subtitle2">Description</Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <TextareaAutosize
-                          name="description"
-                          id="description"
-                          className={classes.textArea}
-                          onChange={ondescriptionChange}
-                          value={description}
-                          minRows="5"
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Status &nbsp;
-                        <span
-                          style={{
-                            color: '#ff0000',
-                          }}
-                        >
-                          *
-                        </span>
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <select
-                          name="status"
-                          id="status"
-                          className={classes.selectField}
-                          defaultValue=""
-                          onChange={onstatusChange}
-                          required
-                          disabled
-                        >
-                          {/* <option
-                            disabled
-                            value=""
-                            className={classes.selectOptions}
+                        <Typography variant="subtitle2">
+                          Group Name &nbsp;
+                          <span
+                            style={{
+                              color: '#ff0000',
+                            }}
                           >
-                            None
-                          </option> */}
-                          {constants.groupstatuses.map((type) => {
-                            return (
-                              <option value={type.statusID} key={type.statusID}>
-                                {type.text}
-                              </option>
-                            )
-                          })}
-                        </select>
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {errorStatus !== '' && (
-                    <Box className={classes.eachRow}>
-                      <Box className={classes.inputLabel}></Box>
-                      <Box
-                        className={classes.inputFieldBox}
-                        justifyContent="center"
-                      >
-                        <Typography variant="subtitle2" color="error">
-                          {errorStatus}
+                            *
+                          </span>
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          <input
+                            type="text"
+                            name="groupname"
+                            ref={focusGroupName}
+                            id="groupname"
+                            placeholder="eg. group name 1"
+                            className={classes.inputFields}
+                            onChange={ongroupnameChange}
+                            value={groupname}
+                            required
+                          />
                         </Typography>
                       </Box>
                     </Box>
-                  )}
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Product Hierarchies
-                      </Typography>
+                    {errorGroupName !== '' && (
+                      <Box className={classes.eachRow}>
+                        <Box className={classes.inputLabel}></Box>
+                        <Box
+                          className={classes.inputFieldBox}
+                          justifyContent="center"
+                        >
+                          <Typography variant="subtitle2" color="error">
+                            {errorGroupName}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: !active ? 'row' : 'column',
+                        paddingTop: '20px',
+                      }}
+                    >
+                      <Box
+                        className={classes.inputLabel}
+                        sx={{
+                          display: !active ? null : 'flex',
+                        }}
+                      >
+                        <Typography variant="subtitle2">Description</Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          <TextareaAutosize
+                            name="description"
+                            id="description"
+                            className={classes.textArea}
+                            onChange={ondescriptionChange}
+                            value={description}
+                            minRows="5"
+                          />
+                        </Typography>
+                      </Box>
                     </Box>
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Status &nbsp;
+                          <span
+                            style={{
+                              color: '#ff0000',
+                            }}
+                          >
+                            *
+                          </span>
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          {/* <select
+                            name="status"
+                            id="status"
+                            className={classes.selectField}
+                            defaultValue=""
+                            onChange={onstatusChange}
+                            required
+                            disabled
+                          >
+                            {constants.groupstatuses.map((type) => {
+                              return (
+                                <option
+                                  value={type.statusID}
+                                  key={type.statusID}
+                                >
+                                  {type.text}
+                                </option>
+                              )
+                            })}
+                          </select> */}
+                          <Select
+                            value={constants.groupstatuses.filter(
+                              (i) => i.value === 'A'
+                            )}
+                            isDisabled={true}
+                            isLoading={false}
+                            // components={{
+                            //   Option,
+                            // }}
+                            // ref={focusStatus}
+                            isRtl={false}
+                            isSearchable={true}
+                            name="color"
+                            options={constants.groupstatuses}
+                            onChange={onstatusChange}
+                            className={classes.multiSelect}
+                            styles={customStyles}
+                            //value={hierLevel}
+                          />
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {errorStatus !== '' && (
+                      <Box className={classes.eachRow}>
+                        <Box className={classes.inputLabel}></Box>
+                        <Box
+                          className={classes.inputFieldBox}
+                          justifyContent="center"
+                        >
+                          <Typography variant="subtitle2" color="error">
+                            {errorStatus}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Product Hierarchies
+                        </Typography>
+                      </Box>
 
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle1">
-                        {/* {payload ? (
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle1">
+                          {/* {payload ? (
                           payload.length > 0 ? ( */}
-                        {hierarchy ? (
-                          hierarchy.length > 0 ? (
-                            <button
-                              type="button"
-                              className={classes.underlineRemove}
-                              onClick={handleOpenViewProduct}
-                            >
-                              {/* Product Hierarchies({payload.length}) */}
-                              Product Hierarchies({hierarchy.length})
-                            </button>
+                          {hierarchy ? (
+                            hierarchy.length > 0 ? (
+                              <button
+                                type="button"
+                                className={classes.underlineRemove}
+                                onClick={handleOpenViewProduct}
+                              >
+                                {/* Product Hierarchies({payload.length}) */}
+                                <span className="addUserGroup">
+                                  Product Hierarchies({hierarchy.length})
+                                </span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className={classes.underlineRemove}
+                                onClick={handleOpenViewProduct}
+                              >
+                                <span className="addUserGroup">Add</span>
+                              </button>
+                            )
                           ) : (
                             <button
                               type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
-                              Add
+                              <span className="addUserGroup">Add</span>
                             </button>
-                          )
-                        ) : (
-                          <button
-                            type="button"
-                            className={classes.underlineRemove}
-                            onClick={handleOpenViewProduct}
-                          >
-                            Add
-                          </button>
-                        )}
-                      </Typography>
-                      {viewProduct}
+                          )}
+                        </Typography>
+                        {viewProduct}
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Location Hierarchies
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      {locationSelect}
-                    </Box>
-                    {/* <Box className={classes.inputFieldBox}>
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Location Hierarchies
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        {locationSelect}
+                      </Box>
+                      {/* <Box className={classes.inputFieldBox}>
                       <Typography variant="subtitle1">
                         {locationNames ? (
                           locationNames.length > 0 ? (
@@ -1379,73 +1507,79 @@ function UserGroupCreate(props: any) {
                       </Typography>
                       {viewLocation}
                     </Box> */}
-                  </Box>
-                  {/* <Box className={classes.eachRow}> */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
-                      justifyContent: !active ? 'space-between' : 'center',
-                      paddingTop: '30px',
-                      alignItems: !active ? 'center' : 'center',
-                    }}
-                  >
+                    </Box>
+                    {/* <Box className={classes.eachRow}> */}
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: !forbutton ? 'row' : 'column',
-                        alignItems: !forbutton ? 'center' : 'center',
-                        justifyContent: !forbutton ? 'space-between' : 'center',
-                      }}
-                    ></Box>
-                    {/* <Box
-                      sx={{
-                        display: 'flex',
-                      }}
-                    > */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: !forbutton ? 'row' : 'column',
-                        alignItems: !forbutton ? 'center' : 'center',
-                        justifyContent: !forbutton ? 'space-between' : 'center',
+                        flexDirection: !active ? 'row' : 'column',
+                        justifyContent: !active ? 'space-between' : 'center',
+                        paddingTop: '30px',
+                        alignItems: !active ? 'center' : 'center',
                       }}
                     >
-                      <Button
-                        // type="reset"
-                        variant="contained"
-                        className={classes.whiteButton}
-                        // onClick={handleReset}
-                        onClick={handleResetAfterDialog}
-                        disabled={disabled1}
-                        size="small"
-                      >
-                        Reset
-                      </Button>
-                      {/* </Box> */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: !forbutton ? 'row' : 'column',
+                          alignItems: !forbutton ? 'center' : 'center',
+                          justifyContent: !forbutton
+                            ? 'space-between'
+                            : 'center',
+                        }}
+                      ></Box>
                       {/* <Box
                       sx={{
                         display: 'flex',
                       }}
                     > */}
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        // type="submit"
-                        className={classes.buttons}
-                        // onClick={handleCreateGroup}
-                        onClick={handleCreateGroupAfterDialog}
-                        disabled={disabled1}
-                        size="small"
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: !forbutton ? 'row' : 'row',
+                          alignItems: !forbutton ? 'center' : 'center',
+                          justifyContent: !forbutton
+                            ? 'space-between'
+                            : 'center',
+                        }}
                       >
-                        Submit
-                      </Button>
+                        <Button
+                          // type="reset"
+                          variant="contained"
+                          //className={classes.whiteButton}
+                          className="reSet"
+                          // onClick={handleReset}
+                          onClick={handleResetAfterDialog}
+                          disabled={disabled1}
+                          size="small"
+                        >
+                          Reset
+                        </Button>
+                        {/* </Box> */}
+                        {/* <Box
+                      sx={{
+                        display: 'flex',
+                      }}
+                    > */}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          // type="submit"
+                          className={classes.buttons}
+                          // onClick={handleCreateGroup}
+                          onClick={handleCreateGroupAfterDialog}
+                          disabled={disabled1}
+                          size="small"
+                        >
+                          Submit
+                        </Button>
+                      </Box>
+                      {/* </Box> */}
                     </Box>
                     {/* </Box> */}
-                  </Box>
-                  {/* </Box> */}
-                </form>
-                <LoadingComponent showLoader={isProgressLoader} />
+                  </form>
+                  <LoadingComponent showLoader={isProgressLoader} />
+                </div>
               </Box>
             </Grid>
           </Grid>

@@ -155,6 +155,24 @@ export const useStyles = makeStyles((theme) => ({
       width: 200,
     },
   },
+  inputFieldBoxPop: {
+    width: 400,
+    [theme.breakpoints.down(750)]: {
+      width: 400,
+    },
+    [theme.breakpoints.down(500)]: {
+      width: 300,
+    },
+    [theme.breakpoints.down(400)]: {
+      width: 250,
+    },
+    [theme.breakpoints.down(350)]: {
+      width: 230,
+    },
+    [theme.breakpoints.down(300)]: {
+      width: 200,
+    },
+  },
   textArea: {
     resize: 'none',
     width: 400,

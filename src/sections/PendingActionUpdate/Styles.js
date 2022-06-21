@@ -87,6 +87,24 @@ export const useStyles = makeStyles((theme) => {
         width: 200,
       },
     },
+    inputFieldBoxPop: {
+      width: 400,
+      [theme.breakpoints.down(750)]: {
+        width: 400,
+      },
+      [theme.breakpoints.down(500)]: {
+        width: 300,
+      },
+      [theme.breakpoints.down(400)]: {
+        width: 250,
+      },
+      [theme.breakpoints.down(350)]: {
+        width: 230,
+      },
+      [theme.breakpoints.down(300)]: {
+        width: 200,
+      },
+    },
     inputLabelHead: {
       // [theme.breakpoints.up("sm")]: {
       //   width: 392,
@@ -261,6 +279,17 @@ export const useStyles = makeStyles((theme) => {
     },
     customMaxWidth: {
       maxWidth: '75%',
+    },
+    dateFields: {
+      [theme.breakpoints.up('sm')]: {
+        width: '50%',
+      },
+      [theme.breakpoints.down('sm')]: {
+        width: '100%',
+      },
+      color: theme.palette.primary.main,
+      padding: '8px',
+      height: 38,
     },
   }
 })

@@ -28,9 +28,26 @@ const {
   USER_V2,
   PUT_CLAIM_TASK_CAMUNDA,
   GET_DASHBOARD_STATUS_CAMUNDA,
+  EVENT_DASHBOARD_GET_CAMUNDA,
   POST_ATTACHMENT,
   PUT_COMPLETE_TASK_CAMUNDA,
   PUT_REJECT_TASK_CAMUNDA,
+  PRODUCT_HIERARCHY_LIST_GET,
+  PATCH_RANGERESET_EVENTS,
+  GET_RANGERESET_EVENTS,
+  DELETE_RANGERESETS,
+  GET_RESET_TYPES,
+  GET_PLANOGRAM_CLASSES,
+  GET_WASTAGE_RANGES,
+  CREATE_EVENTS_CAMUNDA,
+  GET_EVENTDETAILS_BY_ID,
+  PATCH_DELETE_RANGERESETS,
+  PUBLISH_CAMUNDA_EVENT,
+  PUT_CAMUNDA_CLAIM,
+  DELETE_EVENTS_CAMUNDA,
+  PUT_CAMUNDA_MILESTONE_UPDATE,
+  POST_RANGE_RESET_EVENT_ATTACHMENT,
+  GET_RANGE_BY_RANGEID,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -206,6 +223,21 @@ export const getStatusCamundaAPI = () => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getStatusEventCamundaAPI = () => {
+  let empId = ''
+  const userV2Response = JSON.parse(
+    localStorage && localStorage.getItem('_GresponseV2')
+  )
+  if (userV2Response) {
+    empId = userV2Response && userV2Response.empId
+  }
+  let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
+  const params = 'limit=1000'
+  url = url.replace('{userId}', empId)
+  url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const getAppsAPI = () => {
   const url = `${BASE_URL}${GET_APP_MENU_ALL}`
   const params = 'limit=1000'
@@ -277,9 +309,33 @@ export const getProductHierarchyAPI = (url) => {
   return serviceRequestForProduct(url, 'GET', undefined)
 }
 
+export const getProductHierarchyListAPI = (nodetype) => {
+  let url = `${BASE_URL}${PRODUCT_HIERARCHY_LIST_GET}`
+  url = url.replace('{nodetype}', nodetype)
+  return serviceRequest(url, 'GET', undefined)
+}
+
 export const getAllUsersAPI = () => {
   const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
   const params = 'limit=1000'
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getAllActiveUsersAPI = () => {
+  const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
+  const params = 'limit=1000&statusIn=A'
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getUsersAPIByEmailAndRole = (roleId, emailId) => {
+  const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
+  const params = `roleIdIn=${roleId}&statusIn=A,I,D&emailIdIn=${emailId}`
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getUsersAPIByRole = (roleId) => {
+  const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
+  const params = `roleIdIn=${roleId}&statusIn=A,I,D`
   return serviceRequest(url, 'GET', undefined, params)
 }
 
@@ -312,6 +368,106 @@ export const getTasklogsAPI = (requestId) => {
   url = url.replace('{requestId}', requestId)
   return serviceRequestBasic(url, 'GET', undefined)
 }
+
+export const getResetTypes = () => {
+  let url = `${BASE_URL}${GET_RESET_TYPES}`
+  // const params = `createdByIdIn=${createdBy}`
+  return serviceRequest(url, 'GET', undefined)
+}
+
+export const getPlanogramClasses = () => {
+  let url = `${BASE_URL}${GET_PLANOGRAM_CLASSES}`
+  // const params = `createdByIdIn=${createdBy}`
+  return serviceRequest(url, 'GET', undefined)
+}
+
+export const getWastageRanges = () => {
+  let url = `${BASE_URL}${GET_WASTAGE_RANGES}`
+  // const params = `createdByIdIn=${createdBy}`
+  return serviceRequest(url, 'GET', undefined)
+}
+
+export const getRangeResetEvents = (createdBy) => {
+  let url = `${BASE_URL}${GET_RANGERESET_EVENTS}`
+  const params = `createdByIdIn=${createdBy}`
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const patchRangeResetEvents = (req) => {
+  let url = `${BASE_URL}${PATCH_RANGERESET_EVENTS}`
+  // url = url.replace('{userId}', req.user.employeeId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PATCH', reqBody)
+}
+
+export const deleteRangeResets = (resetId) => {
+  let url = `${BASE_URL}${DELETE_RANGERESETS}`
+  url = url.replace('{rangeResetId}', resetId)
+  return serviceRequest(url, 'DELETE', undefined)
+}
+
+export const patchUpdateRangeResets = (resetId, req) => {
+  let url = `${BASE_URL}${PATCH_DELETE_RANGERESETS}`
+  url = url.replace('{rangeResetId}', resetId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PATCH', reqBody)
+}
+
+export const createEventsCamunda = (eventId, req) => {
+  let url = `${BASE_URL}${CREATE_EVENTS_CAMUNDA}`
+  url = url.replace('{eventId}', eventId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const publishEventsCamunda = (eventId, req) => {
+  let url = `${BASE_URL}${PUBLISH_CAMUNDA_EVENT}`
+  url = url.replace('{eventId}', eventId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const deleteEventsCamunda = (req) => {
+  let url = `${BASE_URL}${DELETE_EVENTS_CAMUNDA}`
+  // url = url.replace('{eventId}', eventId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'DELETE', reqBody)
+}
+
+export const getEventDetailsById = (eventId) => {
+  let url = `${BASE_URL}${GET_EVENTDETAILS_BY_ID}`
+  url = url.replace('{eventId}', eventId)
+  // let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'GET', undefined)
+}
+
+export const claimEventsCamunda = (taskId, req) => {
+  let url = `${BASE_URL}${PUT_CAMUNDA_CLAIM}`
+  url = url.replace('{taskId}', taskId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const putCamundaMileStoneUpdate = (eventId, req) => {
+  let url = `${BASE_URL}${PUT_CAMUNDA_MILESTONE_UPDATE}`
+  url = url.replace('{eventId}', eventId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PUT', reqBody)
+}
+
+export const postFileAttachmentRangeResetAPI = (req, eventId) => {
+  let url = `${BASE_URL}${POST_RANGE_RESET_EVENT_ATTACHMENT}`
+  url = url.replace('{rangeResetId}', eventId)
+  return serviceRequestForFileUpload(url, 'POST', req)
+}
+
+export const getRangeByRangeResetId = (rangeResetId) => {
+  let url = `${BASE_URL}${GET_RANGE_BY_RANGEID}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  // let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'GET', undefined)
+}
+
 // export const getItemWeekStoreViewForecastAPI = (
 //   rangeResetId,
 //   productMinCode,

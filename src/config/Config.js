@@ -4,6 +4,8 @@ const envDetails = {
     BASE_URL_SIT: 'https://sit-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
+    PRODUCT_HIERARCHY_LIST_GET:
+      'product/v1/hierarchylists/reporting/nodetype/{nodetype}',
     GET_APP_MENU_ID: 'commercial-user/v1/apps/{appMenuId}',
     GET_APP_MENU_ALL: 'commercial-user/v1/apps',
     GET_USER_DETAILS_ID: 'commercial-user/v1/userdetails/{userId}',
@@ -11,6 +13,8 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
+    EVENT_DASHBOARD_GET_CAMUNDA:
+      'commercial-workflow-range/v1/events/users/{userId}/process/{processDefKey}',
     PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
@@ -28,9 +32,34 @@ const envDetails = {
     GET_TASKLOG_ALL: 'commercial-user/v1/tasklogs',
     POST_TASKLOG_ID: 'commercial-user/v1/tasklogs',
     POST_ATTACHMENT: 'commercial-user/v1/attachments/users/{userId}',
+    POST_RANGE_RESET_EVENT_ATTACHMENT:
+      'rangereset/v2/attachments/rangeresets/{rangeResetId}',
     GET_LOCATIONS: 'location/v2/stores',
     GET_USER_INFO: 'colleague/v1/colleagues/@me',
     GET_USER_INFO_OTHER: 'colleague/v1/colleagues/{userId}',
+    // need to change the variable part of config types
+    GET_RESET_TYPES: 'rangereset/v2/config/Reset Type',
+    GET_PLANOGRAM_CLASSES: 'rangereset/v2/config/Planogram Class',
+    GET_WASTAGE_RANGES: 'rangereset/v2/config/Wastage Range',
+    GET_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    PATCH_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    CREATE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    GET_EVENTDETAILS_BY_ID:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_CLAIM:
+      'commercial-workflow-range/v1/tasks/{taskId}/claim/process/hbtwEventRequestHandler',
+    PUBLISH_CAMUNDA_EVENT:
+      'commercial-workflow-range/v1/events/{eventId}/approverangeevent/process/hbtwEventRequestHandler',
+    DELETE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_MILESTONE_UPDATE:
+      'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
+    //range apis
+    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
     USER_V2: 'user/v2/token',
@@ -40,6 +69,8 @@ const envDetails = {
     BASE_URL_SIT: 'https://sit-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
+    PRODUCT_HIERARCHY_LIST_GET:
+      'product/v1/hierarchylists/reporting/nodetype/{nodetype}',
     GET_APP_MENU_ID: 'commercial-user/v1/apps/{appMenuId}',
     GET_APP_MENU_ALL: 'commercial-user/v1/apps',
     GET_USER_DETAILS_ID: 'commercial-user/v1/userdetails/{userId}',
@@ -47,6 +78,8 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
+    EVENT_DASHBOARD_GET_CAMUNDA:
+      'commercial-workflow-range/v1/events/users/{userId}/process/{processDefKey}',
     PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
@@ -64,9 +97,33 @@ const envDetails = {
     GET_TASKLOG_ALL: 'commercial-user/v1/tasklogs',
     POST_TASKLOG_ID: 'commercial-user/v1/tasklogs',
     POST_ATTACHMENT: 'commercial-user/v1/attachments/users/{userId}',
+    POST_RANGE_RESET_EVENT_ATTACHMENT:
+      'rangereset/v2/attachments/rangeresets/{rangeResetId}',
     GET_LOCATIONS: 'location/v2/stores',
     GET_USER_INFO: 'colleague/v1/colleagues/@me',
     GET_USER_INFO_OTHER: 'colleague/v1/colleagues/{userId}',
+    GET_RESET_TYPES: 'rangereset/v2/config/Reset Type',
+    GET_PLANOGRAM_CLASSES: 'rangereset/v2/config/Planogram Class',
+    GET_WASTAGE_RANGES: 'rangereset/v2/config/Wastage Range',
+    GET_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    PATCH_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    CREATE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    GET_EVENTDETAILS_BY_ID:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_CLAIM:
+      'commercial-workflow-range/v1/tasks/{taskId}/claim/process/hbtwEventRequestHandler',
+    PUBLISH_CAMUNDA_EVENT:
+      'commercial-workflow-range/v1/events/{eventId}/approverangeevent/process/hbtwEventRequestHandler',
+    DELETE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_MILESTONE_UPDATE:
+      'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
+    //range apis
+    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
     USER_V2: 'user/v2/token',
@@ -76,6 +133,8 @@ const envDetails = {
     BASE_URL_SIT: 'https://pre-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
+    PRODUCT_HIERARCHY_LIST_GET:
+      'product/v1/hierarchylists/reporting/nodetype/{nodetype}',
     GET_APP_MENU_ID: 'commercial-user/v1/apps/{appMenuId}',
     GET_APP_MENU_ALL: 'commercial-user/v1/apps',
     GET_USER_DETAILS_ID: 'commercial-user/v1/userdetails/{userId}',
@@ -83,6 +142,8 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
+    EVENT_DASHBOARD_GET_CAMUNDA:
+      'commercial-workflow-range/v1/events/users/{userId}/process/{processDefKey}',
     PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
@@ -100,9 +161,33 @@ const envDetails = {
     GET_TASKLOG_ALL: 'commercial-user/v1/tasklogs',
     POST_TASKLOG_ID: 'commercial-user/v1/tasklogs',
     POST_ATTACHMENT: 'commercial-user/v1/attachments/users/{userId}',
+    POST_RANGE_RESET_EVENT_ATTACHMENT:
+      'rangereset/v2/attachments/rangeresets/{rangeResetId}',
     GET_LOCATIONS: 'location/v2/stores',
     GET_USER_INFO: 'colleague/v1/colleagues/@me',
     GET_USER_INFO_OTHER: 'colleague/v1/colleagues/{userId}',
+    GET_RESET_TYPES: 'rangereset/v2/config/Reset Type',
+    GET_PLANOGRAM_CLASSES: 'rangereset/v2/config/Planogram Class',
+    GET_WASTAGE_RANGES: 'rangereset/v2/config/Wastage Range',
+    GET_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    PATCH_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    CREATE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    GET_EVENTDETAILS_BY_ID:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_CLAIM:
+      'commercial-workflow-range/v1/tasks/{taskId}/claim/process/hbtwEventRequestHandler',
+    PUBLISH_CAMUNDA_EVENT:
+      'commercial-workflow-range/v1/events/{eventId}/approverangeevent/process/hbtwEventRequestHandler',
+    DELETE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_MILESTONE_UPDATE:
+      'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
+    //range apis
+    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
     USER_V2: 'user/v2/token',
@@ -112,6 +197,8 @@ const envDetails = {
     BASE_URL_SIT: 'https://api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
+    PRODUCT_HIERARCHY_LIST_GET:
+      'product/v1/hierarchylists/reporting/nodetype/{nodetype}',
     GET_APP_MENU_ID: 'commercial-user/v1/apps/{appMenuId}',
     GET_APP_MENU_ALL: 'commercial-user/v1/apps',
     GET_USER_DETAILS_ID: 'commercial-user/v1/userdetails/{userId}',
@@ -119,6 +206,8 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
+    EVENT_DASHBOARD_GET_CAMUNDA:
+      'commercial-workflow-range/v1/events/users/{userId}/process/{processDefKey}',
     PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
@@ -136,9 +225,33 @@ const envDetails = {
     GET_TASKLOG_ALL: 'commercial-user/v1/tasklogs',
     POST_TASKLOG_ID: 'commercial-user/v1/tasklogs',
     POST_ATTACHMENT: 'commercial-user/v1/attachments/users/{userId}',
+    POST_RANGE_RESET_EVENT_ATTACHMENT:
+      'rangereset/v2/attachments/rangeresets/{rangeResetId}',
     GET_LOCATIONS: 'location/v2/stores',
     GET_USER_INFO: 'colleague/v1/colleagues/@me',
     GET_USER_INFO_OTHER: 'colleague/v1/colleagues/{userId}',
+    GET_RESET_TYPES: 'rangereset/v2/config/Reset Type',
+    GET_PLANOGRAM_CLASSES: 'rangereset/v2/config/Planogram Class',
+    GET_WASTAGE_RANGES: 'rangereset/v2/config/Wastage Range',
+    GET_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    PATCH_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    CREATE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    GET_EVENTDETAILS_BY_ID:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_CLAIM:
+      'commercial-workflow-range/v1/tasks/{taskId}/claim/process/hbtwEventRequestHandler',
+    PUBLISH_CAMUNDA_EVENT:
+      'commercial-workflow-range/v1/events/{eventId}/approverangeevent/process/hbtwEventRequestHandler',
+    DELETE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_MILESTONE_UPDATE:
+      'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
+    //range apis
+    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
     USER_V2: 'user/v2/token',
@@ -148,6 +261,8 @@ const envDetails = {
     BASE_URL_SIT: 'https://sit-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
+    PRODUCT_HIERARCHY_LIST_GET:
+      'product/v1/hierarchylists/reporting/nodetype/{nodetype}',
     GET_APP_MENU_ID: 'commercial-user/v1/apps/{appMenuId}',
     GET_APP_MENU_ALL: 'commercial-user/v1/apps',
     GET_USER_DETAILS_ID: 'commercial-user/v1/userdetails/{userId}',
@@ -155,6 +270,8 @@ const envDetails = {
     PUT_USER_DETAILS_ID_CAMUNDA:
       'commercial-workflow/v1/users/userdetails/{userId}',
     GET_DASHBOARD_STATUS_CAMUNDA: 'commercial-workflow/v1/status/{userId}',
+    EVENT_DASHBOARD_GET_CAMUNDA:
+      'commercial-workflow-range/v1/events/users/{userId}/process/{processDefKey}',
     PUT_CLAIM_TASK_CAMUNDA: 'commercial-workflow/v1/tasks/{taskId}/claim',
     PUT_REJECT_TASK_CAMUNDA:
       'commercial-workflow/v1/tasks/businesskeys/{businessKey}/reject',
@@ -172,9 +289,33 @@ const envDetails = {
     GET_TASKLOG_ALL: 'commercial-user/v1/tasklogs',
     POST_TASKLOG_ID: 'commercial-user/v1/tasklogs',
     POST_ATTACHMENT: 'commercial-user/v1/attachments/users/{userId}',
+    POST_RANGE_RESET_EVENT_ATTACHMENT:
+      'rangereset/v2/attachments/rangeresets/{rangeResetId}',
     GET_LOCATIONS: 'location/v2/stores',
     GET_USER_INFO: 'colleague/v1/colleagues/@me',
     GET_USER_INFO_OTHER: 'colleague/v1/colleagues/{userId}',
+    GET_RESET_TYPES: 'rangereset/v2/config/Reset Type',
+    GET_PLANOGRAM_CLASSES: 'rangereset/v2/config/Planogram Class',
+    GET_WASTAGE_RANGES: 'rangereset/v2/config/Wastage Range',
+    GET_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    PATCH_RANGERESET_EVENTS: 'rangereset/v2/rangeresetevents',
+    DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_DELETE_RANGERESETS: 'rangereset/v2/rangeresets/{rangeResetId}',
+    CREATE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    GET_EVENTDETAILS_BY_ID:
+      'commercial-workflow-range/v1/events/{eventId}/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_CLAIM:
+      'commercial-workflow-range/v1/tasks/{taskId}/claim/process/hbtwEventRequestHandler',
+    PUBLISH_CAMUNDA_EVENT:
+      'commercial-workflow-range/v1/events/{eventId}/approverangeevent/process/hbtwEventRequestHandler',
+    DELETE_EVENTS_CAMUNDA:
+      'commercial-workflow-range/v1/events/process/hbtwEventRequestHandler',
+    PUT_CAMUNDA_MILESTONE_UPDATE:
+      'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
+    //range apis
+    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
     USER_V2: 'user/v2/token',

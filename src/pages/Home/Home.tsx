@@ -16,6 +16,7 @@ import { reset_all } from '../../redux/Actions/PendingAction/Action'
 import ScrollToTop from '../../components/ScrollToTop/ScrollToTop'
 import { useStyles, drawerWidth } from './Styles'
 import NavigationDrawer from '../../sections/NavigationDrawer/NavigationDrawer'
+import { resetErrorFile, resetFile } from '../../redux/Actions/FileUpload'
 
 // const useStyles = makeStyles((theme) => ({
 //   contentSection: {
@@ -40,6 +41,9 @@ const Home = (props: any) => {
     reset_all,
     increment,
     incrementD,
+    logoutClicked,
+    resetFile,
+    resetErrorFile,
   } = props
   // let role = userDetail && userDetail.role;
   const [open, setOpen] = useState(false)
@@ -81,21 +85,28 @@ const Home = (props: any) => {
     localStorage.removeItem('_Gresponse')
     localStorage.removeItem('_GresponseV2')
     localStorage.removeItem('_Colresponse')
+    localStorage.removeItem('_errorCounter')
     sessionStorage.clear()
     refreshRoles()
     refreshApps()
     resetUserdetails()
     reset_all()
-    history.push('/login')
+    resetFile()
+    resetErrorFile()
     logoutUser()
+    // history.push('/login')
   }, [
-    history,
+    // history,
     logoutUser,
     refreshRoles,
     refreshApps,
     resetUserdetails,
     reset_all,
   ])
+
+  useEffect(() => {
+    logoutClicked && history.push('/login')
+  }, [logoutClicked, history])
 
   useEffect(() => {
     if (isTokenExpired) {
@@ -136,7 +147,8 @@ const Home = (props: any) => {
         location={location}
       />
       <div className={classes.height} />
-      <br />
+      <div className="paddingaccross"></div>
+      {/*<br />*/}
       <ScrollToTop />
       <UserRouter
         open={open}
@@ -158,12 +170,15 @@ const mapDispatchToProps = (dispatch: any) => {
     getUser: (empId: String) => dispatch(getUser(empId)),
     reset_all: () => dispatch(reset_all()),
     incrementD: () => dispatch(increment()),
+    resetFile: () => dispatch(resetFile()),
+    resetErrorFile: () => dispatch(resetErrorFile()),
   }
 }
 
 const mapStateToProps = (state: any) => {
   return {
     userDetail: state.loginReducer.userDetail,
+    logoutClicked: state.loginReducer.logoutClicked,
     isTokenExpired: state.loginReducer.isTokenExpired,
     error: state.loginReducer.error,
     increment: state.loginReducer.value,

@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react'
 import { connect } from 'react-redux'
 import InfoOutlinedIcon from '@material-ui/icons/InfoOutlined'
 // import { pendingStatusDetails } from './DataConstant'
-import { userTaskDashboard } from './DataConstant'
+import { pendingTaskDetails, userTaskDashboard } from './DataConstant'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 import { admins } from '../../util/Constants'
 import {
@@ -25,9 +25,11 @@ import {
   set_mygroupunassignAction,
   set_myinprogressAction,
   set_mypendingAction,
+  set_range_pendingAction,
+  set_range_grouppendingAction,
   reset_all,
 } from '../../redux/Actions/PendingAction/Action'
-import { getStatusCamundaAPI } from '../../api/Fetch'
+import { getStatusCamundaAPI, getStatusEventCamundaAPI } from '../../api/Fetch'
 import { ServiceResponse } from '../../pages/Login/Messages'
 
 const useStyles = makeStyles((theme) => ({
@@ -98,10 +100,14 @@ function Dashboard(props: any) {
     myinprogressTasks,
     mygroupPendingAction,
     mygroupUnassignTasks,
+    eventPendingAction,
+    eventGroupPendingAction,
     set_mypendingAction,
     set_myinprogressAction,
     set_mygrouppendingAction,
     set_mygroupunassignAction,
+    set_range_pendingAction,
+    set_range_grouppendingAction,
     reset_all,
     userDetail,
   } = props
@@ -113,6 +119,8 @@ function Dashboard(props: any) {
     let inprogressTasks: Array<any> = []
     let mygroupPendingTasks: Array<any> = []
     let mygroupUnassignTasks: Array<any> = []
+    let rangePendingTasks: Array<any> = []
+    let rangeGroupPendingTasks: Array<any> = []
     setNewMap([...userTaskDashboard])
     getStatusCamundaAPI &&
       getStatusCamundaAPI()
@@ -167,8 +175,45 @@ function Dashboard(props: any) {
           set_mygroupunassignAction([])
         })
     // }, [pendingStatusDetails])
+
+    getStatusEventCamundaAPI &&
+      getStatusEventCamundaAPI()
+        .then((res) => {
+          const pendingTaskDetails = res.data
+
+          setIsProgressLoader(false)
+
+          if (pendingTaskDetails && pendingTaskDetails.status) {
+            rangePendingTasks =
+              pendingTaskDetails &&
+              pendingTaskDetails.status &&
+              pendingTaskDetails.status.filter(
+                (item: any) => item.details.toLowerCase() === 'mypendingtasks'
+              )
+            rangeGroupPendingTasks =
+              pendingTaskDetails &&
+              pendingTaskDetails.status &&
+              pendingTaskDetails.status.filter(
+                (item: any) =>
+                  item.details.toLowerCase() === 'mygrouppendingtasks'
+              )
+            set_range_pendingAction(rangePendingTasks)
+            // set_myinprogressAction(inprogressTasks)
+            set_range_grouppendingAction(rangeGroupPendingTasks)
+            //set_mygroupunassignAction(mygroupUnassignTasks)
+          }
+        })
+        .catch((error) => {
+          setIsProgressLoader(false)
+          set_range_pendingAction([])
+          // set_myinprogressAction([])
+          set_range_grouppendingAction([])
+          // set_mygroupunassignAction([])
+        })
+
     return reset_all()
   }, [])
+  // }, [pendingTaskDetails])
 
   useEffect(() => {
     // console.log(mypendingAction)
@@ -180,6 +225,8 @@ function Dashboard(props: any) {
       myinprogressTasks &&
       mygroupPendingAction &&
       mygroupUnassignTasks &&
+      eventPendingAction &&
+      eventGroupPendingAction &&
       userDetail
     ) {
       const rolelist =
@@ -187,9 +234,21 @@ function Dashboard(props: any) {
         userDetail.userdetails &&
         userDetail.userdetails[0].roles.map((rl: any) => rl.roleId)
       let adminqn = false
+      let eventAccess = false
       for (let ad = 0; ad < admins.length; ad++) {
         if (rolelist.includes(admins[ad])) {
           adminqn = true
+          break
+        }
+      }
+      for (let accEvent = 0; accEvent < rolelist.length; accEvent++) {
+        if (
+          rolelist.includes('RRMNGR') ||
+          rolelist.includes('BUYER') ||
+          rolelist.includes('SRBYM') ||
+          rolelist.includes('CTDIR')
+        ) {
+          eventAccess = true
           break
         }
       }
@@ -218,6 +277,30 @@ function Dashboard(props: any) {
               mygroupUnassignTasks[0].tasks.length > 0
                 ? mygroupUnassignTasks[0].tasks.length
                 : 0
+          } else if (item.value.toLowerCase() === 'rangechangemanagement') {
+            item.my.pendingActions =
+              eventPendingAction.length > 0 &&
+              eventPendingAction[0].tasks.length > 0
+                ? eventPendingAction[0].tasks.length
+                : 0
+            // item.my.inProgressTask =
+            //   myinprogressTasks.length > 0 &&
+            //   myinprogressTasks[0].tasks.length > 0
+            //     ? myinprogressTasks[0].tasks.length
+            //     : 0
+            item.myGroup.pendingActions =
+              // adminqn &&
+              eventAccess &&
+              eventGroupPendingAction.length > 0 &&
+              eventGroupPendingAction[0].tasks.length > 0
+                ? eventGroupPendingAction[0].tasks.length
+                : 0
+            // item.myGroup.inProgressTask =
+            //   adminqn &&
+            //   mygroupUnassignTasks.length > 0 &&
+            //   mygroupUnassignTasks[0].tasks.length > 0
+            //     ? mygroupUnassignTasks[0].tasks.length
+            //     : 0
           }
 
           return item
@@ -231,6 +314,8 @@ function Dashboard(props: any) {
     myinprogressTasks,
     mygroupPendingAction,
     mygroupUnassignTasks,
+    eventPendingAction,
+    eventGroupPendingAction,
   ])
 
   return (
@@ -255,8 +340,9 @@ function Dashboard(props: any) {
             <Grid item xl={6} lg={6} md={6} sm={6} xs={12} key={index}>
               <Card className={classes.card}>
                 <CardHeader
+                  Name="dashbordHeading"
                   title={dash.title}
-                  className={classes.header}
+                  //className={classes.header}
                   titleTypographyProps={{ variant: 'body1' }}
                 />
                 <CardContent>
@@ -273,7 +359,8 @@ function Dashboard(props: any) {
                           <tr>
                             <th>
                               <Typography variant="body1" color="primary">
-                                My Task
+                                My Task{' '}
+                                <span className="rightArrow">{'⭆'}</span>
                               </Typography>
                             </th>
                           </tr>
@@ -336,14 +423,15 @@ function Dashboard(props: any) {
                           </tr>
 
                           <tr>
-                            <td>
+                            <td colSpan={2}>
                               <Divider />
                             </td>
                           </tr>
                           <tr>
                             <th>
                               <Typography variant="body1" color="primary">
-                                Group Task
+                                Group Task{' '}
+                                <span className="rightArrow">{'⭆'}</span>
                               </Typography>
                             </th>
                           </tr>
@@ -423,6 +511,8 @@ const mapStateToProps = (state: any) => {
     myinprogressTasks: state.pendingActionReducer.myinprogressTasks,
     mygroupPendingAction: state.pendingActionReducer.mygroupPendingAction,
     mygroupUnassignTasks: state.pendingActionReducer.mygroupUnassignTasks,
+    eventPendingAction: state.pendingActionReducer.eventPendingAction,
+    eventGroupPendingAction: state.pendingActionReducer.eventGroupPendingAction,
     userDetail: state.loginReducer.userDetail,
   }
 }
@@ -437,6 +527,10 @@ const matchDispatchToProps = (dispatch: any) => {
       dispatch(set_mygrouppendingAction(mygroupPendingTasks)),
     set_mygroupunassignAction: (mygroupUnassignTasks: any) =>
       dispatch(set_mygroupunassignAction(mygroupUnassignTasks)),
+    set_range_pendingAction: (rangePendingTasks: any) =>
+      dispatch(set_range_pendingAction(rangePendingTasks)),
+    set_range_grouppendingAction: (rangeGroupPendingTasks: any) =>
+      dispatch(set_range_grouppendingAction(rangeGroupPendingTasks)),
     reset_all: () => dispatch(reset_all()),
   }
 }

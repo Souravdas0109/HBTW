@@ -30,6 +30,7 @@ import {
   getProductHierarchyAPI,
   putUserGroupAPI,
   getAllUsersWithGroupAPI,
+  getProductHierarchyListAPI,
 } from '../../api/Fetch'
 import { reset_groupID } from '../../redux/Actions/ManageGroup'
 import { routes, life } from '../../util/Constants'
@@ -95,6 +96,7 @@ function UserGroupUpdate(props: any) {
   const [errorStatus, setErrorStatus] = useState('')
   //
   const [isProgressLoader, setIsProgressLoader] = React.useState(false)
+  const [loaded, setLoaded] = useState(false)
   const [isPageModified, setIsPageModified] = React.useState(false)
   const [isSuccessCall, setIsSuccessCall] = React.useState(true)
   //
@@ -110,6 +112,75 @@ function UserGroupUpdate(props: any) {
     if (!groupDetails) {
       history.push(`${DEFAULT}${USERCONFIG_USERGROUP}`)
     } else {
+      setLoaded(false)
+      getProductHierarchyListAPI &&
+        getProductHierarchyListAPI('division')
+          .then((res: any) => {
+            const divList = res.data.hierarchyNode.map((item: any) => {
+              return {
+                value: item.divisionName,
+                label: item.divisionName,
+                id: item.division,
+                hierGroup: 'division',
+              }
+            })
+            setUniqueDivObj(divList)
+            console.log('division length: ', divList.length)
+          })
+          .catch((err: any) => setUniqueDivObj([]))
+
+      getProductHierarchyListAPI &&
+        getProductHierarchyListAPI('group')
+          .then((res: any) => {
+            const grpList = res.data.hierarchyNode.map((item: any) => {
+              return {
+                value: item.groupName,
+                label: `${item.divisionName} > ${item.groupName}`,
+                id: item.group,
+                hierGroup: 'group',
+              }
+            })
+            setUniqueGrpObj(grpList)
+            console.log('group length: ', grpList.length)
+          })
+          .catch((err: any) => setUniqueGrpObj([]))
+
+      getProductHierarchyListAPI &&
+        getProductHierarchyListAPI('category')
+          .then((res: any) => {
+            const catList = res.data.hierarchyNode.map((item: any) => {
+              return {
+                value: item.categoryName,
+                label: `${item.divisionName} > ${item.groupName} > ${item.categoryName}`,
+                id: item.category,
+                hierGroup: 'category',
+              }
+            })
+            setUniqueCatObj(catList)
+            console.log('category length: ', catList.length)
+          })
+          .catch((err: any) => setUniqueCatObj([]))
+
+      getProductHierarchyListAPI &&
+        getProductHierarchyListAPI('department')
+          .then((res: any) => {
+            const depList = res.data.hierarchyNode.map((item: any) => {
+              return {
+                value: item.departmentName,
+                label: `${item.divisionName} > ${item.groupName} > ${item.categoryName} > ${item.departmentName}`,
+                id: item.department,
+                hierGroup: 'department',
+              }
+            })
+            setUniqueDepObj(depList)
+            console.log('department length: ', depList.length)
+            setLoaded(true)
+          })
+          .catch((err: any) => {
+            setUniqueDepObj([])
+            setLoaded(true)
+          })
+
       setErrorStatus('')
       setErrorGroupName('')
       console.log(groupDetails[0])
@@ -138,8 +209,10 @@ function UserGroupUpdate(props: any) {
       // setStatus(selectGroupID.status)
       setStatus(
         constants.groupstatuses
-          .filter((stat: any) => stat.text === selectGroupID.status)
-          .map((stat: any) => stat.statusID)
+          //.filter((stat: any) => stat.text === selectGroupID.status)
+          .filter((stat: any) => stat.label === selectGroupID.status)
+          // .map((stat: any) => stat.statusID)
+          .map((stat: any) => stat.value)
           .toString()
       )
       setPayload(
@@ -178,11 +251,11 @@ function UserGroupUpdate(props: any) {
                 ? 'Category'
                 : product.hierarchyLevel === 'department'
                 ? 'Product Group'
-                : product.hierarchyLevel === 'class'
-                ? 'Class'
-                : product.hierarchyLevel === 'subclass'
-                ? 'Sub Class'
-                : '',
+                : // : product.hierarchyLevel === 'class'
+                  // ? 'Class'
+                  // : product.hierarchyLevel === 'subclass'
+                  // ? 'Sub Class'
+                  '',
             value: product.hierarchyLevel,
             // hierarchyId: product.hierarchyId,
             // hierarchyLevel: product.hierarchyLevel,
@@ -203,11 +276,11 @@ function UserGroupUpdate(props: any) {
                 ? 'Category'
                 : product.hierarchyLevel === 'department'
                 ? 'Product Group'
-                : product.hierarchyLevel === 'class'
-                ? 'Class'
-                : product.hierarchyLevel === 'subclass'
-                ? 'Sub Class'
-                : '',
+                : // : product.hierarchyLevel === 'class'
+                  // ? 'Class'
+                  // : product.hierarchyLevel === 'subclass'
+                  // ? 'Sub Class'
+                  '',
             value: product.hierarchyLevel,
             // hierarchyId: product.hierarchyId,
             // hierarchyLevel: product.hierarchyLevel,
@@ -242,18 +315,18 @@ function UserGroupUpdate(props: any) {
             // setDeppay(payload)
             setSelected([...uniquedepobj])
             break
-          case 'class':
-            setDisabled(false)
-            // setPayload('')
-            // setClspay(payload)
-            setSelected([...uniqueclsobj])
-            break
-          case 'subclass':
-            setDisabled(false)
-            // setPayload('')
-            // setSclspay(payload)
-            setSelected([...uniquesclsobj])
-            break
+          // case 'class':
+          //   setDisabled(false)
+          //   // setPayload('')
+          //   // setClspay(payload)
+          //   setSelected([...uniqueclsobj])
+          //   break
+          // case 'subclass':
+          //   setDisabled(false)
+          //   // setPayload('')
+          //   // setSclspay(payload)
+          //   setSelected([...uniquesclsobj])
+          //   break
           default:
             setDisabled(true)
             // setPayload('')
@@ -264,8 +337,8 @@ function UserGroupUpdate(props: any) {
     }
   }, [
     selectGroupID,
-    uniquesclsobj,
-    uniqueclsobj,
+    // uniquesclsobj,
+    // uniqueclsobj,
     uniquedepobj,
     uniquecatobj,
     uniquegrpobj,
@@ -289,205 +362,210 @@ function UserGroupUpdate(props: any) {
         case 'department':
           setDeppay([...payload])
           break
-        case 'class':
-          setClspay([...payload])
-          break
-        case 'subclass':
-          setSclspay([...payload])
-          break
+        // case 'class':
+        //   setClspay([...payload])
+        //   break
+        // case 'subclass':
+        //   setSclspay([...payload])
+        //   break
         default:
           break
       }
     }
   }, [payload])
 
-  useEffect(() => {
-    for (let d = 0; d < data.length; d++) {
-      data[d]['tag'] = data[d].name
-      let tag = `${data[d].name}#${data[d].tag}#${data[d].id}`
-      if (!uniquediv.includes(tag)) {
-        setUniqueDiv((prevState: any) => [...prevState, tag])
-        const splitted = tag.split('#')
-        setUniqueDivObj((prevState: any) => [
-          ...prevState,
-          {
-            value: splitted[0],
-            label: splitted[1],
-            id: splitted[2],
-            hierGroup: 'division',
-          },
-        ])
-      }
-      for (let g = 0; g < data[d].nodes.length; g++) {
-        data[d].nodes[g]['tag'] = `${data[d].tag} > ${data[d].nodes[g].name}`
-        let tag = `${data[d].nodes[g].name}#${data[d].nodes[g].tag}#${data[d].nodes[g].id}`
-        if (!uniquegrp.includes(tag)) {
-          setUniqueGrp((prevState: any) => [...prevState, tag])
-          const splitted = tag.split('#')
-          setUniqueGrpObj((prevState: any) => [
-            ...prevState,
-            {
-              value: splitted[0],
-              label: splitted[1],
-              id: splitted[2],
-              hierGroup: 'group',
-            },
-          ])
-        }
-        for (let c = 0; c < data[d].nodes[g].nodes.length; c++) {
-          data[d].nodes[g].nodes[c][
-            'tag'
-          ] = `${data[d].nodes[g].tag} > ${data[d].nodes[g].nodes[c].name}`
-          let tag = `${data[d].nodes[g].nodes[c].name}#${data[d].nodes[g].nodes[c].tag}#${data[d].nodes[g].nodes[c].id}`
-          if (!uniquecat.includes(tag)) {
-            setUniqueCat((prevState: any) => [...prevState, tag])
-            const splitted = tag.split('#')
-            setUniqueCatObj((prevState: any) => [
-              ...prevState,
-              {
-                value: splitted[0],
-                label: splitted[1],
-                id: splitted[2],
-                hierGroup: 'category',
-              },
-            ])
-          }
-          for (let dp = 0; dp < data[d].nodes[g].nodes[c].nodes.length; dp++) {
-            data[d].nodes[g].nodes[c].nodes[dp][
-              'tag'
-            ] = `${data[d].nodes[g].nodes[c].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].name}`
-            let tag = `${data[d].nodes[g].nodes[c].nodes[dp].name}#${data[d].nodes[g].nodes[c].nodes[dp].tag}#${data[d].nodes[g].nodes[c].nodes[dp].id}`
-            if (!uniquedep.includes(tag)) {
-              setUniqueDep((prevState: any) => [...prevState, tag])
-              const splitted = tag.split('#')
-              setUniqueDepObj((prevState: any) => [
-                ...prevState,
-                {
-                  value: splitted[0],
-                  label: splitted[1],
-                  id: splitted[2],
-                  hierGroup: 'department',
-                },
-              ])
-            }
-            for (
-              let cl = 0;
-              cl < data[d].nodes[g].nodes[c].nodes[dp].nodes.length;
-              cl++
-            ) {
-              data[d].nodes[g].nodes[c].nodes[dp].nodes[cl][
-                'tag'
-              ] = `${data[d].nodes[g].nodes[c].nodes[dp].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}`
-              let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].id}`
-              if (!uniquecls.includes(tag)) {
-                setUniqueCls((prevState: any) => [...prevState, tag])
-                const splitted = tag.split('#')
-                setUniqueClsObj((prevState: any) => [
-                  ...prevState,
-                  {
-                    value: splitted[0],
-                    label: splitted[1],
-                    id: splitted[2],
-                    hierGroup: 'class',
-                  },
-                ])
-              }
-              for (
-                let scl = 0;
-                scl <
-                data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes.length;
-                scl++
-              ) {
-                data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl][
-                  'tag'
-                ] = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}`
-                let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].id}`
-                if (!uniquescls.includes(tag)) {
-                  setUniqueScls((prevState: any) => [...prevState, tag])
-                  const splitted = tag.split('#')
-                  setUniqueSclsObj((prevState: any) => [
-                    ...prevState,
-                    {
-                      value: splitted[0],
-                      label: splitted[1],
-                      id: splitted[2],
-                      hierGroup: 'subclass',
-                    },
-                  ])
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }, [data])
+  // useEffect(() => {
+  //   for (let d = 0; d < data.length; d++) {
+  //     data[d]['tag'] = data[d].name
+  //     let tag = `${data[d].name}#${data[d].tag}#${data[d].id}`
+  //     if (!uniquediv.includes(tag)) {
+  //       setUniqueDiv((prevState: any) => [...prevState, tag])
+  //       const splitted = tag.split('#')
+  //       setUniqueDivObj((prevState: any) => [
+  //         ...prevState,
+  //         {
+  //           value: splitted[0],
+  //           label: splitted[1],
+  //           id: splitted[2],
+  //           hierGroup: 'division',
+  //         },
+  //       ])
+  //     }
+  //     for (let g = 0; g < data[d].nodes.length; g++) {
+  //       data[d].nodes[g]['tag'] = `${data[d].tag} > ${data[d].nodes[g].name}`
+  //       let tag = `${data[d].nodes[g].name}#${data[d].nodes[g].tag}#${data[d].nodes[g].id}`
+  //       if (!uniquegrp.includes(tag)) {
+  //         setUniqueGrp((prevState: any) => [...prevState, tag])
+  //         const splitted = tag.split('#')
+  //         setUniqueGrpObj((prevState: any) => [
+  //           ...prevState,
+  //           {
+  //             value: splitted[0],
+  //             label: splitted[1],
+  //             id: splitted[2],
+  //             hierGroup: 'group',
+  //           },
+  //         ])
+  //       }
+  //       for (let c = 0; c < data[d].nodes[g].nodes.length; c++) {
+  //         data[d].nodes[g].nodes[c][
+  //           'tag'
+  //         ] = `${data[d].nodes[g].tag} > ${data[d].nodes[g].nodes[c].name}`
+  //         let tag = `${data[d].nodes[g].nodes[c].name}#${data[d].nodes[g].nodes[c].tag}#${data[d].nodes[g].nodes[c].id}`
+  //         if (!uniquecat.includes(tag)) {
+  //           setUniqueCat((prevState: any) => [...prevState, tag])
+  //           const splitted = tag.split('#')
+  //           setUniqueCatObj((prevState: any) => [
+  //             ...prevState,
+  //             {
+  //               value: splitted[0],
+  //               label: splitted[1],
+  //               id: splitted[2],
+  //               hierGroup: 'category',
+  //             },
+  //           ])
+  //         }
+  //         for (let dp = 0; dp < data[d].nodes[g].nodes[c].nodes.length; dp++) {
+  //           data[d].nodes[g].nodes[c].nodes[dp][
+  //             'tag'
+  //           ] = `${data[d].nodes[g].nodes[c].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].name}`
+  //           let tag = `${data[d].nodes[g].nodes[c].nodes[dp].name}#${data[d].nodes[g].nodes[c].nodes[dp].tag}#${data[d].nodes[g].nodes[c].nodes[dp].id}`
+  //           if (!uniquedep.includes(tag)) {
+  //             setUniqueDep((prevState: any) => [...prevState, tag])
+  //             const splitted = tag.split('#')
+  //             setUniqueDepObj((prevState: any) => [
+  //               ...prevState,
+  //               {
+  //                 value: splitted[0],
+  //                 label: splitted[1],
+  //                 id: splitted[2],
+  //                 hierGroup: 'department',
+  //               },
+  //             ])
+  //           }
+  //           for (
+  //             let cl = 0;
+  //             cl < data[d].nodes[g].nodes[c].nodes[dp].nodes.length;
+  //             cl++
+  //           ) {
+  //             data[d].nodes[g].nodes[c].nodes[dp].nodes[cl][
+  //               'tag'
+  //             ] = `${data[d].nodes[g].nodes[c].nodes[dp].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}`
+  //             let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].id}`
+  //             if (!uniquecls.includes(tag)) {
+  //               setUniqueCls((prevState: any) => [...prevState, tag])
+  //               const splitted = tag.split('#')
+  //               setUniqueClsObj((prevState: any) => [
+  //                 ...prevState,
+  //                 {
+  //                   value: splitted[0],
+  //                   label: splitted[1],
+  //                   id: splitted[2],
+  //                   hierGroup: 'class',
+  //                 },
+  //               ])
+  //             }
+  //             for (
+  //               let scl = 0;
+  //               scl <
+  //               data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes.length;
+  //               scl++
+  //             ) {
+  //               data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl][
+  //                 'tag'
+  //               ] = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].tag} > ${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}`
+  //               let tag = `${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].name}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].tag}#${data[d].nodes[g].nodes[c].nodes[dp].nodes[cl].nodes[scl].id}`
+  //               if (!uniquescls.includes(tag)) {
+  //                 setUniqueScls((prevState: any) => [...prevState, tag])
+  //                 const splitted = tag.split('#')
+  //                 setUniqueSclsObj((prevState: any) => [
+  //                   ...prevState,
+  //                   {
+  //                     value: splitted[0],
+  //                     label: splitted[1],
+  //                     id: splitted[2],
+  //                     hierGroup: 'subclass',
+  //                   },
+  //                 ])
+  //               }
+  //             }
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // }, [data])
 
-  useEffect(() => {
-    async function handleClick() {
-      setData([])
-      setUniqueDivObj([])
-      setUniqueGrpObj([])
-      setUniqueCatObj([])
-      setUniqueDepObj([])
-      setUniqueClsObj([])
-      setUniqueSclsObj([])
-      setUniqueDiv([])
-      setUniqueGrp([])
-      setUniqueCat([])
-      setUniqueDep([])
-      setUniqueCls([])
-      setUniqueScls([])
-      setIsProgressLoader(true)
-      setDisabled(true)
-      let nexturl = `${BASE_URL_SIT}${PRODUCT_HIERARCHY_GET}?apikey=${API_KEY}`
-      // let nexturl = `${BASE}/product/v1/hierarchies/reporting?apikey=ArAaZlvKV09DlZst4aGqxicONzvtGbpI&offset=0`;
-      //   const start = new Date();
-      while (nexturl !== '') {
-        if (error !== '') {
-          setIsProgressLoader(false)
-          toast.current.show({
-            severity: 'error',
-            summary: 'Error!',
-            detail: 'Product hierarchy service has issue',
-            life: life,
-            className: 'login-toast',
-          })
-          break
-        }
-        // console.log("to visit url: ", nexturl);
-        // await axios
-        //   .get(nexturl, {
-        //     headers: {
-        //       Authorization:
-        //         "Basic QXJBYVpsdktWMDlEbFpzdDRhR3F4aWNPTnp2dEdicEk6d2txU0VjQWRHWllaRnc5Yg==",
-        //     },
-        //   })
-        await getProductHierarchyAPI(nexturl)
-          .then((res) => {
-            setData((prevState: any) => [
-              ...prevState,
-              ...res.data.hierarchy.nodes,
-            ])
-            nexturl = res.data.metaData.links.next
-              ? `${BASE_URL_SIT}${res.data.metaData.links.next}`
-              : ''
-            // console.log(`up next: ${res.data.metaData.links.next}`);
-            // console.log(res.data.hierarchy.nodes);
-          })
-          .catch((e) => {
-            nexturl = ''
-            setError(e.message)
-          })
-      }
-      if (nexturl === '') setIsProgressLoader(false)
-      // const end = new Date();
-      // const timediff = end - start;
-      // console.log("Time taken for api calls: ", timediff);
-    }
-    setIsProgressLoader(true)
-    handleClick()
-  }, [BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY, error])
+  // useEffect(() => {
+  //   async function handleClick() {
+  //     setData([])
+  //     setUniqueDivObj([])
+  //     setUniqueGrpObj([])
+  //     setUniqueCatObj([])
+  //     setUniqueDepObj([])
+  //     setUniqueClsObj([])
+  //     setUniqueSclsObj([])
+  //     setUniqueDiv([])
+  //     setUniqueGrp([])
+  //     setUniqueCat([])
+  //     setUniqueDep([])
+  //     setUniqueCls([])
+  //     setUniqueScls([])
+  //     // setIsProgressLoader(true)
+  //     setDisabled(true)
+  //     let nexturl = `${BASE_URL_SIT}${PRODUCT_HIERARCHY_GET}?apikey=${API_KEY}`
+  //     // let nexturl = `${BASE}/product/v1/hierarchies/reporting?apikey=ArAaZlvKV09DlZst4aGqxicONzvtGbpI&offset=0`;
+  //     //   const start = new Date();
+  //     while (nexturl !== '') {
+  //       if (error !== '') {
+  //         // setIsProgressLoader(false)
+  //         setLoaded(true)
+  //         toast.current.show({
+  //           severity: 'error',
+  //           summary: 'Error!',
+  //           detail: 'Product hierarchy service has issue',
+  //           life: life,
+  //           className: 'login-toast',
+  //         })
+  //         break
+  //       }
+  //       // console.log("to visit url: ", nexturl);
+  //       // await axios
+  //       //   .get(nexturl, {
+  //       //     headers: {
+  //       //       Authorization:
+  //       //         "Basic QXJBYVpsdktWMDlEbFpzdDRhR3F4aWNPTnp2dEdicEk6d2txU0VjQWRHWllaRnc5Yg==",
+  //       //     },
+  //       //   })
+  //       await getProductHierarchyAPI(nexturl)
+  //         .then((res) => {
+  //           setData((prevState: any) => [
+  //             ...prevState,
+  //             ...res.data.hierarchy.nodes,
+  //           ])
+  //           nexturl = res.data.metaData.links.next
+  //             ? `${BASE_URL_SIT}${res.data.metaData.links.next}`
+  //             : ''
+  //           // console.log(`up next: ${res.data.metaData.links.next}`);
+  //           // console.log(res.data.hierarchy.nodes);
+  //         })
+  //         .catch((e) => {
+  //           nexturl = ''
+  //           setError(e.message)
+  //         })
+  //     }
+  //     if (nexturl === '') {
+  //       setIsProgressLoader(false)
+  //       setLoaded(true)
+  //     }
+  //     // const end = new Date();
+  //     // const timediff = end - start;
+  //     // console.log("Time taken for api calls: ", timediff);
+  //   }
+  //   // setIsProgressLoader(true)
+  //   setLoaded(false)
+  //   handleClick()
+  // }, [BASE_URL_SIT, PRODUCT_HIERARCHY_GET, API_KEY, error])
 
   const handleChange = (e: any) => {
     // setPayload('')
@@ -518,18 +596,18 @@ function UserGroupUpdate(props: any) {
         // setPayload('')
         setSelected([...uniquedepobj])
         break
-      case 'class':
-        setDisabled(false)
-        clspay.length > 0 ? setPayload(clspay) : setPayload('')
-        // setPayload('')
-        setSelected([...uniqueclsobj])
-        break
-      case 'subclass':
-        setDisabled(false)
-        sclspay.length > 0 ? setPayload(sclspay) : setPayload('')
-        // setPayload('')
-        setSelected([...uniquesclsobj])
-        break
+      // case 'class':
+      //   setDisabled(false)
+      //   clspay.length > 0 ? setPayload(clspay) : setPayload('')
+      //   // setPayload('')
+      //   setSelected([...uniqueclsobj])
+      //   break
+      // case 'subclass':
+      //   setDisabled(false)
+      //   sclspay.length > 0 ? setPayload(sclspay) : setPayload('')
+      //   // setPayload('')
+      //   setSelected([...uniquesclsobj])
+      //   break
       default:
         setDisabled(true)
         setPayload('')
@@ -570,9 +648,18 @@ function UserGroupUpdate(props: any) {
       borderColor: teal[900],
       backgroundColor: state.isSelected ? teal[900] : 'white',
       color: state.isSelected ? 'white' : teal[900],
+      // maxHeight: '50px',
     }),
   }
   const locationCustomStyles: StylesConfig<LocationhierarchyTypes, true> = {
+    option: (provided: any, state: any) => ({
+      ...provided,
+      borderColor: teal[900],
+      backgroundColor: state.isSelected ? teal[900] : 'white',
+      color: state.isSelected ? 'white' : teal[900],
+    }),
+  }
+  const customStyles = {
     option: (provided: any, state: any) => ({
       ...provided,
       borderColor: teal[900],
@@ -600,8 +687,8 @@ function UserGroupUpdate(props: any) {
     setGrppay([])
     setCatpay([])
     setDeppay([])
-    setClspay([])
-    setSclspay([])
+    // setClspay([])
+    // setSclspay([])
     setHierLevel(constants.mainvalues.filter((val) => val.value === 'none'))
     setHierLevelInput(
       constants.mainvalues.filter((val) => val.value === 'none')
@@ -692,52 +779,57 @@ function UserGroupUpdate(props: any) {
   const onstatusChange = (e: any) => {
     setIsPageModified(true)
     setErrorStatus('')
-    setStatus(e.target.value)
+    // setStatus(e.target.value)
+    setStatus(e.value)
   }
   // const handleOpenViewProduct = (e: any) => {
   //   setViewProductEl(e.currentTarget)
   // }
   const handleOpenViewProduct = () => {
-    if (hierLevel.length > 0) {
-      switch (hierLevel[0].value) {
-        case 'division':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquedivobj])
-          break
-        case 'group':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquegrpobj])
-          break
-        case 'category':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquecatobj])
-          break
-        case 'department':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquedepobj])
-          break
-        case 'class':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniqueclsobj])
-          break
-        case 'subclass':
-          // setDisabled(false)
-          // setPayload('')
-          setSelected([...uniquesclsobj])
-          break
-        default:
-          // setDisabled(true)
-          // setPayload('')
-          setSelected([])
-          break
+    setViewProductEl(true)
+    setIsProgressLoader(true)
+    if (loaded) {
+      setIsProgressLoader(false)
+      if (hierLevel.length > 0) {
+        switch (hierLevel[0].value) {
+          case 'division':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquedivobj])
+            break
+          case 'group':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquegrpobj])
+            break
+          case 'category':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquecatobj])
+            break
+          case 'department':
+            // setDisabled(false)
+            // setPayload('')
+            setSelected([...uniquedepobj])
+            break
+          // case 'class':
+          //   // setDisabled(false)
+          //   // setPayload('')
+          //   setSelected([...uniqueclsobj])
+          //   break
+          // case 'subclass':
+          //   // setDisabled(false)
+          //   // setPayload('')
+          //   setSelected([...uniquesclsobj])
+          //   break
+          default:
+            // setDisabled(true)
+            // setPayload('')
+            setSelected([])
+            break
+        }
       }
     }
-    setViewProductEl(true)
   }
   const handleCloseViewProduct = () => {
     // setViewProductEl(null)
@@ -763,16 +855,16 @@ function UserGroupUpdate(props: any) {
         // setPayload('')
         setSelected([...uniquedepobj])
         break
-      case 'class':
-        // setDisabled(false)
-        // setPayload('')
-        setSelected([...uniqueclsobj])
-        break
-      case 'subclass':
-        // setDisabled(false)
-        // setPayload('')
-        setSelected([...uniquesclsobj])
-        break
+      // case 'class':
+      //   // setDisabled(false)
+      //   // setPayload('')
+      //   setSelected([...uniqueclsobj])
+      //   break
+      // case 'subclass':
+      //   // setDisabled(false)
+      //   // setPayload('')
+      //   setSelected([...uniquesclsobj])
+      //   break
       default:
         // setDisabled(true)
         // setPayload('')
@@ -798,7 +890,7 @@ function UserGroupUpdate(props: any) {
     >
       <Box
         sx={{
-          height: 450,
+          height: 600,
           // width: dialogwidth,
           width: 'auto',
           p: 2,
@@ -808,7 +900,8 @@ function UserGroupUpdate(props: any) {
         }}
       >
         <Box
-          className={classes.inputFieldBox}
+          // className={classes.inputFieldBox}
+          className={classes.inputFieldBoxPop}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -861,7 +954,8 @@ function UserGroupUpdate(props: any) {
             }}
           >
             <Box
-              className={classes.inputFieldBox}
+              // className={classes.inputFieldBox}
+              className={classes.inputFieldBoxPop}
               sx={{
                 display: 'flex',
                 flexDirection: 'column',
@@ -926,6 +1020,7 @@ function UserGroupUpdate(props: any) {
               sx={{
                 justifyContent: 'center',
                 // paddingRight: '10px',
+                // maxHeight: '80%',
               }}
             >
               {productSelect}
@@ -937,7 +1032,8 @@ function UserGroupUpdate(props: any) {
             display: 'flex',
             justifyContent: 'end',
           }}
-          className={classes.inputFieldBox}
+          // className={classes.inputFieldBox}
+          className={classes.inputFieldBoxPop}
         >
           <Button
             // type="submit"
@@ -1364,6 +1460,7 @@ function UserGroupUpdate(props: any) {
               alignItems="center"
             >
               <Box
+                className="createRequest"
                 sx={{
                   flexDirection: 'column',
                   display: 'flex',
@@ -1373,272 +1470,296 @@ function UserGroupUpdate(props: any) {
                   textAlign: 'left',
                 }}
               >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                    paddingBottom: '20px',
-                    paddingTop: '10px',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      flexGrow: 1,
-                    }}
-                  >
-                    <Typography variant="h6">Update Group</Typography>
-                  </Box>
+                <div className="createRequestContainer">
                   <Box
                     sx={{
                       display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
+                      flexDirection: 'row',
+                      paddingBottom: '20px',
+                      paddingTop: '10px',
                     }}
                   >
                     <Box
                       sx={{
-                        paddingLeft: 5,
+                        flexGrow: 1,
                       }}
                     >
-                      <button
-                        type="button"
-                        onClick={goBack}
-                        //onClick={handleBackAfterDialog}
-                        className={classes.backButton}
-                      >
-                        Back
-                      </button>
+                      <Typography variant="h6">Update Group</Typography>
                     </Box>
-                  </Box>
-                </Box>
-                <form onSubmit={handleCreateGroup}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
-                      alignItems: 'baseline',
-                    }}
-                  >
                     <Box
-                      className={classes.inputLabel}
                       sx={{
-                        display: !active ? null : 'flex',
+                        display: 'flex',
+                        flexDirection: !active ? 'row' : 'column',
                       }}
                     >
-                      <Typography variant="subtitle2">
-                        Group ID &nbsp;
-                        <span
-                          style={{
-                            color: '#ff0000',
-                          }}
-                        >
-                          *
-                        </span>
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <input
-                          type="text"
-                          name="groupId"
-                          id="groupId"
-                          placeholder="eg. 012345"
-                          className={classes.inputFields}
-                          onChange={ongroupIDChange}
-                          value={groupId}
-                          required
-                          disabled
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box className={classes.eachRow}>
-                    <Box
-                      className={classes.inputLabel}
-                      sx={{
-                        display: !active ? null : 'flex',
-                      }}
-                    >
-                      <Typography variant="subtitle2">
-                        Group Name &nbsp;
-                        <span
-                          style={{
-                            color: '#ff0000',
-                          }}
-                        >
-                          *
-                        </span>
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <input
-                          type="text"
-                          name="groupname"
-                          id="groupname"
-                          placeholder="eg. group name 1"
-                          className={classes.inputFields}
-                          onChange={ongroupnameChange}
-                          value={groupname}
-                          required
-                          disabled
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {errorGroupName !== '' && (
-                    <Box className={classes.eachRow}>
-                      <Box className={classes.inputLabel}></Box>
                       <Box
-                        className={classes.inputFieldBox}
-                        justifyContent="center"
+                        sx={{
+                          paddingLeft: 5,
+                        }}
                       >
-                        <Typography variant="subtitle2" color="error">
-                          {errorGroupName}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  )}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
-                      paddingTop: '20px',
-                    }}
-                  >
-                    <Box
-                      className={classes.inputLabel}
-                      sx={{
-                        display: !active ? null : 'flex',
-                      }}
-                    >
-                      <Typography variant="subtitle2">Description</Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <TextareaAutosize
-                          name="description"
-                          id="description"
-                          className={classes.textArea}
-                          onChange={ondescriptionChange}
-                          value={description}
-                          minRows="5"
-                        />
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Status &nbsp;
-                        <span
-                          style={{
-                            color: '#ff0000',
-                          }}
+                        <button
+                          type="button"
+                          onClick={goBack}
+                          //onClick={handleBackAfterDialog}
+                          //className={classes.backButton}
+                          className="backButton"
                         >
-                          *
-                        </span>
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle2">
-                        <select
-                          name="status"
-                          id="status"
-                          className={classes.selectField}
-                          defaultValue=""
-                          onChange={onstatusChange}
-                          required
-                        >
-                          {/* <option
-                            disabled
-                            value=""
-                            className={classes.selectOptions}
+                          <svg
+                            className="MuiSvgIcon-root"
+                            focusable="false"
+                            viewBox="0 0 34 34"
+                            aria-hidden="true"
                           >
-                            None
-                          </option> */}
-                          {constants.groupstatuses.map((type) => {
-                            return (
-                              <option
-                                value={type.statusID}
-                                key={type.statusID}
-                                selected={
-                                  type.statusID === status ? true : false
-                                }
-                              >
-                                {type.text}
-                              </option>
-                            )
-                          })}
-                        </select>
-                      </Typography>
+                            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"></path>
+                          </svg>{' '}
+                          Back
+                        </button>
+                      </Box>
                     </Box>
                   </Box>
-                  {errorStatus !== '' && (
-                    <Box className={classes.eachRow}>
-                      <Box className={classes.inputLabel}></Box>
+                  <form onSubmit={handleCreateGroup}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: !active ? 'row' : 'column',
+                        alignItems: 'baseline',
+                      }}
+                    >
                       <Box
-                        className={classes.inputFieldBox}
-                        justifyContent="center"
+                        className={classes.inputLabel}
+                        sx={{
+                          display: !active ? null : 'flex',
+                        }}
                       >
-                        <Typography variant="subtitle2" color="error">
-                          {errorStatus}
+                        <Typography variant="subtitle2">
+                          Group ID &nbsp;
+                          <span
+                            style={{
+                              color: '#ff0000',
+                            }}
+                          >
+                            *
+                          </span>
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          <input
+                            type="text"
+                            name="groupId"
+                            id="groupId"
+                            placeholder="eg. 012345"
+                            className={classes.inputFields}
+                            onChange={ongroupIDChange}
+                            value={groupId}
+                            required
+                            disabled
+                          />
                         </Typography>
                       </Box>
                     </Box>
-                  )}
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Product Hierarchies
-                      </Typography>
+                    <Box className={classes.eachRow}>
+                      <Box
+                        className={classes.inputLabel}
+                        sx={{
+                          display: !active ? null : 'flex',
+                        }}
+                      >
+                        <Typography variant="subtitle2">
+                          Group Name &nbsp;
+                          <span
+                            style={{
+                              color: '#ff0000',
+                            }}
+                          >
+                            *
+                          </span>
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          <input
+                            type="text"
+                            name="groupname"
+                            id="groupname"
+                            placeholder="eg. group name 1"
+                            className={classes.inputFields}
+                            onChange={ongroupnameChange}
+                            value={groupname}
+                            required
+                            disabled
+                          />
+                        </Typography>
+                      </Box>
                     </Box>
+                    {errorGroupName !== '' && (
+                      <Box className={classes.eachRow}>
+                        <Box className={classes.inputLabel}></Box>
+                        <Box
+                          className={classes.inputFieldBox}
+                          justifyContent="center"
+                        >
+                          <Typography variant="subtitle2" color="error">
+                            {errorGroupName}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: !active ? 'row' : 'column',
+                        paddingTop: '20px',
+                      }}
+                    >
+                      <Box
+                        className={classes.inputLabel}
+                        sx={{
+                          display: !active ? null : 'flex',
+                        }}
+                      >
+                        <Typography variant="subtitle2">Description</Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          <TextareaAutosize
+                            name="description"
+                            id="description"
+                            className={classes.textArea}
+                            onChange={ondescriptionChange}
+                            value={description}
+                            minRows="5"
+                          />
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Status &nbsp;
+                          <span
+                            style={{
+                              color: '#ff0000',
+                            }}
+                          >
+                            *
+                          </span>
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle2">
+                          {/* <select
+                            name="status"
+                            id="status"
+                            className={classes.selectField}
+                            defaultValue=""
+                            onChange={onstatusChange}
+                            required
+                          >
+                            {constants.groupstatuses.map((type) => {
+                              return (
+                                <option
+                                  value={type.statusID}
+                                  key={type.statusID}
+                                  selected={
+                                    type.statusID === status ? true : false
+                                  }
+                                >
+                                  {type.text}
+                                </option>
+                              )
+                            })}
+                          </select> */}
+                          <Select
+                            value={constants.groupstatuses.filter(
+                              (i) => i.value === status
+                            )}
+                            isDisabled={false}
+                            isLoading={false}
+                            // components={{
+                            //   Option,
+                            // }}
+                            // ref={focusStatus}
+                            isRtl={false}
+                            isSearchable={true}
+                            name="color"
+                            options={constants.groupstatuses}
+                            onChange={onstatusChange}
+                            className={classes.multiSelect}
+                            styles={customStyles}
+                            //value={hierLevel}
+                          />
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {errorStatus !== '' && (
+                      <Box className={classes.eachRow}>
+                        <Box className={classes.inputLabel}></Box>
+                        <Box
+                          className={classes.inputFieldBox}
+                          justifyContent="center"
+                        >
+                          <Typography variant="subtitle2" color="error">
+                            {errorStatus}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    )}
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Product Hierarchies
+                        </Typography>
+                      </Box>
 
-                    <Box className={classes.inputFieldBox}>
-                      <Typography variant="subtitle1">
-                        {/* {payload ? (
+                      <Box className={classes.inputFieldBox}>
+                        <Typography variant="subtitle1">
+                          {/* {payload ? (
                           payload.length > 0 ? ( */}
-                        {hierarchy ? (
-                          hierarchy.length > 0 ? (
-                            <button
-                              type="button"
-                              className={classes.underlineRemove}
-                              onClick={handleOpenViewProduct}
-                            >
-                              {/* Product Hierarchies({payload.length}) */}
-                              Product Hierarchies({hierarchy.length})
-                            </button>
+                          {hierarchy ? (
+                            hierarchy.length > 0 ? (
+                              <button
+                                type="button"
+                                className={classes.underlineRemove}
+                                onClick={handleOpenViewProduct}
+                              >
+                                {/* Product Hierarchies({payload.length}) */}
+                                <span className="addUserGroup">
+                                  Product Hierarchies({hierarchy.length})
+                                </span>
+                              </button>
+                            ) : (
+                              <button
+                                type="button"
+                                className={classes.underlineRemove}
+                                onClick={handleOpenViewProduct}
+                              >
+                                <span className="addUserGroup">Add</span>
+                              </button>
+                            )
                           ) : (
                             <button
                               type="button"
                               className={classes.underlineRemove}
                               onClick={handleOpenViewProduct}
                             >
-                              Add
+                              <span className="addUserGroup">Add</span>
                             </button>
-                          )
-                        ) : (
-                          <button
-                            type="button"
-                            className={classes.underlineRemove}
-                            onClick={handleOpenViewProduct}
-                          >
-                            Add
-                          </button>
-                        )}
-                      </Typography>
-                      {viewProduct}
+                          )}
+                        </Typography>
+                        {viewProduct}
+                      </Box>
                     </Box>
-                  </Box>
-                  <Box className={classes.eachRow}>
-                    <Box className={classes.inputLabel}>
-                      <Typography variant="subtitle2">
-                        Location Hierarchies
-                      </Typography>
-                    </Box>
-                    <Box className={classes.inputFieldBox}>
-                      {locationSelect}
-                    </Box>
-                    {/* <Box className={classes.inputFieldBox}>
+                    <Box className={classes.eachRow}>
+                      <Box className={classes.inputLabel}>
+                        <Typography variant="subtitle2">
+                          Location Hierarchies
+                        </Typography>
+                      </Box>
+                      <Box className={classes.inputFieldBox}>
+                        {locationSelect}
+                      </Box>
+                      {/* <Box className={classes.inputFieldBox}>
                       <Typography variant="subtitle1">
                         {locationNames ? (
                           locationNames.length > 0 ? (
@@ -1670,73 +1791,79 @@ function UserGroupUpdate(props: any) {
                       </Typography>
                       {viewLocation}
                     </Box> */}
-                  </Box>
-                  {/* <Box className={classes.eachRow}> */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: !active ? 'row' : 'column',
-                      justifyContent: !active ? 'space-between' : 'center',
-                      paddingTop: '30px',
-                      alignItems: !active ? 'center' : 'center',
-                    }}
-                  >
+                    </Box>
+                    {/* <Box className={classes.eachRow}> */}
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: !forbutton ? 'row' : 'column',
-                        alignItems: !forbutton ? 'center' : 'center',
-                        justifyContent: !forbutton ? 'space-between' : 'center',
-                      }}
-                    ></Box>
-                    {/* <Box
-                        sx={{
-                          display: 'flex',
-                        }}
-                      > */}
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        flexDirection: !forbutton ? 'row' : 'column',
-                        alignItems: !forbutton ? 'center' : 'center',
-                        justifyContent: !forbutton ? 'space-between' : 'center',
+                        flexDirection: !active ? 'row' : 'column',
+                        justifyContent: !active ? 'space-between' : 'center',
+                        paddingTop: '30px',
+                        alignItems: !active ? 'center' : 'center',
                       }}
                     >
-                      <Button
-                        // type="reset"
-                        variant="contained"
-                        className={classes.whiteButton}
-                        // onClick={handleReset}
-                        onClick={handleResetAfterDialog}
-                        disabled={disabled1}
-                        size="small"
-                      >
-                        Reset
-                      </Button>
-                      {/* </Box> */}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: !forbutton ? 'row' : 'column',
+                          alignItems: !forbutton ? 'center' : 'center',
+                          justifyContent: !forbutton
+                            ? 'space-between'
+                            : 'center',
+                        }}
+                      ></Box>
                       {/* <Box
                         sx={{
                           display: 'flex',
                         }}
                       > */}
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        // type="submit"
-                        className={classes.buttons}
-                        // onClick={handleCreateGroup}
-                        onClick={handleCreateGroupAfterDialog}
-                        disabled={disabled1}
-                        size="small"
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: !forbutton ? 'row' : 'row',
+                          alignItems: !forbutton ? 'center' : 'center',
+                          justifyContent: !forbutton
+                            ? 'space-between'
+                            : 'center',
+                        }}
                       >
-                        Submit
-                      </Button>
+                        <Button
+                          // type="reset"
+                          variant="contained"
+                          //className={classes.whiteButton}
+                          className="reSet"
+                          // onClick={handleReset}
+                          onClick={handleResetAfterDialog}
+                          disabled={disabled1}
+                          size="small"
+                        >
+                          Reset
+                        </Button>
+                        {/* </Box> */}
+                        {/* <Box
+                        sx={{
+                          display: 'flex',
+                        }}
+                      > */}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          // type="submit"
+                          className={classes.buttons}
+                          // onClick={handleCreateGroup}
+                          onClick={handleCreateGroupAfterDialog}
+                          disabled={disabled1}
+                          size="small"
+                        >
+                          Submit
+                        </Button>
+                      </Box>
+                      {/* </Box> */}
                     </Box>
                     {/* </Box> */}
-                  </Box>
-                  {/* </Box> */}
-                </form>
-                <LoadingComponent showLoader={isProgressLoader} />
+                  </form>
+                  <LoadingComponent showLoader={isProgressLoader} />
+                </div>
               </Box>
             </Grid>
           </Grid>

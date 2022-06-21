@@ -21,6 +21,14 @@ import UserInprogressTask from '../pages/UserInprogressTask/UserInprogressTask'
 import UserGroupPendingAction from '../pages/UserGroupPendingAction/UserGroupPendingAction'
 import { routes } from '../util/Constants'
 import { makeStyles } from '@material-ui/core'
+import BulkUpload from '../RangeChangeManagement/pages/BulkUpload/BulkUpload'
+import ManualEvent from '../RangeChangeManagement/pages/ManualEvent/ManualEvent'
+import ManageEventTasks from '../RangeChangeManagement/pages/ManageEventTasks/ManageEventTasks'
+import RangeChangePendingActions from '../RangeChangeManagement/pages/RangeChangePendingActions/RangeChangePendingActions'
+import RangeChangeGroupPendingAction from '../RangeChangeManagement/pages/RangeChangeGroupPendingAction/RangeChangePendingActions'
+import RangeChangeMyTaskRejected from '../RangeChangeManagement/pages/RangeChangeMyTaskRejected/RangeChangeMyTaskRejected'
+import RangeChangeGroupTaskRejected from '../RangeChangeManagement/pages/RangeChangeGroupTaskRejected/RangeChangeGroupTaskRejected'
+import DelistsAddedToRange from '../RAF/sections/DelistsAddedToRange/DelistsAddedToRange'
 
 const useStyles = makeStyles((theme) => ({
   background: {
@@ -49,6 +57,10 @@ const UserRouter = ({
     DASHBOARD_UNASSIGNWORKFLOW,
     DASHBOARD_INPROGRESSTASK,
     DASHBOARD_MYGROUPPENDINGTASKS,
+    DASHBOARD_RANGE_PENDINGACTION,
+    DASHBOARD_RANGE_MYGROUPPENDINGTASKS,
+    DASHBOARD_RANGE_MYTASKREJECTED,
+    DASHBOARD_RANGE_MYGROUPTASKREJECTED,
     RANGEAMEND,
     PROMOFUNDNG,
     RETAILPRICE,
@@ -60,6 +72,12 @@ const UserRouter = ({
     USERCONFIG_GROUPCREATE,
     USERCONFIG_GROUPUPDATE,
     USERCONFIG_USERUPDATE,
+    RANGEAMEND_EVENTDASH,
+    RANGEAMEND_MANAGE,
+    RANGEAMEND_DELIST,
+    RANGEAMEND_CREATE,
+    RANGEAMEND_MANAGE_TASK,
+    DASHBOARD_RAF_CT06,
   } = routes
   const classes = useStyles()
   const getPermission = (url: string) => {
@@ -128,12 +146,52 @@ const UserRouter = ({
           arb={false}
         />
         <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_PENDINGACTION}`}
+          component={RangeChangePendingActions}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}`}
+          component={RangeChangeGroupPendingAction}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYTASKREJECTED}`}
+          component={RangeChangeMyTaskRejected}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUPTASKREJECTED}`}
+          component={RangeChangeGroupTaskRejected}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RAF_CT06}`}
+          component={DelistsAddedToRange}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        {/* <AuthRoute
           path={`${path}${RANGEAMEND}`}
           component={RangeAmend}
           isAuthorized={userDetail && getPermission(RANGEAMEND)}
           serviceError={serviceError}
           arb={false}
-        />
+        /> */}
         <AuthRoute
           path={`${path}${PROMOFUNDNG}`}
           component={PromotionFunding}
@@ -177,6 +235,13 @@ const UserRouter = ({
           arb={false}
         />
         <AuthRoute
+          path={`${path}${USERCONFIG_USERUPDATE}`}
+          component={UserManageUpdate}
+          isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
           path={`${path}${USERCONFIG_USERGROUP}`}
           component={UserManageGroup}
           isAuthorized={userDetail && getPermission(USERCONFIG_USERGROUP)}
@@ -198,9 +263,23 @@ const UserRouter = ({
           arb={false}
         />
         <AuthRoute
-          path={`${path}${USERCONFIG_USERUPDATE}`}
-          component={UserManageUpdate}
-          isAuthorized={userDetail && getPermission(USERCONFIG_USERMANAGE)}
+          path={`${path}${RANGEAMEND_MANAGE}`}
+          component={BulkUpload}
+          isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${RANGEAMEND_CREATE}`}
+          component={ManualEvent}
+          isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${RANGEAMEND_MANAGE_TASK}`}
+          component={ManageEventTasks}
+          isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
           serviceError={serviceError}
           arb={false}
         />

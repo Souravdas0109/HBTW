@@ -42,6 +42,14 @@ const NavigationDrawer = (props: NavigationProps) => {
     DASHBOARD_UNASSIGNWORKFLOW,
     DASHBOARD_INPROGRESSTASK,
     DASHBOARD_MYGROUPPENDINGTASKS,
+    DASHBOARD_RANGE_PENDINGACTION,
+    DASHBOARD_RANGE_MYGROUPPENDINGTASKS,
+    RANGEAMEND_MANAGE,
+    RANGEAMEND_DELIST,
+    RANGEAMEND_CREATE,
+    RANGEAMEND_MANAGE_TASK,
+    DASHBOARD_RANGE_MYTASKREJECTED,
+    DASHBOARD_RANGE_MYGROUPTASKREJECTED,
   } = routes
   const {
     menuItems,
@@ -63,13 +71,15 @@ const NavigationDrawer = (props: NavigationProps) => {
         onClose={handleDrawerToggle}
         onKeyDown={handleDrawerToggle}
       >
-        <div className={`${classes.height} ${classes.setup}`}>
-          <Typography variant="subtitle2" align="center">
-            Menu Items
-          </Typography>
-          <IconButton onClick={handleDrawerToggle} edge="end">
-            <ChevronLeft color="secondary" />
-          </IconButton>
+        <div className="menuItemNav">
+          <div className={`${classes.height} ${classes.setup}`}>
+            <Typography variant="subtitle2" align="center">
+              Menu Items
+            </Typography>
+            <IconButton onClick={handleDrawerToggle} edge="end">
+              <ChevronLeft color="secondary" />
+            </IconButton>
+          </div>
         </div>
         <Divider />
         <List>
@@ -92,7 +102,15 @@ const NavigationDrawer = (props: NavigationProps) => {
                         location.pathname ===
                           `${DEFAULT}${DASHBOARD_INPROGRESSTASK}` ||
                         location.pathname ===
-                          `${DEFAULT}${DASHBOARD_MYGROUPPENDINGTASKS}`) &&
+                          `${DEFAULT}${DASHBOARD_MYGROUPPENDINGTASKS}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_MYTASKREJECTED}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_MYGROUPTASKREJECTED}`) &&
                         `${DEFAULT}${menu.url}` === `${DEFAULT}${DASHBOARD}`)
                         ? `${classes.hover} ${classes.active}`
                         : classes.hover
@@ -145,7 +163,13 @@ const NavigationDrawer = (props: NavigationProps) => {
                                 location.pathname ===
                                   `${DEFAULT}${USERCONFIG_GROUPUPDATE}`) &&
                                 `${DEFAULT}${task.url}` ===
-                                  `${DEFAULT}${USERCONFIG_USERGROUP}`)
+                                  `${DEFAULT}${USERCONFIG_USERGROUP}`) ||
+                              ((location.pathname ===
+                                `${DEFAULT}${RANGEAMEND_CREATE}` ||
+                                location.pathname ===
+                                  `${DEFAULT}${RANGEAMEND_MANAGE_TASK}`) &&
+                                `${DEFAULT}${task.url}` ===
+                                  `${DEFAULT}${RANGEAMEND_MANAGE}`)
                                 ? `${classes.link} ${classes.active}`
                                 : classes.link
                             }

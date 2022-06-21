@@ -40,7 +40,7 @@ export const userInfo = {
         userInfo && userInfo.profileObj && userInfo.profileObj.familyName
           ? userInfo.profileObj.familyName.charAt(0)
           : ''
-      return firstName + ' ' + lastName
+      return firstName + '' + lastName
     } else {
       return ''
     }

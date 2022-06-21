@@ -34,6 +34,11 @@ routes = {
   DASHBOARD_UNASSIGNWORKFLOW: '/user/unassignworkflow',
   DASHBOARD_INPROGRESSTASK: '/user/inprogresstasks',
   DASHBOARD_MYGROUPPENDINGTASKS: '/user/mygrouppendingactions',
+  DASHBOARD_RANGE_PENDINGACTION: '/event/pendingactions',
+  DASHBOARD_RAF_CT06: '/event/raf-CT06',
+  DASHBOARD_RANGE_MYGROUPPENDINGTASKS: '/event/mygrouppendingactions',
+  DASHBOARD_RANGE_MYTASKREJECTED: '/event/mytaskrejected',
+  DASHBOARD_RANGE_MYGROUPTASKREJECTED: '/event/grouptaskrejected',
   RANGEAMEND: '/rangeamend',
   PROMOFUNDNG: '/promofunding',
   RETAILPRICE: '/retailprice',
@@ -46,6 +51,14 @@ routes = {
   USERCONFIG_GROUPCREATE: `/userconfig/groupcreate`,
   USERCONFIG_GROUPUPDATE: `/userconfig/groupupdate`,
   USERCONFIG_USERUPDATE: `/userconfig/userupdate`,
+  // EVENT_BULK_UPLOAD: '/rangeamend/eventupload',
+  // EVENT_CREATE:'/rangeamend/createevent',
+  // EVENT_MANAGE: '/rangeamend/eventmanage'
+  RANGEAMEND_EVENTDASH: '/rangeamend/evntdashboard',
+  RANGEAMEND_MANAGE: '/rangeamend/manageevent',
+  RANGEAMEND_DELIST: '/rangeamend/delistltr',
+  RANGEAMEND_CREATE: '/rangeamend/eventcreate',
+  RANGEAMEND_MANAGE_TASK: '/rangeamend/manageeventtask',
 }
 
 export const extensions = [
@@ -99,4 +112,9 @@ export const extensions = [
   '.xlsx',
   '.csv',
   '.xlsm',
+]
+
+export const bulkUploadFileType = [
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
 ]

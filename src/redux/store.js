@@ -1,6 +1,7 @@
 import { createStore, combineReducers, applyMiddleware } from 'redux'
 import logger from 'redux-logger'
 import thunk from 'redux-thunk'
+import fileReducer from './Reducers/fileReducer'
 import loginReducer from './Reducers/loginReducer'
 import manageGroupReducer from './Reducers/manageGroupReducer'
 import manageUserReducer from './Reducers/manageUserReducer'
@@ -11,6 +12,7 @@ const reducer = combineReducers({
   manageUserReducer: manageUserReducer,
   manageGroupReducer: manageGroupReducer,
   pendingActionReducer: pendingActionReducer,
+  fileReducer: fileReducer
 })
 
 let middlewares = [thunk]
