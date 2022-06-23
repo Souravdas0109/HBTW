@@ -20,7 +20,10 @@ import {
 } from './tableHeaders'
 import { reset_mygrouppendingAction } from '../../redux/Actions/PendingAction/Action'
 import { routes, life } from '../../util/Constants'
-import { putClaimTaskAPI } from '../../api/Fetch'
+import {
+  putClaimTaskAPI,
+  getStatusWithLimitNewCamundaAPI,
+} from '../../api/Fetch'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../util/Messages'
 import ErrorIcon from '@material-ui/icons/Error'
@@ -61,7 +64,22 @@ function GroupPendingAction(props: any) {
   }, [mygroupPendingAction, history, DEFAULT, DASHBOARD])
   useEffect(() => {
     if (mygroupPendingAction) {
-      setMyGroupPendingActionDetails(mygroupPendingAction[0].tasks)
+      //setMyGroupPendingActionDetails(mygroupPendingAction[0].tasks)
+      getStatusWithLimitNewCamundaAPI &&
+        getStatusWithLimitNewCamundaAPI(
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].user.userId,
+          mygroupPendingAction[0].details
+        ).then((res) => {
+          if (res.data && res.data.status) {
+            const pendingStatusDetails = res.data.status.filter(
+              (item: any) =>
+                item.details.toLowerCase() === 'mygrouppendingtasks'
+            )
+            setMyGroupPendingActionDetails(pendingStatusDetails[0].tasks)
+          }
+        })
     }
   }, [mygroupPendingAction])
 

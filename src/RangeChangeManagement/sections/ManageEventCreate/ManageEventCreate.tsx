@@ -4362,7 +4362,13 @@ function ManageEventCreate(props: any) {
                 : error
                 ? error.data &&
                   error.data.eventAlert &&
-                  error.data.eventAlert.alertMessage
+                  error.data.eventAlert.alertMessage === null &&
+                  error.data.serverResponse &&
+                  error.data.serverResponse.errorMessage
+                  ? error.data.serverResponse.errorMessage
+                  : error.data &&
+                    error.data.eventAlert &&
+                    error.data.eventAlert.alertMessage
                   ? error.data.eventAlert.alertMessage
                   : errorMsg
                 : errorMsg,
@@ -4404,6 +4410,7 @@ function ManageEventCreate(props: any) {
             .catch((err: any) => {
               console.log('Error publishEvent', err)
               const error = err.response
+              getEventAndTasks()
               setIsProgressLoader(false)
               toast.current.show({
                 severity: 'error',
@@ -4411,7 +4418,13 @@ function ManageEventCreate(props: any) {
                 detail: error
                   ? error.data &&
                     error.data.eventAlert &&
-                    error.data.eventAlert.alertMessage
+                    error.data.eventAlert.alertMessage === null &&
+                    error.data.serverResponse &&
+                    error.data.serverResponse.errorMessage
+                    ? error.data.serverResponse.errorMessage
+                    : error.data &&
+                      error.data.eventAlert &&
+                      error.data.eventAlert.alertMessage
                     ? error.data.eventAlert.alertMessage
                     : errorMsg
                   : errorMsg,

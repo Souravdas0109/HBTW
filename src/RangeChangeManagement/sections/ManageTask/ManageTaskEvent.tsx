@@ -1261,7 +1261,7 @@ function ManageTaskEvent(props: any) {
         }
       })
     }
-    setSelectedEvents(null)
+    setSelectedEvents([])
   }
 
   const eventNameTemplate = (rowData: any) => {
@@ -1844,15 +1844,16 @@ function ManageTaskEvent(props: any) {
 
   useEffect(() => {
     // console.log('Check count: ', checkCount)
-    // console.log('Failure count: ', failureCount)
+    console.log('going')
     let detail
     let severity
+    setIsProgressLoader(true)
     if (checkCount === 0) {
       if (failureCount === 0) {
         detail = allMessages.success.successDelete
         severity = 'success'
       } else if (failureCount > 0) {
-        detail = allMessages.error.errorDelete
+        detail = `${failureCount} ${allMessages.error.errorDelete}`
         severity = 'error'
       }
       setIsProgressLoader(false)
@@ -1874,10 +1875,17 @@ function ManageTaskEvent(props: any) {
       setConfirmtable(false)
     }
   }, [fetchRangeResets])
+  useEffect(() => {
+    console.log(selectedEvents)
+  }, [selectedEvents])
+  useEffect(() => {
+    console.log(`${checkCount} and ${failureCount}`)
+  }, [checkCount, failureCount])
 
   const removeEvents = () => {
+    console.log('starting')
     if (selectedEvents && selectedEvents.length > 0) {
-      setIsProgressLoader(true)
+      console.log(selectedEvents.length)
       setFailureCount(selectedEvents.length)
       setCheckCount(selectedEvents.length)
 
@@ -2087,14 +2095,14 @@ function ManageTaskEvent(props: any) {
             })
         } else if (
           event.eventStatus.toLowerCase() === 'error' ||
-          event.status.toLowerCase().includes('duplicate')
+          event.eventStatus.toLowerCase() === 'duplicate'
         ) {
+          setFailureCount((prevState) => prevState - 1)
+          setCheckCount((prevState) => prevState - 1)
           let _tasks = fetchRangeResets.filter(
             (value: any) => !selectedEvents.includes(value)
           )
           console.log(_tasks)
-          setFailureCount((prevState) => prevState - 1)
-          setCheckCount((prevState) => prevState - 1)
           setFetchRangeResets(_tasks)
           setFile(_tasks)
           setIsProgressLoader(false)
@@ -2147,7 +2155,7 @@ function ManageTaskEvent(props: any) {
       //     setIsProgressLoader(false)
       //   })
     }
-    setSelectedEvents(null)
+    setSelectedEvents([])
     // if (fileData && fileData.length == 0) {
     //   setConfirmtable(false)
     // }

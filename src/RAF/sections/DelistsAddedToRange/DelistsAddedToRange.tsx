@@ -37,6 +37,7 @@ import {
 // import LocalizationProvider from '@mui/lab/LocalizationProvider';
 // import DatePicker from '@mui/lab/DatePicker';
 import DateFnsUtils from '@date-io/date-fns'
+import { useHistory } from 'react-router-dom'
 import React, { useState, useEffect, useRef } from 'react'
 import {
   actionTypes,
@@ -64,12 +65,18 @@ import DialogHeader from '../../../RangeChangeManagement/components/DialogHeader
 import SearchSelect from '../../../RangeChangeManagement/components/SearchSelect/SearchSelect'
 import { Autocomplete } from '@material-ui/lab'
 import { tableBodyStyle, useStyles, tableHeaderStyle } from './Styles'
-import { getRangeByRangeResetId } from '../../../api/Fetch'
+import {
+  getRangeByRangeResetId,
+  putCamundaMileStoneUpdate,
+} from '../../../api/Fetch'
 import { connect } from 'react-redux'
+import { routes } from '../../../util/Constants'
 function DelistsAddedToRange(props: any) {
   const { rafpendingActionDetailsCT06, userDetail } = props
+  const { DEFAULT, DASHBOARD_RANGE_PENDINGACTION } = routes
   const classes = useStyles()
   const theme = useTheme()
+  const history = useHistory()
   const small = useMediaQuery(theme.breakpoints.up('md'))
   const radio = <Radio color="primary" />
 
@@ -168,6 +175,15 @@ function DelistsAddedToRange(props: any) {
   //         }
   //       })
   //   }, [])
+  useEffect(() => {
+    if (!rafpendingActionDetailsCT06)
+      history.push(`${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION}`)
+  }, [
+    rafpendingActionDetailsCT06,
+    history,
+    DEFAULT,
+    DASHBOARD_RANGE_PENDINGACTION,
+  ])
   useEffect(() => {
     console.log(rafpendingActionDetailsCT06)
     if (rafpendingActionDetailsCT06 && rafpendingActionDetailsCT06.eventId) {
@@ -2960,6 +2976,121 @@ function DelistsAddedToRange(props: any) {
   //     </Box>
   //   </Dialog>
   // )
+  const convertedTargetDateTemplate = (rowData: any) => {
+    if (rowData.targetDate) {
+      const date = new Date(rowData.targetDate)
+      const formattedDate = date
+        .toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+        .replace(/ /g, '-')
+      return formattedDate
+    } else {
+      return 'NA'
+    }
+  }
+  const convertedAppDueDateTemplate = (rowData: any) => {
+    if (rowData.appDueDate) {
+      const date = new Date(rowData.appDueDate)
+      const formattedDate = date
+        .toLocaleDateString('en-GB', {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric',
+        })
+        .replace(/ /g, '-')
+      // if (rowData.status === 'Error') {
+      //   return <div style={{ color: 'red' }}>{formattedDate}</div>
+      // } else {
+      return formattedDate
+      // }
+    } else {
+      return 'NA'
+    }
+  }
+  const goBack = () => {
+    history.goBack()
+  }
+
+  const handleCompleteTask = () => {
+    if (rafpendingActionDetailsCT06) {
+      const completePayload = {
+        reviewDecision: 'Complete',
+        requester: {
+          persona: rafpendingActionDetailsCT06.assigneeRole,
+          details: {
+            emailId: userDetail && userDetail.userdetails[0].user.emailId,
+            userId: userDetail && userDetail.userdetails[0].user.userId,
+            name:
+              userDetail &&
+              userDetail.userdetails[0].user.middleName &&
+              userDetail.userdetails[0].user.middleName !== ''
+                ? `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.middleName} ${userDetail.userdetails[0].user.lastName}`
+                : `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.lastName}`,
+          },
+          roles:
+            userDetail &&
+            userDetail.userdetails[0].roles.map((role: any) => {
+              return {
+                // roleId: role.roleId,
+                roleId: role.roleName,
+              }
+            }),
+          usergroups:
+            userDetail &&
+            userDetail.userdetails[0].usergroups.map((group: any) => {
+              return {
+                groupId: group.groupId,
+                status: group.status,
+              }
+            }),
+        },
+        eventStatus: 'Published',
+        eventId: rafpendingActionDetailsCT06.eventId,
+        milestones: [
+          {
+            action: '',
+            status: rafpendingActionDetailsCT06.status,
+            visibility: rafpendingActionDetailsCT06.visibility,
+            activeTaskId: rafpendingActionDetailsCT06.activeTaskId,
+            milestoneTaskId: rafpendingActionDetailsCT06.milestoneTaskId,
+            taskName: rafpendingActionDetailsCT06.taskName,
+            taskDescription: rafpendingActionDetailsCT06.taskDescription,
+            tradingGroup: rafpendingActionDetailsCT06.tradingGroup,
+            weeksPrior: rafpendingActionDetailsCT06.weeksPrior,
+            dueDate: rafpendingActionDetailsCT06.dueDate,
+            notifyDate: rafpendingActionDetailsCT06.notifyDate,
+            slaDate: rafpendingActionDetailsCT06.slaDate,
+            healthcheckDate: rafpendingActionDetailsCT06.healthcheckDate,
+            assigneeDetails: {
+              emailId: rafpendingActionDetailsCT06.assigneeEmailId,
+              userId: rafpendingActionDetailsCT06.assigneeUserId,
+              name: rafpendingActionDetailsCT06.assigneeName,
+            },
+            // assigneeRole: userAssigned.roles,
+            assigneeRole: rafpendingActionDetailsCT06.assigneeRole,
+          },
+        ],
+        logging: {
+          comments: '',
+          //updated: res.data.attachmentUrl,
+          updated: '',
+        },
+      }
+      putCamundaMileStoneUpdate(
+        rafpendingActionDetailsCT06.eventId,
+        completePayload
+      )
+        .then((res: any) => {
+          console.log(res.data)
+        })
+        .catch((err: any) => {
+          console.log(err.response)
+        })
+    }
+  }
 
   return (
     <>
@@ -3006,6 +3137,7 @@ function DelistsAddedToRange(props: any) {
             <button
               // className={classes.backButton}
               className="backButton"
+              onClick={goBack}
             >
               {/* <Typography variant="subtitle1" color="primary"> */}
               <svg
@@ -3049,6 +3181,11 @@ function DelistsAddedToRange(props: any) {
                     fontSize: '0.9rem',
                     padding: '0.5rem',
                   }}
+                  body={
+                    (col.field === 'targetDate' &&
+                      convertedTargetDateTemplate) ||
+                    (col.field === 'appDueDate' && convertedAppDueDateTemplate)
+                  }
                 />
               )
             })}
@@ -3249,8 +3386,8 @@ function DelistsAddedToRange(props: any) {
                 </Button>
               </Grid>
               <Grid item xl={4} lg={4} md={4} sm={4} xs={12}>
-                <Button variant="contained" color="primary" disabled>
-                  Confirm
+                <Button variant="contained" color="primary">
+                  Complete Task
                 </Button>
               </Grid>
             </Grid>

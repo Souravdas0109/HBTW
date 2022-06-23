@@ -10,7 +10,7 @@ export const delistAddedToRangeCols = [
     width: '150px',
   },
   {
-    field: 'dueDate',
+    field: 'appDueDate',
     header: 'Due Date',
     width: '150px',
   },

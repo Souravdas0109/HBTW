@@ -75,6 +75,11 @@ const pendingActionReducer = (state = initpendingactionState, action: any) => {
 
     case RESET_PENDING_ACTION:
       return state
+    // case RESET_PENDING_ACTION:
+    //   return {
+    //     ...state,
+    //     pendingActionDetails: undefined,
+    //   }
     case RESET_MYPENDING_ACTION:
       return state
     case RESET_MYINPROGRESS_TASKS:

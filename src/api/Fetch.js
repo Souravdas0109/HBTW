@@ -238,6 +238,34 @@ export const getStatusEventCamundaAPI = () => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getStatusNewCamundaAPI = (empId, summary) => {
+  // let empId = ''
+  // const userV2Response = JSON.parse(
+  //   localStorage && localStorage.getItem('_GresponseV2')
+  // )
+  // if (userV2Response) {
+  //   empId = userV2Response && userV2Response.empId
+  // }
+  let url = `${BASE_URL}${GET_DASHBOARD_STATUS_CAMUNDA}`
+  const params = `filter=${summary}&offset=0&limit=0`
+  url = url.replace('{userId}', empId)
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getStatusWithLimitNewCamundaAPI = (empId, summary) => {
+  // let empId = ''
+  // const userV2Response = JSON.parse(
+  //   localStorage && localStorage.getItem('_GresponseV2')
+  // )
+  // if (userV2Response) {
+  //   empId = userV2Response && userV2Response.empId
+  // }
+  let url = `${BASE_URL}${GET_DASHBOARD_STATUS_CAMUNDA}`
+  const params = `filter=${summary}&offset=0&limit=1000`
+  url = url.replace('{userId}', empId)
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const getAppsAPI = () => {
   const url = `${BASE_URL}${GET_APP_MENU_ALL}`
   const params = 'limit=1000'

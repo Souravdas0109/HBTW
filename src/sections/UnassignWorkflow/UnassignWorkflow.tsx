@@ -20,7 +20,10 @@ import {
 } from '../PendingAction/tableHeader'
 import { reset_mygroupunassignAction } from '../../redux/Actions/PendingAction/Action'
 import { routes, life } from '../../util/Constants'
-import { putClaimTaskAPI } from '../../api/Fetch'
+import {
+  putClaimTaskAPI,
+  getStatusWithLimitNewCamundaAPI,
+} from '../../api/Fetch'
 import LoadingComponent from '../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../util/Messages'
 
@@ -58,7 +61,22 @@ function UnassignWorkflow(props: any) {
   }, [mygroupUnassignTasks, history, DEFAULT, DASHBOARD])
   useEffect(() => {
     if (mygroupUnassignTasks) {
-      setMyGroupUnassignedTasks(mygroupUnassignTasks[0].tasks)
+      //setMyGroupUnassignedTasks(mygroupUnassignTasks[0].tasks)
+      getStatusWithLimitNewCamundaAPI &&
+        getStatusWithLimitNewCamundaAPI(
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].user.userId,
+          mygroupUnassignTasks[0].details
+        ).then((res) => {
+          if (res.data && res.data.status) {
+            const pendingStatusDetails = res.data.status.filter(
+              (item: any) =>
+                item.details.toLowerCase() === 'mygroupunnassignedtasks'
+            )
+            setMyGroupUnassignedTasks(pendingStatusDetails[0].tasks)
+          }
+        })
     }
   }, [mygroupUnassignTasks])
 
@@ -69,6 +87,7 @@ function UnassignWorkflow(props: any) {
   useEffect(() => {
     // console.log('Check count: ', checkCount)
     // console.log('Failure count: ', failureCount)
+    console.log('going to useeffect')
     let detail
     let severity
     if (checkCount === 0) {

@@ -16,10 +16,15 @@ import { pendingActionDetails, pendingActionTableHeaders } from './tableHeader'
 import { set_pendingAction } from '../../redux/Actions/PendingAction'
 import { reset_mypendingAction } from '../../redux/Actions/PendingAction/Action'
 import { routes } from '../../util/Constants'
-import { getStatusCamundaAPI } from '../../api/Fetch'
+import { getStatusWithLimitNewCamundaAPI } from '../../api/Fetch'
 
 function PendingAction(props: any) {
-  const { set_pendingAction, mypendingAction, reset_mypendingAction } = props
+  const {
+    set_pendingAction,
+    mypendingAction,
+    reset_mypendingAction,
+    userDetail,
+  } = props
   const { DEFAULT, DASHBOARD_PENDINGACTIONS_UPDATE, DASHBOARD } = routes
   const history = useHistory()
   const theme = useTheme()
@@ -53,16 +58,21 @@ function PendingAction(props: any) {
 
   useEffect(() => {
     if (mypendingAction) {
-      setPendingActionDetails(mypendingAction[0].tasks)
-      // getStatusCamundaAPI &&
-      //   getStatusCamundaAPI().then((res) => {
-      //     if (res.data && res.data.status) {
-      //       const pendingStatusDetails = res.data.status.filter(
-      //         (item: any) => item.details.toLowerCase() === 'mypendingtasks'
-      //       )
-      //       setPendingActionDetails(pendingStatusDetails[0].tasks)
-      //     }
-      //   })
+      //setPendingActionDetails(mypendingAction[0].tasks)
+      getStatusWithLimitNewCamundaAPI &&
+        getStatusWithLimitNewCamundaAPI(
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].user.userId,
+          mypendingAction[0].details
+        ).then((res) => {
+          if (res.data && res.data.status) {
+            const pendingStatusDetails = res.data.status.filter(
+              (item: any) => item.details.toLowerCase() === 'mypendingtasks'
+            )
+            setPendingActionDetails(pendingStatusDetails[0].tasks)
+          }
+        })
     }
   }, [mypendingAction])
 
@@ -282,6 +292,7 @@ function PendingAction(props: any) {
 const mapStateToProps = (state: any) => {
   return {
     mypendingAction: state.pendingActionReducer.mypendingAction,
+    userDetail: state.loginReducer.userDetail,
     // myinprogressTasks: state.pendingActionReducer.myinprogressTasks,
     // mygroupPendingAction: state.pendingActionReducer.mygroupPendingAction,
     // mygroupUnassignTasks: state.pendingActionReducer.mygroupUnassignTasks,

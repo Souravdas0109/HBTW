@@ -40,7 +40,11 @@ import {
   set_range_grouppendingAction,
   reset_all,
 } from '../../redux/Actions/PendingAction/Action'
-import { getStatusCamundaAPI, getStatusEventCamundaAPI } from '../../api/Fetch'
+import {
+  getStatusCamundaAPI,
+  getStatusEventCamundaAPI,
+  getStatusNewCamundaAPI,
+} from '../../api/Fetch'
 import { ServiceResponse } from '../../pages/Login/Messages'
 import { TabView, TabPanel } from 'primereact/tabview'
 import { DataTable } from 'primereact/datatable'
@@ -197,8 +201,13 @@ function Dashboard1(props: any) {
     let rangePendingTasks: Array<any> = []
     let rangeGroupPendingTasks: Array<any> = []
     setNewMap([...userTaskDashboard])
-    getStatusCamundaAPI &&
-      getStatusCamundaAPI()
+    getStatusNewCamundaAPI &&
+      getStatusNewCamundaAPI(
+        userDetail &&
+          userDetail.userdetails &&
+          userDetail.userdetails[0].user.userId,
+        'summary'
+      )
         .then((res) => {
           const pendingStatusDetails = res.data
 
