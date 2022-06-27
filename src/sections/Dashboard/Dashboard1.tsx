@@ -44,6 +44,7 @@ import {
   getStatusCamundaAPI,
   getStatusEventCamundaAPI,
   getStatusNewCamundaAPI,
+  getStatusEventCamundaAPINew,
 } from '../../api/Fetch'
 import { ServiceResponse } from '../../pages/Login/Messages'
 import { TabView, TabPanel } from 'primereact/tabview'
@@ -260,8 +261,17 @@ function Dashboard1(props: any) {
         })
     // }, [pendingStatusDetails])
 
-    getStatusEventCamundaAPI &&
-      getStatusEventCamundaAPI()
+    getStatusEventCamundaAPINew &&
+      getStatusEventCamundaAPINew(
+        userDetail &&
+          userDetail.userdetails &&
+          userDetail.userdetails[0].user.userId,
+        userDetail &&
+          userDetail.userdetails &&
+          userDetail.userdetails[0].roles[0].roleName
+      )
+        // getStatusEventCamundaAPI &&
+        //   getStatusEventCamundaAPI()
         .then((res) => {
           const pendingTaskDetails = res.data
 

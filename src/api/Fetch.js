@@ -47,7 +47,16 @@ const {
   DELETE_EVENTS_CAMUNDA,
   PUT_CAMUNDA_MILESTONE_UPDATE,
   POST_RANGE_RESET_EVENT_ATTACHMENT,
+  GET_CONFIG,
+  PRODUCT_SERVICE_GET,
   GET_RANGE_BY_RANGEID,
+  GET_PRODUCT_SERVICE,
+  GET_PRODUCT_SUPPLIER_SERVICE,
+  GET_SUPPLIER_SERVICE,
+  GET_PRODUCT_COMPOSITION_SERVICE,
+  GET_RANGE_SUMMARY_BY_ID_MIN,
+  GET_SUPPLIER_BY_SUPPLIER_AND_SITE,
+  GET_LOCATIONS,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -266,6 +275,21 @@ export const getStatusWithLimitNewCamundaAPI = (empId, summary) => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getStatusEventCamundaAPINew = (empId, userRole) => {
+  // let empId = ''
+  // const userV2Response = JSON.parse(
+  //   localStorage && localStorage.getItem('_GresponseV2')
+  // )
+  // if (userV2Response) {
+  //   empId = userV2Response && userV2Response.empId
+  // }
+  let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
+  const params = `limit=1000&userRole=${userRole}`
+  url = url.replace('{userId}', empId)
+  url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const getAppsAPI = () => {
   const url = `${BASE_URL}${GET_APP_MENU_ALL}`
   const params = 'limit=1000'
@@ -415,10 +439,15 @@ export const getWastageRanges = () => {
   return serviceRequest(url, 'GET', undefined)
 }
 
-export const getRangeResetEvents = (createdBy) => {
+// export const getRangeResetEvents = (createdBy) => {
+//   let url = `${BASE_URL}${GET_RANGERESET_EVENTS}`
+//   const params = `createdByIdIn=${createdBy}`
+//   return serviceRequest(url, 'GET', undefined, params)
+// }
+export const getRangeResetEvents = () => {
   let url = `${BASE_URL}${GET_RANGERESET_EVENTS}`
-  const params = `createdByIdIn=${createdBy}`
-  return serviceRequest(url, 'GET', undefined, params)
+  //const params = `createdByIdIn=${createdBy}`
+  return serviceRequest(url, 'GET', undefined)
 }
 
 export const patchRangeResetEvents = (req) => {
@@ -468,6 +497,12 @@ export const getEventDetailsById = (eventId) => {
   // let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'GET', undefined)
 }
+export const getConfigType = (configType) => {
+  let url = `${BASE_URL}${GET_CONFIG}`
+  url = url.replace('{configType}', configType)
+  // let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'GET', undefined)
+}
 
 export const claimEventsCamunda = (taskId, req) => {
   let url = `${BASE_URL}${PUT_CAMUNDA_CLAIM}`
@@ -493,6 +528,56 @@ export const getRangeByRangeResetId = (rangeResetId) => {
   let url = `${BASE_URL}${GET_RANGE_BY_RANGEID}`
   url = url.replace('{rangeResetId}', rangeResetId)
   // let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'GET', undefined)
+}
+export const getProductServiceByItemnumber = (itemNumber) => {
+  let url = `${BASE_URL}${GET_PRODUCT_SERVICE}`
+  url = url.replace('{itemNumber}', itemNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'GET', undefined)
+}
+export const getProductSupplierServiceByItemnumber = (itemNumber) => {
+  let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
+  url = url.replace('{itemNumber}', itemNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequestBasic(url, 'GET', undefined)
+}
+export const getSupplierServiceBySupplierId = (supplierId) => {
+  let url = `${BASE_URL}${GET_SUPPLIER_SERVICE}`
+  url = url.replace('{supplierId}', supplierId)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'GET', undefined)
+}
+export const getProductCompositionServiceByItemnumber = (itemNumber) => {
+  let url = `${BASE_URL}${GET_PRODUCT_COMPOSITION_SERVICE}`
+  url = url.replace('{itemNumber}', itemNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'GET', undefined)
+}
+export const getRangeByIdAndMinNumber = (rangeResetId, minNumber) => {
+  let url = `${BASE_URL}${GET_RANGE_SUMMARY_BY_ID_MIN}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{MIN}', minNumber)
+  // let reqBody = `${JSON.stringify(req)}`
+  // return serviceRequest(url, "GET", undefined);
+  return serviceRequest(url, 'GET', undefined)
+}
+export const getSupplierSearchByIdNameSupplierAndSite = (
+  searchQuery,
+  supplierType
+) => {
+  let url = `${BASE_URL}${GET_SUPPLIER_BY_SUPPLIER_AND_SITE}`
+  // url = url.replace("{userId}", userId);
+  // const params = "limit=1000&statusIn=A,I,D";
+  const params = `searchCriteria=${searchQuery}&searchType=${supplierType}`
+  return serviceRequest(url, 'GET', undefined, params)
+}
+export const getLocationsStoreCodeAPI = () => {
+  const url = `${BASE_URL}${GET_LOCATIONS}`
+  // const params = "limit=1000";
   return serviceRequest(url, 'GET', undefined)
 }
 

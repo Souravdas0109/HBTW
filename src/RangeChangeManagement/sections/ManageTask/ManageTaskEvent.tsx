@@ -230,7 +230,8 @@ function ManageTaskEvent(props: any) {
     setIsProgressLoader(true)
     // const createdBy = 'system'
     localStorage.setItem('_errorCounter', JSON.stringify({ count: 0 }))
-    getRangeResetEvents(userDetail && userDetail.userdetails[0].user.userId)
+    // getRangeResetEvents(userDetail && userDetail.userdetails[0].user.userId)
+    getRangeResetEvents()
       .then((res: any) => {
         console.log(res.data)
         if (res.data.length > 0) {

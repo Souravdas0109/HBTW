@@ -4020,6 +4020,8 @@ function ManageEventCreate(props: any) {
         slaDate: val.slaDate,
         activeTaskId: val.activeTaskId,
         healthcheckDate: val.healthcheckDate,
+        tradingGroup: eventDetails[0].tradeGroup,
+        weeksPrior: val.weeksPrior,
         // assigneeDetails: {
         //   persona: val.assignedUserGroup,
         //   details: {
