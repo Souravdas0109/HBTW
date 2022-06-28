@@ -35,7 +35,7 @@ const Input = styled('input')({
   display: 'none',
 })
 
-function RcmGroupPendingActions(props: any) {
+function RcmGroupPendingActionsWeek5(props: any) {
   const {
     // reset_mygroupunassignAction,
     eventGroupPendingAction,
@@ -105,124 +105,6 @@ function RcmGroupPendingActions(props: any) {
       setAssigneeUsers(userDetails)
     })
   }, [])
-
-  // useEffect(() => {
-  //   return () => {
-  //     sessionStorage.removeItem('dt-state-demo-session-unassignworkflow')
-  //     reset_mygroupunassignAction()
-  //   }
-  // }, [])
-  // useEffect(() => {
-  //   if (!mygroupUnassignTasks) history.push(`${DEFAULT}${DASHBOARD}`)
-  // }, [mygroupUnassignTasks, history, DEFAULT, DASHBOARD])
-  // useEffect(() => {
-  //   if (mygroupUnassignTasks) {
-  //     setMyPendingActions(mygroupUnassignTasks[0].tasks)
-  //   }
-  // }, [mygroupUnassignTasks])
-
-  // useEffect(() => {
-  //   console.log(unassignUser)
-  // }, [unassignUser])
-
-  // useEffect(() => {
-  //   // console.log('Check count: ', checkCount)
-  //   // console.log('Failure count: ', failureCount)
-  //   let detail
-  //   let severity
-  //   if (checkCount === 0) {
-  //     if (failureCount === 0) {
-  //       detail = allMessages.success.successAssign
-  //       severity = 'success'
-  //     } else if (failureCount > 0) {
-  //       detail = allMessages.error.errorAssign
-  //       severity = 'error'
-  //     }
-  //     setIsProgressLoader(false)
-  //     toast.current.show([
-  //       {
-  //         severity: severity,
-  //         summary: '',
-  //         detail: detail,
-  //         life: life,
-  //         className: 'login-toast',
-  //       },
-  //     ])
-  //     // setTimeout(() => history.push(`${DEFAULT}${DASHBOARD}`), life)
-  //   }
-  // }, [checkCount, DASHBOARD, DEFAULT, history, failureCount])
-
-  // const handleAssign = () => {
-  //   setIsProgressLoader(true)
-  //   if (unassignUser.length > 0) {
-  //     setFailureCount(unassignUser.length)
-  //     setCheckCount(unassignUser.length)
-  //     const assignPayload = {
-  //       requestorDetails: {
-  //         emailId: userDetail && userDetail.userdetails[0].user.emailId,
-  //         requestBy: userDetail && userDetail.userdetails[0].user.userId,
-  //         requestorName:
-  //           userDetail &&
-  //           userDetail.userdetails[0].user.middleName &&
-  //           userDetail.userdetails[0].user.middleName !== ''
-  //             ? `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.middleName} ${userDetail.userdetails[0].user.lastName}`
-  //             : `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.lastName}`,
-  //         requestType: 'complete',
-  //         requestDate: new Date().toISOString().split('T')[0],
-  //       },
-  //       requestorRoles:
-  //         userDetail &&
-  //         userDetail.userdetails[0].roles.map((role: any) => {
-  //           return {
-  //             roleId: role.roleId,
-  //           }
-  //         }),
-  //       //submitFlag: 'Assign',
-  //     }
-  //     const taskIds =
-  //       unassignUser && unassignUser.map((item: any) => item.taskId)
-
-  //     for (let i = 0; i < taskIds.length; i++) {
-  //       putClaimTaskAPI &&
-  //         putClaimTaskAPI(assignPayload, taskIds[i])
-  //           .then((res) => {
-  //             console.log(res.data)
-  //             setFailureCount((prevState) => prevState - 1)
-  //             setCheckCount((prevState) => prevState - 1)
-  //             // if (res.data.status.toLowerCase() !== 'failed') {
-  //             // setIsProgressLoader(false)
-  //             // toast.current.show({
-  //             //   severity: 'success',
-  //             //   summary: taskIds[i],
-  //             //   detail: res.data.comments,
-  //             //   life: life,
-  //             //   className: 'login-toast',
-  //             // })
-  //             // } else {
-  //             //   toast.current.show({
-  //             //     severity: 'error',
-  //             //     summary: 'Error!',
-  //             //     detail: res.data.comments,
-  //             //     life: 6000,
-  //             //     className: 'login-toast',
-  //             //   })
-  //             // }
-  //           })
-  //           .catch((err) => {
-  //             setCheckCount((prevState) => prevState - 1)
-  //             // setIsProgressLoader(false)
-  //             // toast.current.show({
-  //             //   severity: 'error',
-  //             //   summary: 'Error!',
-  //             //   //detail: `${err.response.status} from tasklistapi`,
-  //             //   detail: err.response.data.errorMessage,
-  //             //   life: life,
-  //             //   className: 'login-toast',
-  //             // })
-  //           })
-  //     }
-  //   }
-  // }
 
   const claimPayload = userAssigned && {
     requestorDetails: {
@@ -483,7 +365,7 @@ function RcmGroupPendingActions(props: any) {
                       }}
                     >
                       <Typography variant="h6">
-                        Group Task {'>'} Total
+                        Group Task {'>'} Greater Than week 5
                       </Typography>
                     </Box>
                     <Box
@@ -713,4 +595,4 @@ const matchDispatchToProps = (dispatch: any) => {
 export default connect(
   mapStateToProps,
   matchDispatchToProps
-)(RcmGroupPendingActions)
+)(RcmGroupPendingActionsWeek5)

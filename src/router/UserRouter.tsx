@@ -29,6 +29,13 @@ import RangeChangeGroupPendingAction from '../RangeChangeManagement/pages/RangeC
 import RangeChangeMyTaskRejected from '../RangeChangeManagement/pages/RangeChangeMyTaskRejected/RangeChangeMyTaskRejected'
 import RangeChangeGroupTaskRejected from '../RangeChangeManagement/pages/RangeChangeGroupTaskRejected/RangeChangeGroupTaskRejected'
 import DelistsAddedToRange from '../RAF/sections/DelistsAddedToRange/DelistsAddedToRange'
+import RangeChangePendingActionsWeek5 from '../RangeChangeManagement/pages/RangeChangePendingActionsWeek5/RangeChangePendingActionsWeek5'
+import RangeChangePendingActionsWeek2toWeek5 from '../RangeChangeManagement/pages/RangeChangePendingActionsWeek2toWeek5/RangeChangePendingActionsWeek2toWeek5'
+import RangeChangePendingActionsNextWeek from '../RangeChangeManagement/pages/RangeChangePendingActionsNextWeek/RangeChangePendingActionsNextWeek'
+import RangeChangePendingActionsCurrentWeek from '../RangeChangeManagement/pages/RangeChangePendingActionsCurrentWeek/RangeChangePendingActionsCurrentWeek'
+import RangeChangeMyTaskMissed from '../RangeChangeManagement/pages/RangeChangeMyTaskMissed/RangeChangeMyTaskMissed'
+import RangeChangeGroupTaskMissed from '../RangeChangeManagement/pages/RangeChangeGroupTaskMissed/RangeChangeGroupTaskMissed'
+import RangeChangeGroupPendingActionWeek5 from '../RangeChangeManagement/pages/RangeChangeGroupPendingActionsWeek5/RangeChangeGroupPendingActionsWeek5'
 
 const useStyles = makeStyles((theme) => ({
   background: {
@@ -58,9 +65,16 @@ const UserRouter = ({
     DASHBOARD_INPROGRESSTASK,
     DASHBOARD_MYGROUPPENDINGTASKS,
     DASHBOARD_RANGE_PENDINGACTION,
+    DASHBOARD_RANGE_PENDINGACTION_WEEK5,
+    DASHBOARD_RANGE_PENDINGACTION_WEEK2_TO_WEEK5,
+    DASHBOARD_RANGE_PENDINGACTION_NEXT_WEEK,
+    DASHBOARD_RANGE_PENDINGACTION_CURRENT_WEEK,
     DASHBOARD_RANGE_MYGROUPPENDINGTASKS,
     DASHBOARD_RANGE_MYTASKREJECTED,
+    DASHBOARD_RANGE_MISSED,
     DASHBOARD_RANGE_MYGROUPTASKREJECTED,
+    DASHBOARD_RANGE_MYGROUPTASK_MISSED,
+    DASHBOARD_RANGE_MYGROUP_WEEK5,
     RANGEAMEND,
     PROMOFUNDNG,
     RETAILPRICE,
@@ -154,8 +168,49 @@ const UserRouter = ({
           arb={false}
         />
         <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_PENDINGACTION_WEEK5}`}
+          component={RangeChangePendingActionsWeek5}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_PENDINGACTION_WEEK2_TO_WEEK5}`}
+          component={RangeChangePendingActionsWeek2toWeek5}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_PENDINGACTION_NEXT_WEEK}`}
+          component={RangeChangePendingActionsNextWeek}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_PENDINGACTION_CURRENT_WEEK}`}
+          component={RangeChangePendingActionsCurrentWeek}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
           path={`${path}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}`}
           component={RangeChangeGroupPendingAction}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUP_WEEK5}`}
+          component={RangeChangeGroupPendingActionWeek5}
           isAuthorized={userDetail && getPermission(DASHBOARD)}
           // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
           serviceError={serviceError}
@@ -170,8 +225,24 @@ const UserRouter = ({
           arb={false}
         />
         <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MISSED}`}
+          component={RangeChangeMyTaskMissed}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
           path={`${path}${DASHBOARD_RANGE_MYGROUPTASKREJECTED}`}
           component={RangeChangeGroupTaskRejected}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUPTASK_MISSED}`}
+          component={RangeChangeGroupTaskMissed}
           isAuthorized={userDetail && getPermission(DASHBOARD)}
           // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
           serviceError={serviceError}

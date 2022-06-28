@@ -41,7 +41,7 @@ const Input = styled('input')({
   display: 'none',
 })
 
-function RcmPendingActions(props: any) {
+function RcmPendingActionsWeek5(props: any) {
   const {
     // reset_mygroupunassignAction,
     eventPendingAction,
@@ -90,7 +90,11 @@ function RcmPendingActions(props: any) {
   useEffect(() => {
     if (eventPendingAction && eventPendingAction[0].tasks != []) {
       console.log(eventPendingAction[0].tasks)
-      setMyPendingActions(eventPendingAction[0].tasks)
+      setMyPendingActions(
+        eventPendingAction[0].tasks.filter(
+          (item: any) => item.timeFilter === '> Week 5'
+        )
+      )
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)
     }
@@ -190,68 +194,7 @@ function RcmPendingActions(props: any) {
     }
   }, [assignToOther, roleNametoId])
 
-  // const claimPayload = userAssigned && {
-  //   reviewDecision: 'AssignTask',
-  //   requester: {
-  //     persona: unassignUser.assigneeRole,
-  //     details: {
-  //       emailId: userDetail && userDetail.userdetails[0].user.emailId,
-  //       userId: userDetail && userDetail.userdetails[0].user.userId,
-  //       name:
-  //         userDetail &&
-  //         userDetail.userdetails[0].user.middleName &&
-  //         userDetail.userdetails[0].user.middleName !== ''
-  //           ? `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.middleName} ${userDetail.userdetails[0].user.lastName}`
-  //           : `${userDetail.userdetails[0].user.firstName} ${userDetail.userdetails[0].user.lastName}`,
-  //     },
-  //     roles:
-  //       userDetail &&
-  //       userDetail.userdetails[0].roles.map((role: any) => {
-  //         return {
-  //           // roleId: role.roleId,
-  //           roleId: role.roleName,
-  //         }
-  //       }),
-  //     usergroups:
-  //       userDetail &&
-  //       userDetail.userdetails[0].usergroups.map((group: any) => {
-  //         return {
-  //           groupId: group.groupId,
-  //           status: group.status,
-  //         }
-  //       }),
-  //   },
-  //   eventStatus: 'Published',
-  //   eventId: unassignUser.eventId,
-  //   milestones: [
-  //     {
-  //       action: '',
-  //       status: unassignUser.status,
-  //       visibility: unassignUser.visibility,
-  //       activeTaskId: unassignUser.activeTaskId,
-  //       milestoneTaskId: unassignUser.milestoneTaskId,
-  //       taskName: unassignUser.taskName,
-  //       taskDescription: unassignUser.taskDescription,
-  //       tradingGroup: unassignUser.tradingGroup,
-  //       weeksPrior: unassignUser.weeksPrior,
-  //       dueDate: unassignUser.dueDate,
-  //       notifyDate: unassignUser.notifyDate,
-  //       slaDate: unassignUser.slaDate,
-  //       healthcheckDate: unassignUser.healthcheckDate,
-  //       assigneeDetails: {
-  //         emailId: userAssigned.email,
-  //         userId: userAssigned.userId,
-  //         name: userAssigned.label,
-  //       },
-  //       // assigneeRole: userAssigned.roles,
-  //       assigneeRole: unassignUser.assigneeRole,
-  //     },
-  //   ],
-  // }
-
   useEffect(() => {
-    // console.log('Check count: ', checkCount)
-    // console.log('Failure count: ', failureCount)
     console.log('going to useeffect')
     let detail
     let severity
@@ -468,104 +411,6 @@ function RcmPendingActions(props: any) {
             })
         }
       }
-      // const formdata1 = new FormData()
-      // // formdata1.append('fileIn', referenceDocData.data)
-      // formdata1.append('fileIn', uploadedFile)
-      // // formdata1.append('fileIn', rf.data)
-      // postFileAttachmentRangeResetAPI &&
-      //   postFileAttachmentRangeResetAPI(formdata1, unassignUser.eventId)
-      //     .then((res: any) => {
-      //       console.log(res.data)
-      //       const claimPayloadchange = {
-      //         ...claimPayload,
-      //         logging: {
-      //           comments: comments,
-      //           updated: res.data.attachmentUrl,
-      //           // updated: '',
-      //         },
-      //       }
-      //       putCamundaMileStoneUpdate(
-      //         unassignUser.eventId,
-      //         claimPayloadchange
-      //       )
-      //         .then((res: any) => {
-      //           console.log(res.data)
-      //           setIsProgressLoader(false)
-      //           toast.current.show({
-      //             severity: 'success',
-      //             summary: 'Success',
-      //             // detail: res.data.comments,
-      //             detail: 'Task assigned successfully',
-      //             life: life,
-      //             className: 'login-toast',
-      //           })
-      //         })
-      //         .catch((err: any) => {
-      //           console.log(err)
-      //           setIsProgressLoader(false)
-      //           toast.current.show({
-      //             severity: 'error',
-      //             summary: 'Error!',
-      //             // detail: err.response.data.errorMessage
-      //             //   ? err.response.data.errorMessage
-      //             //   : '',
-      //             detail: 'Task assigned failed.Please try again later',
-      //             life: life,
-      //             className: 'login-toast',
-      //           })
-      //         })
-      //     })
-      //     .catch((err: any) => {
-      //       console.log(err)
-      //       toast.current.show({
-      //         severity: 'error',
-      //         summary: 'Error!',
-      //         //detail: `${err.response.status} from tasklistapi`,
-      //         detail: 'Error in uploading file.Please Try later',
-      //         life: life,
-      //         className: 'login-toast',
-      //       })
-      //     })
-      // // })
-      // }
-      // else {
-      //   const claimPayloadchange = {
-      //     ...claimPayload,
-      //     logging: {
-      //       comments: comments,
-      //       //updated: res.data.attachmentUrl,
-      //       updated: '',
-      //     },
-      //   }
-      //   putCamundaMileStoneUpdate(unassignUser.eventId, claimPayloadchange)
-      //     .then((res: any) => {
-      //       console.log(res.data)
-      //       setIsProgressLoader(false)
-      //       toast.current.show({
-      //         severity: 'success',
-      //         summary: 'Success',
-      //         // detail: res.data.comments,
-      //         detail: 'Task assigned successfully',
-      //         life: life,
-      //         className: 'login-toast',
-      //       })
-      //     })
-      //     .catch((err: any) => {
-      //       console.log(err)
-      //       setIsProgressLoader(false)
-      //       toast.current.show({
-      //         severity: 'error',
-      //         summary: 'Error!',
-      //         //detail: `${err.response.status} from tasklistapi`,
-      //         // detail: err.response.data.errorMessage
-      //         //   ? err.response.data.errorMessage
-      //         //   : '',
-      //         detail: 'Task assigned failed.Please try again later',
-      //         life: life,
-      //         className: 'login-toast',
-      //       })
-      //     })
-      // }
     }
   }
 
@@ -716,7 +561,9 @@ function RcmPendingActions(props: any) {
                         flexGrow: 1,
                       }}
                     >
-                      <Typography variant="h6">My Task {'>'} Total</Typography>
+                      <Typography variant="h6">
+                        My Task {'>'} Greater Than Week 5
+                      </Typography>
                     </Box>
                     <Box
                       sx={{
@@ -838,62 +685,6 @@ function RcmPendingActions(props: any) {
                         )
                       })}
                     </DataTable>
-                    {/* ) : (
-                    <DataTable
-                      value={myPendingActions}
-                      rowHover
-                      paginator
-                      paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport"
-                      currentPageReportTemplate="{first} - {last} of {totalRecords}"
-                      stateStorage="session"
-                      stateKey="dt-state-demo-session"
-                      rows={10}
-                      style={{
-                        width: '100%',
-                      }}
-                      selection={unassignUser}
-                      onSelectionChange={(e) => setUnassignUser(e.value)}
-                      scrollable
-                      scrollHeight="flex"
-                      globalFilter={globalFilter}
-                      emptyMessage="No users found."
-                      showGridlines
-                      //loading={manageUserLoading}
-                    >
-                      <Column
-                        selectionMode="multiple"
-                        headerStyle={{
-                          width: '3em',
-                          backgroundColor: teal[900],
-                          color: 'white',
-                        }}
-                      ></Column>
-                      {pendingActionTableHeaders.map((column) => {
-                        return (
-                          <Column
-                            key={column.field}
-                            field={column.field}
-                            header={column.headerName}
-                            bodyStyle={{
-                              fontSize: '12px',
-                              width: column.width,
-                              overflowX: 'auto',
-                            }}
-                            headerStyle={{
-                              fontSize: '12px',
-                              width: column.width,
-                              backgroundColor: teal[900],
-                              color: 'white',
-                            }}
-                            // body={
-                            //   column.field === 'requestedId' && requestIdTemplate
-                            // }
-                            sortable
-                          />
-                        )
-                      })}
-                    </DataTable>
-                  )} */}
                   </Box>
                   <Box
                     sx={{
@@ -942,6 +733,7 @@ const matchDispatchToProps = (dispatch: any) => {
       dispatch(set_raf_pendingAction_CT06(rafTaskCT06)),
   }
 }
-
-// export default connect(mapStateToProps, matchDispatchToProps)(RcmPendingActions)
-export default connect(mapStateToProps, matchDispatchToProps)(RcmPendingActions)
+export default connect(
+  mapStateToProps,
+  matchDispatchToProps
+)(RcmPendingActionsWeek5)

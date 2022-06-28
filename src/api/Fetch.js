@@ -57,6 +57,7 @@ const {
   GET_RANGE_SUMMARY_BY_ID_MIN,
   GET_SUPPLIER_BY_SUPPLIER_AND_SITE,
   GET_LOCATIONS,
+  PATCH_RANGERESET_ITEMS,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -391,6 +392,12 @@ export const getUsersAPIByRole = (roleId) => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
+export const getUsersAPIByRolWithStatusA = (roleId) => {
+  const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
+  const params = `roleIdIn=${roleId}&statusIn=A`
+  return serviceRequest(url, 'GET', undefined, params)
+}
+
 export const getAllUsersWithGroupAPI = (groupId) => {
   const url = `${BASE_URL}${GET_USER_DETAILS_ALL}`
   const params = `limit=1000&groupIdIn=${groupId}`
@@ -579,6 +586,13 @@ export const getLocationsStoreCodeAPI = () => {
   const url = `${BASE_URL}${GET_LOCATIONS}`
   // const params = "limit=1000";
   return serviceRequest(url, 'GET', undefined)
+}
+
+export const patchRangeResetItems = (rangeResetId, req) => {
+  let url = `${BASE_URL}${PATCH_RANGERESET_ITEMS}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  let reqBody = `${JSON.stringify(req)}`
+  return serviceRequest(url, 'PATCH', reqBody)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

@@ -50,6 +50,11 @@ const NavigationDrawer = (props: NavigationProps) => {
     RANGEAMEND_MANAGE_TASK,
     DASHBOARD_RANGE_MYTASKREJECTED,
     DASHBOARD_RANGE_MYGROUPTASKREJECTED,
+    DASHBOARD_RANGE_PENDINGACTION_WEEK5,
+    DASHBOARD_RANGE_PENDINGACTION_WEEK2_TO_WEEK5,
+    DASHBOARD_RANGE_PENDINGACTION_NEXT_WEEK,
+    DASHBOARD_RANGE_PENDINGACTION_CURRENT_WEEK,
+    DASHBOARD_RANGE_MISSED,
   } = routes
   const {
     menuItems,
@@ -106,9 +111,19 @@ const NavigationDrawer = (props: NavigationProps) => {
                         location.pathname ===
                           `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION}` ||
                         location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION_WEEK5}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION_WEEK2_TO_WEEK5}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION_NEXT_WEEK}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_PENDINGACTION_CURRENT_WEEK}` ||
+                        location.pathname ===
                           `${DEFAULT}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}` ||
                         location.pathname ===
                           `${DEFAULT}${DASHBOARD_RANGE_MYTASKREJECTED}` ||
+                        location.pathname ===
+                          `${DEFAULT}${DASHBOARD_RANGE_MISSED}` ||
                         location.pathname ===
                           `${DEFAULT}${DASHBOARD_RANGE_MYGROUPTASKREJECTED}`) &&
                         `${DEFAULT}${menu.url}` === `${DEFAULT}${DASHBOARD}`)
