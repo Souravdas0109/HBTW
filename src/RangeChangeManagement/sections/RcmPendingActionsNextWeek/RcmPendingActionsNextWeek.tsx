@@ -92,7 +92,7 @@ function RcmPendingActionsNextWeek(props: any) {
       console.log(eventPendingAction[0].tasks)
       setMyPendingActions(
         eventPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === '> Week 5'
+          (item: any) => item.timeFilter === 'Next Week'
         )
       )
     } else {

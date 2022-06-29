@@ -36,6 +36,9 @@ import RangeChangePendingActionsCurrentWeek from '../RangeChangeManagement/pages
 import RangeChangeMyTaskMissed from '../RangeChangeManagement/pages/RangeChangeMyTaskMissed/RangeChangeMyTaskMissed'
 import RangeChangeGroupTaskMissed from '../RangeChangeManagement/pages/RangeChangeGroupTaskMissed/RangeChangeGroupTaskMissed'
 import RangeChangeGroupPendingActionWeek5 from '../RangeChangeManagement/pages/RangeChangeGroupPendingActionsWeek5/RangeChangeGroupPendingActionsWeek5'
+import RangeChangeGroupPendingActionWeek2toWeek5 from '../RangeChangeManagement/pages/RangeChangeGroupPendingActionsWeek2toWeek5/RangeChangeGroupPendingActionsWeek2toWeek5'
+import RangeChangeGroupPendingActionNextWeek from '../RangeChangeManagement/pages/RangeChangeGroupPendingActionsNextWeek/RangeChangeGroupPendingActionsNextWeek'
+import RangeChangeGroupPendingActionCurrentWeek from '../RangeChangeManagement/pages/RangeChangeGroupPendingActionsCurrentWeek/RangeChangeGroupPendingActionsCurrentWeek'
 
 const useStyles = makeStyles((theme) => ({
   background: {
@@ -92,6 +95,9 @@ const UserRouter = ({
     RANGEAMEND_CREATE,
     RANGEAMEND_MANAGE_TASK,
     DASHBOARD_RAF_CT06,
+    DASHBOARD_RANGE_MYGROUP_WEEK2_TO_WEEK5,
+    DASHBOARD_RANGE_MYGROUP_NEXT_WEEK,
+    DASHBOARD_RANGE_MYGROUP_CURRENT_WEEK,
   } = routes
   const classes = useStyles()
   const getPermission = (url: string) => {
@@ -207,10 +213,33 @@ const UserRouter = ({
           serviceError={serviceError}
           arb={false}
         />
-
         <AuthRoute
           path={`${path}${DASHBOARD_RANGE_MYGROUP_WEEK5}`}
           component={RangeChangeGroupPendingActionWeek5}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUP_WEEK2_TO_WEEK5}`}
+          component={RangeChangeGroupPendingActionWeek2toWeek5}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUP_NEXT_WEEK}`}
+          component={RangeChangeGroupPendingActionNextWeek}
+          isAuthorized={userDetail && getPermission(DASHBOARD)}
+          // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
+          serviceError={serviceError}
+          arb={false}
+        />
+        <AuthRoute
+          path={`${path}${DASHBOARD_RANGE_MYGROUP_CURRENT_WEEK}`}
+          component={RangeChangeGroupPendingActionCurrentWeek}
           isAuthorized={userDetail && getPermission(DASHBOARD)}
           // isAuthorized={userDetail && getPermission(RANGEAMEND_MANAGE)}
           serviceError={serviceError}

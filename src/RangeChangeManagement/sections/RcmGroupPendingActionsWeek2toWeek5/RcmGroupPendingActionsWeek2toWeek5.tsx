@@ -35,7 +35,7 @@ const Input = styled('input')({
   display: 'none',
 })
 
-function RcmGroupPendingActionsWeek5(props: any) {
+function RcmGroupPendingActionsWeek2toWeek5(props: any) {
   const {
     // reset_mygroupunassignAction,
     eventGroupPendingAction,
@@ -80,7 +80,7 @@ function RcmGroupPendingActionsWeek5(props: any) {
       console.log(eventGroupPendingAction[0].tasks)
       setMyPendingActions(
         eventGroupPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === '> Week 5'
+          (item: any) => item.timeFilter === 'Week 2 to Week 5'
         )
       )
     } else {
@@ -369,7 +369,7 @@ function RcmGroupPendingActionsWeek5(props: any) {
                       }}
                     >
                       <Typography variant="h6">
-                        Group Task {'>'} Greater Than week 5
+                        Group Task {'>'} Week 2 To Week 5
                       </Typography>
                     </Box>
                     <Box
@@ -599,4 +599,4 @@ const matchDispatchToProps = (dispatch: any) => {
 export default connect(
   mapStateToProps,
   matchDispatchToProps
-)(RcmGroupPendingActionsWeek5)
+)(RcmGroupPendingActionsWeek2toWeek5)

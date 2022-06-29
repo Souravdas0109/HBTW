@@ -276,16 +276,16 @@ export const getStatusWithLimitNewCamundaAPI = (empId, summary) => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
-export const getStatusEventCamundaAPINew = (empId, userRole) => {
-  // let empId = ''
-  // const userV2Response = JSON.parse(
-  //   localStorage && localStorage.getItem('_GresponseV2')
-  // )
-  // if (userV2Response) {
-  //   empId = userV2Response && userV2Response.empId
-  // }
+// export const getStatusEventCamundaAPINew = (empId, userRole) => {
+//   let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
+//   const params = `limit=1000&userRole=${userRole}`
+//   url = url.replace('{userId}', empId)
+//   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
+//   return serviceRequest(url, 'GET', undefined, params)
+// }
+export const getStatusEventCamundaAPINew = (empId, userRole, tradingGrp) => {
   let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
-  const params = `limit=1000&userRole=${userRole}`
+  const params = `limit=1000&userRole=${userRole}&tradingGrp=${tradingGrp}`
   url = url.replace('{userId}', empId)
   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
   return serviceRequest(url, 'GET', undefined, params)

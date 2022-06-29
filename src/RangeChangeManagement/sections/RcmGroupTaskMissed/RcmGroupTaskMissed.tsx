@@ -80,7 +80,7 @@ function RcmGroupTaskMissed(props: any) {
       console.log(eventGroupPendingAction[0].tasks)
       setMyPendingActions(
         eventGroupPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === '> Week 5'
+          (item: any) => item.timeFilter === 'Missed'
         )
       )
     } else {

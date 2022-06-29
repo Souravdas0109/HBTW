@@ -172,6 +172,9 @@ function Dashboard1(props: any) {
     DASHBOARD_RANGE_MISSED,
     DASHBOARD_RANGE_MYGROUPTASK_MISSED,
     DASHBOARD_RANGE_MYGROUP_WEEK5,
+    DASHBOARD_RANGE_MYGROUP_WEEK2_TO_WEEK5,
+    DASHBOARD_RANGE_MYGROUP_NEXT_WEEK,
+    DASHBOARD_RANGE_MYGROUP_CURRENT_WEEK,
   } = routes
   const [newMap, setNewMap] = useState<Array<any>>([])
   const theme = useTheme()
@@ -201,6 +204,12 @@ function Dashboard1(props: any) {
   const classes = useStyles()
 
   useEffect(() => {
+    let userGroup =
+      userDetail.userdetails &&
+      userDetail.userdetails[0].usergroups[0].groupName.split('-')
+    console.log(userGroup)
+    let userGroup1 = userGroup[0].trim()
+    console.log(userGroup1)
     setIsProgressLoader(true)
     let pendingTasks: Array<any> = []
     let inprogressTasks: Array<any> = []
@@ -268,14 +277,16 @@ function Dashboard1(props: any) {
         })
     // }, [pendingStatusDetails])
 
-    getStatusEventCamundaAPINew &&
+    userGroup1 &&
+      getStatusEventCamundaAPINew &&
       getStatusEventCamundaAPINew(
         userDetail &&
           userDetail.userdetails &&
           userDetail.userdetails[0].user.userId,
         userDetail &&
           userDetail.userdetails &&
-          userDetail.userdetails[0].roles[0].roleName
+          userDetail.userdetails[0].roles[0].roleName,
+        userGroup1
       )
         // getStatusEventCamundaAPI &&
         //   getStatusEventCamundaAPI()
@@ -289,7 +300,7 @@ function Dashboard1(props: any) {
               pendingTaskDetails &&
               pendingTaskDetails.status &&
               pendingTaskDetails.status.filter(
-                //(item: any) => item.details.toLowerCase() === 'mypendingtasks'
+                // (item: any) => item.details.toLowerCase() === 'mypendingtasks'
                 (item: any) =>
                   item.details.toLowerCase() === 'mygrouppendingtasks'
               )
@@ -414,56 +425,46 @@ function Dashboard1(props: any) {
             item.my.weekTwoToFive =
               eventPendingAction.length > 0 &&
               eventPendingAction[0].tasks.filter(
-                //(item: any) => item.timeFilter === 'Week 2 to Week 5'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Week 2 to Week 5'
               ).length > 0
                 ? eventPendingAction[0].tasks.filter(
-                    //(item: any) => item.timeFilter === 'Week 2 to Week 5'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Week 2 to Week 5'
                   ).length
                 : 0
             item.my.nextWeek =
               eventPendingAction.length > 0 &&
               eventPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Next Week'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Next Week'
               ).length > 0
                 ? eventPendingAction[0].tasks.filter(
-                    // (item: any) => item.timeFilter === 'Next Week'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Next Week'
                   ).length
                 : 0
             item.my.currentWeek =
               eventPendingAction.length > 0 &&
               eventPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Current Week'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Current Week'
               ).length > 0
                 ? eventPendingAction[0].tasks.filter(
-                    //(item: any) => item.timeFilter === 'Current Week'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Current Week'
                   ).length
                 : 0
             item.my.rejected =
               eventPendingAction.length > 0 &&
               eventPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Rejected'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Rejected'
               ).length > 0
                 ? eventPendingAction[0].tasks.filter(
-                    // (item: any) => item.timeFilter === 'Rejected'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Rejected'
                   ).length
                 : 0
             item.my.missedOrOverdue =
               eventPendingAction.length > 0 &&
               eventPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Missed'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Missed'
               ).length > 0
                 ? eventPendingAction[0].tasks.filter(
-                    // (item: any) => item.timeFilter === 'Missed'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Missed'
                   ).length
                 : 0
             // item.my.missedOrOverdue =
@@ -526,24 +527,20 @@ function Dashboard1(props: any) {
               eventAccess &&
               eventGroupPendingAction.length > 0 &&
               eventGroupPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Rejected'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Rejected'
               ).length > 0
                 ? eventGroupPendingAction[0].tasks.filter(
-                    // (item: any) => item.timeFilter === 'Rejected'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Rejected'
                   ).length
                 : 0
             item.myGroup.missedOrOverdue =
               eventAccess &&
               eventGroupPendingAction.length > 0 &&
               eventGroupPendingAction[0].tasks.filter(
-                // (item: any) => item.timeFilter === 'Missed'
-                (item: any) => item.timeFilter === '> Week 5'
+                (item: any) => item.timeFilter === 'Missed'
               ).length > 0
                 ? eventGroupPendingAction[0].tasks.filter(
-                    // (item: any) => item.timeFilter === 'Missed'
-                    (item: any) => item.timeFilter === '> Week 5'
+                    (item: any) => item.timeFilter === 'Missed'
                   ).length
                 : 0
           }
@@ -756,9 +753,9 @@ function Dashboard1(props: any) {
       return (
         <div
           className={classes.weekSuccess}
-          // onClick={() => {
-          //   history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}`)
-          // }}
+          onClick={() => {
+            history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUP_CURRENT_WEEK}`)
+          }}
         >
           {rowData.currentWeek}
         </div>
@@ -772,9 +769,9 @@ function Dashboard1(props: any) {
       return (
         <div
           className={classes.weekSuccess}
-          // onClick={() => {
-          //   history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}`)
-          // }}
+          onClick={() => {
+            history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUP_NEXT_WEEK}`)
+          }}
         >
           {rowData.nextWeek}
         </div>
@@ -788,9 +785,9 @@ function Dashboard1(props: any) {
       return (
         <div
           className={classes.weekSuccess}
-          // onClick={() => {
-          //   history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUPPENDINGTASKS}`)
-          // }}
+          onClick={() => {
+            history.push(`${DEFAULT}${DASHBOARD_RANGE_MYGROUP_WEEK2_TO_WEEK5}`)
+          }}
         >
           {rowData.weekTwoToFive}
         </div>

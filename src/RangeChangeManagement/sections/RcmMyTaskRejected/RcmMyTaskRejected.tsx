@@ -79,12 +79,12 @@ function RcmMyTaskRejected(props: any) {
     if (eventPendingAction && eventPendingAction[0].tasks != []) {
       console.log(
         eventPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === '> Week 5'
+          (item: any) => item.timeFilter === 'Rejected'
         )
       )
       setMyPendingActions(
         eventPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === '> Week 5'
+          (item: any) => item.timeFilter === 'Rejected'
         )
       )
     } else {
