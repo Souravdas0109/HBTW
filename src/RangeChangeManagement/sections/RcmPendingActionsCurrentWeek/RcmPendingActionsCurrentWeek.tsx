@@ -36,6 +36,8 @@ import {
   reset_range_pendingAction,
   set_raf_pendingAction_CT06,
 } from '../../../redux/Actions/PendingAction/Action'
+import LightTooltip from '../../components/LightToolTip/LightTooltip'
+import InfoIcon from '@material-ui/icons/Info'
 
 const Input = styled('input')({
   display: 'none',
@@ -449,6 +451,24 @@ function RcmPendingActionsCurrentWeek(props: any) {
             {/* <div> */}
             <Typography variant="body2" color="primary">
               Select User
+              <LightTooltip
+                title={
+                  <>
+                    <Typography color="secondary" variant="body2">
+                      If the user is not in the list,please raise a request for
+                      onbording in "User Management App"
+                    </Typography>
+                  </>
+                }
+                position={'top'}
+                icon={
+                  <InfoIcon
+                    color="secondary"
+                    fontSize="small"
+                    style={{ padding: '3px' }}
+                  />
+                }
+              />
             </Typography>
             <AutocompleteSelect
               value={userAssigned}
