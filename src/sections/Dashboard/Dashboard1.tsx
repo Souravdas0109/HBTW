@@ -300,9 +300,9 @@ function Dashboard1(props: any) {
               pendingTaskDetails &&
               pendingTaskDetails.status &&
               pendingTaskDetails.status.filter(
-                // (item: any) => item.details.toLowerCase() === 'mypendingtasks'
-                (item: any) =>
-                  item.details.toLowerCase() === 'mygrouppendingtasks'
+                (item: any) => item.details.toLowerCase() === 'mypendingtasks'
+                // (item: any) =>
+                //   item.details.toLowerCase() === 'mygrouppendingtasks'
               )
             rangeGroupPendingTasks =
               pendingTaskDetails &&
