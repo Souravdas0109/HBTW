@@ -1604,7 +1604,7 @@ function Dashboard1(props: any) {
             }
           })}
       </Grid>
-      <div>V-1.0.3</div>
+      <div>V-1.0.5</div>
     </div>
   )
 }
