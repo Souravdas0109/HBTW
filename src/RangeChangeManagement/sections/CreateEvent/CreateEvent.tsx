@@ -834,9 +834,17 @@ function CreateEvent(props: any) {
         value.resetType &&
           setResetType({ value: value.resetType, label: value.resetType })
       }
-      if (!value.hasOwnProperty('tradeGroup')) {
+      if (value.hasOwnProperty('tradingGroupError')) {
         setErrGroup(true)
         setTradingGError1(value.tradingGroupError)
+        if (value.hasOwnProperty('categoryError')) {
+          setErrCategory(true)
+          setCategoryGError1(value.categoryError)
+          if (value.hasOwnProperty('departmentError')) {
+            setErrDepartment(true)
+            setDepartmentError1(value.departmentError)
+          }
+        }
       } else {
         value.tradeGroup &&
           setGroup({
@@ -1433,6 +1441,22 @@ function CreateEvent(props: any) {
       setCategory('')
       setDepartment('')
       setDepartmentOptions([])
+      setErrBuyer(false)
+      setErrBuyerAssisant(false)
+      setErrOwnBrandManager(false)
+      setErrSeniorBuyingManager(false)
+      setErrMerchandiser(false)
+      setErrRangeResetManager(false)
+      setErrCategoryDirector(false)
+      setErrSupplyChainSpecialist(false)
+      setBuyerError1('')
+      setBuyingAssistentError1('')
+      setOwnBrandManagerError1('')
+      setSeniorBuyingManagerError1('')
+      setMerchandiserError1('')
+      setRangeResetManagerError1('')
+      setCategoryDirectorError1('')
+      setSupChainSpecialistError1('')
     } else {
       setGroup('')
       setCategory('')

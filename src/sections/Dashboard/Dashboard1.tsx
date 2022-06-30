@@ -183,6 +183,7 @@ function Dashboard1(props: any) {
   const [tabValue, setTabValue] = useState(0)
   const [table1Data, setTable1Data] = useState<any>()
   const [table2Data, setTable2Data] = useState<any>()
+  const [ontimeCompletion, setOntimeCompletion] = useState<any>(0)
   // let newMap1: Array<any> = []
 
   const {
@@ -294,7 +295,7 @@ function Dashboard1(props: any) {
           const pendingTaskDetails = res.data
 
           setIsProgressLoader(false)
-
+          setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
           if (pendingTaskDetails && pendingTaskDetails.status) {
             rangePendingTasks =
               pendingTaskDetails &&
@@ -1054,17 +1055,25 @@ function Dashboard1(props: any) {
                           <Grid item xs={1} />
                           <Grid item xs={4}>
                             <Typography color="primary" variant="body2">
-                              {dash.statuscomplete}
+                              Ontime Completion
                             </Typography>
                           </Grid>
                           <Grid item xs={7}>
                             <ProgressBar
-                              value={parseInt(dash.statuscompleteval)}
+                              // value={parseInt(dash.statuscompleteval)}
+                              value={ontimeCompletion}
                               showValue={false}
                               className={classes.progressBar}
+                              // color={
+                              //   parseInt(dash.statuscompleteval) < 90
+                              //     ? parseInt(dash.statuscompleteval) >= 60
+                              //       ? theme.palette.warning.main
+                              //       : theme.palette.error.main
+                              //     : theme.palette.primary.main
+                              // }
                               color={
-                                parseInt(dash.statuscompleteval) < 90
-                                  ? parseInt(dash.statuscompleteval) >= 60
+                                ontimeCompletion < 90
+                                  ? ontimeCompletion >= 60
                                     ? theme.palette.warning.main
                                     : theme.palette.error.main
                                   : theme.palette.primary.main
@@ -1073,7 +1082,7 @@ function Dashboard1(props: any) {
                           </Grid>
                           <Grid item xs={1}>
                             <Typography color="primary" variant="body2">
-                              {dash.statuscompleteval}
+                              {ontimeCompletion}%
                             </Typography>
                           </Grid>
                         </Grid>

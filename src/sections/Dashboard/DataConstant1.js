@@ -29,7 +29,7 @@ export const userTaskDashboard = [
     title: 'Range Change Management',
     value: 'rangechangemanagement',
     statuscomplete: 'Ontime Completion',
-    statuscompleteval: '85%',
+    statuscompleteval: '85',
     my: {
       missedOrOverdue: 1,
       //missedOrOverdueUrl: '#',

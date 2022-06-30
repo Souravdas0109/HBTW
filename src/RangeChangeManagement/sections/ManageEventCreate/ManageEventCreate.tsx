@@ -3529,8 +3529,11 @@ function ManageEventCreate(props: any) {
       b.name = label
       b.roleId = roleId
       a.push(b)
+      // a.sort((x: any, y: any) =>
+      //   x.taskId > y.taskId ? 1 : y.taskId > x.taskId ? -1 : 0
+      // )
       a.sort((x: any, y: any) =>
-        x.taskId > y.taskId ? 1 : y.taskId > x.taskId ? -1 : 0
+        x.taskId.localeCompare(y.taskId, 'en', { numeric: true })
       )
       setTaskDetails(a)
     } else {
@@ -3546,8 +3549,11 @@ function ManageEventCreate(props: any) {
       b.name = name
       b.roleId = roleId
       a.push(b)
+      // a.sort((x: any, y: any) =>
+      //   x.taskId > y.taskId ? 1 : y.taskId > x.taskId ? -1 : 0
+      // )
       a.sort((x: any, y: any) =>
-        x.taskId > y.taskId ? 1 : y.taskId > x.taskId ? -1 : 0
+        x.taskId.localeCompare(y.taskId, 'en', { numeric: true })
       )
       setTaskDetails(a)
     }
