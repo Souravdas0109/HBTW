@@ -24,6 +24,7 @@ import {
   getAllActiveUsersAPI,
   claimEventsCamunda,
   postFileAttachmentRangeResetAPI,
+  getStatusEventCamundaAPINew,
 } from '../../../api/Fetch'
 import LoadingComponent from '../../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../../util/Messages'
@@ -76,13 +77,38 @@ function RcmGroupPendingActionsNextWeek(props: any) {
   }, [])
 
   useEffect(() => {
-    if (eventGroupPendingAction && eventGroupPendingAction[0].tasks != []) {
+    if (eventGroupPendingAction) {
       console.log(eventGroupPendingAction[0].tasks)
-      setMyPendingActions(
-        eventGroupPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === 'Next Week'
-        )
-      )
+      // setMyPendingActions(
+      //   eventGroupPendingAction[0].tasks.filter(
+      //     (item: any) => item.timeFilter === 'Next Week'
+      //   )
+      // )
+      let userGroup =
+        userDetail.userdetails &&
+        userDetail.userdetails[0].usergroups[0].groupName.split('-')
+      console.log(userGroup)
+      let userGroup1 = userGroup[0].trim()
+      console.log(userGroup1)
+      userGroup1 &&
+        getStatusEventCamundaAPINew &&
+        getStatusEventCamundaAPINew(
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].user.userId,
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].roles[0].roleName,
+          userGroup1,
+          'myGroupWk1Tasks'
+        ).then((res: any) => {
+          let groupPendingDetails = res.data
+          setMyPendingActions(
+            groupPendingDetails.status.filter(
+              (item: any) => item.details === 'myGroupWk1Tasks'
+            )[0].tasks
+          )
+        })
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)
     }

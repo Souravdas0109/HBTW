@@ -27,6 +27,7 @@ import {
   putCamundaMileStoneUpdate,
   getUsersAPIByRole,
   getUsersAPIByRolWithStatusA,
+  getStatusEventCamundaAPINew,
 } from '../../../api/Fetch'
 import LoadingComponent from '../../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../../util//Messages'
@@ -90,13 +91,38 @@ function RcmPendingActionsWeek2toWeek5(props: any) {
   }, [])
 
   useEffect(() => {
-    if (eventPendingAction && eventPendingAction[0].tasks != []) {
-      console.log(eventPendingAction[0].tasks)
-      setMyPendingActions(
-        eventPendingAction[0].tasks.filter(
-          (item: any) => item.timeFilter === 'Week 2 to Week 5'
-        )
-      )
+    if (eventPendingAction) {
+      // console.log(eventPendingAction[0].tasks)
+      // setMyPendingActions(
+      //   eventPendingAction[0].tasks.filter(
+      //     (item: any) => item.timeFilter === 'Week 2 to Week 5'
+      //   )
+      // )
+      let userGroup =
+        userDetail.userdetails &&
+        userDetail.userdetails[0].usergroups[0].groupName.split('-')
+      console.log(userGroup)
+      let userGroup1 = userGroup[0].trim()
+      console.log(userGroup1)
+      userGroup1 &&
+        getStatusEventCamundaAPINew &&
+        getStatusEventCamundaAPINew(
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].user.userId,
+          userDetail &&
+            userDetail.userdetails &&
+            userDetail.userdetails[0].roles[0].roleName,
+          userGroup1,
+          'myWk25Tasks'
+        ).then((res: any) => {
+          let groupPendingDetails = res.data
+          setMyPendingActions(
+            groupPendingDetails.status.filter(
+              (item: any) => item.details === 'myWk25Tasks'
+            )[0].tasks
+          )
+        })
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)
     }

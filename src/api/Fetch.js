@@ -283,9 +283,14 @@ export const getStatusWithLimitNewCamundaAPI = (empId, summary) => {
 //   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
 //   return serviceRequest(url, 'GET', undefined, params)
 // }
-export const getStatusEventCamundaAPINew = (empId, userRole, tradingGrp) => {
+export const getStatusEventCamundaAPINew = (
+  empId,
+  userRole,
+  tradingGrp,
+  filter
+) => {
   let url = `${BASE_URL}${EVENT_DASHBOARD_GET_CAMUNDA}`
-  const params = `limit=1000&userRole=${userRole}&tradingGrp=${tradingGrp}`
+  const params = `limit=1000&userRole=${userRole}&tradingGrp=${tradingGrp}&filter=${filter}`
   url = url.replace('{userId}', empId)
   url = url.replace('{processDefKey}', 'hbtwEventRequestHandler')
   return serviceRequest(url, 'GET', undefined, params)

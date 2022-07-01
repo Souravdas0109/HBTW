@@ -184,6 +184,7 @@ function Dashboard1(props: any) {
   const [table1Data, setTable1Data] = useState<any>()
   const [table2Data, setTable2Data] = useState<any>()
   const [ontimeCompletion, setOntimeCompletion] = useState<any>(0)
+  const [eventDashData, setEventDashData] = React.useState<any>()
   // let newMap1: Array<any> = []
 
   const {
@@ -287,13 +288,21 @@ function Dashboard1(props: any) {
         userDetail &&
           userDetail.userdetails &&
           userDetail.userdetails[0].roles[0].roleName,
-        userGroup1
+        userGroup1,
+        'summary'
       )
         // getStatusEventCamundaAPI &&
         //   getStatusEventCamundaAPI()
         .then((res) => {
           const pendingTaskDetails = res.data
-
+          setEventDashData(pendingTaskDetails)
+          console.log(
+            parseInt(
+              pendingTaskDetails.status.filter(
+                (item: any) => item.details === 'myPendingTasks'
+              )[0].count
+            )
+          )
           setIsProgressLoader(false)
           setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
           if (pendingTaskDetails && pendingTaskDetails.status) {
@@ -329,6 +338,19 @@ function Dashboard1(props: any) {
     return reset_all()
   }, [])
   // }, [pendingTaskDetails])
+  useEffect(() => {
+    if (eventDashData) {
+      console.log(
+        parseInt(
+          eventDashData.status.filter(
+            (item: any) => item.details === 'myPendingTasks'
+          )[0].count
+        )
+      )
+    }
+
+    console.log(eventDashData)
+  }, [eventDashData])
 
   useEffect(() => {
     // console.log(mypendingAction)
@@ -342,7 +364,8 @@ function Dashboard1(props: any) {
       mygroupUnassignTasks &&
       eventPendingAction &&
       eventGroupPendingAction &&
-      userDetail
+      userDetail &&
+      eventDashData
     ) {
       const rolelist =
         userDetail &&
@@ -410,139 +433,229 @@ function Dashboard1(props: any) {
                 : 0
           } else if (item.value.toLowerCase() === 'rangechangemanagement') {
             item.my.total =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.length > 0
-                ? eventPendingAction[0].tasks.length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.length > 0
+              //   ? eventPendingAction[0].tasks.length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myPendingTasks'
+                    )[0].count
+                  )
                 : 0
             item.my.weekMoreThanFive =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === '> Week 5'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === '> Week 5'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === '> Week 5'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === '> Week 5'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myWk5Tasks'
+                    )[0].count
+                  )
                 : 0
             item.my.weekTwoToFive =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Week 2 to Week 5'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Week 2 to Week 5'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Week 2 to Week 5'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Week 2 to Week 5'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myWk25Tasks'
+                    )[0].count
+                  )
                 : 0
             item.my.nextWeek =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Next Week'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Next Week'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Next Week'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Next Week'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myWk1Tasks'
+                    )[0].count
+                  )
                 : 0
             item.my.currentWeek =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Current Week'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Current Week'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Current Week'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Current Week'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myWk0Tasks'
+                    )[0].count
+                  )
                 : 0
             item.my.rejected =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Rejected'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Rejected'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Rejected'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Rejected'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myRejectedTasks'
+                    )[0].count
+                  )
                 : 0
             item.my.missedOrOverdue =
-              eventPendingAction.length > 0 &&
-              eventPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Missed'
-              ).length > 0
-                ? eventPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Missed'
-                  ).length
+              // eventPendingAction.length > 0 &&
+              // eventPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Missed'
+              // ).length > 0
+              //   ? eventPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Missed'
+              //     ).length
+              //   : 0
+              eventDashData && eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myMissedTasks'
+                    )[0].count
+                  )
                 : 0
-            // item.my.missedOrOverdue =
-            //   eventPendingAction.length > 0 &&
-            //   eventPendingAction[0].tasks.filter(
-            //     (item: any) => item.timeFilter === '> Week 5'
-            //   ).length > 0
-            //     ? eventPendingAction[0].tasks.filter(
-            //         (item: any) => item.timeFilter === '> Week 5'
-            //       ).length
-            //     : 0
             item.myGroup.total =
               // adminqn &&
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.length > 0
-                ? eventGroupPendingAction[0].tasks.length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.length > 0
+              //   ? eventGroupPendingAction[0].tasks.length
+              //   : 0
+              eventDashData &&
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupPendingTasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.weekMoreThanFive =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === '> Week 5'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === '> Week 5'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === '> Week 5'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === '> Week 5'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupWk5Tasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.weekTwoToFive =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Week 2 to Week 5'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Week 2 to Week 5'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Week 2 to Week 5'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Week 2 to Week 5'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupWk25Tasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.nextWeek =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Next Week'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Next Week'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Next Week'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Next Week'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupWk1Tasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.currentWeek =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Current Week'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Current Week'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Current Week'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Current Week'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupWk0Tasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.rejected =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Rejected'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Rejected'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Rejected'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Rejected'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupRejectedTasks'
+                    )[0].count
+                  )
                 : 0
             item.myGroup.missedOrOverdue =
               eventAccess &&
-              eventGroupPendingAction.length > 0 &&
-              eventGroupPendingAction[0].tasks.filter(
-                (item: any) => item.timeFilter === 'Missed'
-              ).length > 0
-                ? eventGroupPendingAction[0].tasks.filter(
-                    (item: any) => item.timeFilter === 'Missed'
-                  ).length
+              // eventGroupPendingAction.length > 0 &&
+              // eventGroupPendingAction[0].tasks.filter(
+              //   (item: any) => item.timeFilter === 'Missed'
+              // ).length > 0
+              //   ? eventGroupPendingAction[0].tasks.filter(
+              //       (item: any) => item.timeFilter === 'Missed'
+              //     ).length
+              //   : 0
+              eventDashData.status
+                ? parseInt(
+                    eventDashData.status.filter(
+                      (item: any) => item.details === 'myGroupMissedTasks'
+                    )[0].count
+                  )
                 : 0
           }
 
