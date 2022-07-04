@@ -25,6 +25,7 @@ import {
   claimEventsCamunda,
   postFileAttachmentRangeResetAPI,
   getStatusEventCamundaAPINew,
+  getUserGroupAPIWithGroupId,
 } from '../../../api/Fetch'
 import LoadingComponent from '../../../components/LoadingComponent/LoadingComponent'
 import { allMessages } from '../../../util/Messages'
@@ -77,37 +78,59 @@ function RcmGroupPendingActionsCurrentWeek(props: any) {
   }, [])
 
   useEffect(() => {
-    if (eventGroupPendingAction && eventGroupPendingAction[0].tasks != []) {
+    if (eventGroupPendingAction) {
       console.log(eventGroupPendingAction[0].tasks)
-      // setMyPendingActions(
-      //   eventGroupPendingAction[0].tasks.filter(
-      //     (item: any) => item.timeFilter === 'Current Week'
-      //   )
-      // )
-      let userGroup =
+      const userGroupId =
         userDetail.userdetails &&
-        userDetail.userdetails[0].usergroups[0].groupName.split('-')
-      console.log(userGroup)
-      let userGroup1 = userGroup[0].trim()
-      console.log(userGroup1)
-      userGroup1 &&
-        getStatusEventCamundaAPINew &&
-        getStatusEventCamundaAPINew(
-          userDetail &&
-            userDetail.userdetails &&
-            userDetail.userdetails[0].user.userId,
-          userDetail &&
-            userDetail.userdetails &&
-            userDetail.userdetails[0].roles[0].roleName,
-          userGroup1,
-          'myGroupWk0Tasks'
-        ).then((res: any) => {
-          let groupPendingDetails = res.data
-          setMyPendingActions(
-            groupPendingDetails.status.filter(
-              (item: any) => item.details === 'myGroupWk0Tasks'
-            )[0].tasks
+        userDetail.userdetails[0].usergroups[0].groupId
+      console.log(userGroupId)
+      // let userGroup =
+      //   userDetail.userdetails &&
+      //   userDetail.userdetails[0].usergroups[0].groupName.split('-')
+      // console.log(userGroup)
+      // let userGroup1 = userGroup[0].trim()
+      // console.log(userGroup1)
+      // setMyPendingActions(eventGroupPendingAction[0].tasks)
+      userGroupId &&
+        getUserGroupAPIWithGroupId &&
+        getUserGroupAPIWithGroupId(userGroupId).then((res1) => {
+          console.log('in')
+          let userGroupdata = res1.data
+          console.log(
+            userGroupdata.usergroups[0].productHierarchy[0].hierarchyName
           )
+          let userGroupData1 =
+            userGroupdata.usergroups[0].productHierarchy[0].hierarchyName.split(
+              ' > '
+            )
+          console.log(userGroupData1)
+          let userGroupData2 = userGroupData1[1] ? userGroupData1[1] : ''
+          console.log(userGroupData2)
+          //  })
+          userGroupData2 &&
+            getStatusEventCamundaAPINew &&
+            getStatusEventCamundaAPINew(
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].user.userId,
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].roles[0].roleName,
+              userGroupData2,
+              'myGroupWk0Tasks'
+            ).then((res: any) => {
+              let groupPendingDetails = res.data
+              // console.log(
+              //   groupPendingDetails.status.filter(
+              //     (item: any) => item.details === 'myGroupPendingTasks'
+              //   )[0].tasks
+              // )
+              setMyPendingActions(
+                groupPendingDetails.status.filter(
+                  (item: any) => item.details === 'myGroupWk0Tasks'
+                )[0].tasks
+              )
+            })
         })
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)

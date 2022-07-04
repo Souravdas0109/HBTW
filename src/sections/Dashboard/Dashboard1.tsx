@@ -45,6 +45,7 @@ import {
   getStatusEventCamundaAPI,
   getStatusNewCamundaAPI,
   getStatusEventCamundaAPINew,
+  getUserGroupAPIWithGroupId,
 } from '../../api/Fetch'
 import { ServiceResponse } from '../../pages/Login/Messages'
 import { TabView, TabPanel } from 'primereact/tabview'
@@ -206,12 +207,16 @@ function Dashboard1(props: any) {
   const classes = useStyles()
 
   useEffect(() => {
-    let userGroup =
-      userDetail.userdetails &&
-      userDetail.userdetails[0].usergroups[0].groupName.split('-')
-    console.log(userGroup)
-    let userGroup1 = userGroup[0].trim()
-    console.log(userGroup1)
+    const userGroupId =
+      userDetail.userdetails && userDetail.userdetails[0].usergroups[0].groupId
+    console.log(userGroupId)
+    // console.log('out')
+    // let userGroup =
+    //   userDetail.userdetails &&
+    //   userDetail.userdetails[0].usergroups[0].groupName.split('-')
+    // console.log(userGroup)
+    // let userGroup1 = userGroup[0].trim()
+    // console.log(userGroup1)
     setIsProgressLoader(true)
     let pendingTasks: Array<any> = []
     let inprogressTasks: Array<any> = []
@@ -278,62 +283,79 @@ function Dashboard1(props: any) {
           set_mygroupunassignAction([])
         })
     // }, [pendingStatusDetails])
-
-    userGroup1 &&
-      getStatusEventCamundaAPINew &&
-      getStatusEventCamundaAPINew(
-        userDetail &&
-          userDetail.userdetails &&
-          userDetail.userdetails[0].user.userId,
-        userDetail &&
-          userDetail.userdetails &&
-          userDetail.userdetails[0].roles[0].roleName,
-        userGroup1,
-        'summary'
-      )
-        // getStatusEventCamundaAPI &&
-        //   getStatusEventCamundaAPI()
-        .then((res) => {
-          const pendingTaskDetails = res.data
-          setEventDashData(pendingTaskDetails)
-          console.log(
-            parseInt(
-              pendingTaskDetails.status.filter(
-                (item: any) => item.details === 'myPendingTasks'
-              )[0].count
-            )
+    userGroupId &&
+      getUserGroupAPIWithGroupId &&
+      getUserGroupAPIWithGroupId(userGroupId).then((res1) => {
+        console.log('in')
+        let userGroupdata = res1.data
+        console.log(
+          userGroupdata.usergroups[0].productHierarchy[0].hierarchyName
+        )
+        let userGroupData1 =
+          userGroupdata.usergroups[0].productHierarchy[0].hierarchyName.split(
+            ' > '
           )
-          setIsProgressLoader(false)
-          setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
-          if (pendingTaskDetails && pendingTaskDetails.status) {
-            rangePendingTasks =
-              pendingTaskDetails &&
-              pendingTaskDetails.status &&
-              pendingTaskDetails.status.filter(
-                (item: any) => item.details.toLowerCase() === 'mypendingtasks'
-                // (item: any) =>
-                //   item.details.toLowerCase() === 'mygrouppendingtasks'
+        console.log(userGroupData1)
+        let userGroupData2 = userGroupData1[1] ? userGroupData1[1] : ''
+        console.log(userGroupData2)
+        //  })
+        userGroupData2 &&
+          getStatusEventCamundaAPINew &&
+          getStatusEventCamundaAPINew(
+            userDetail &&
+              userDetail.userdetails &&
+              userDetail.userdetails[0].user.userId,
+            userDetail &&
+              userDetail.userdetails &&
+              userDetail.userdetails[0].roles[0].roleName,
+            userGroupData2,
+            'summary'
+          )
+            // getStatusEventCamundaAPI &&
+            //   getStatusEventCamundaAPI()
+            .then((res) => {
+              const pendingTaskDetails = res.data
+              setEventDashData(pendingTaskDetails)
+              console.log(
+                parseInt(
+                  pendingTaskDetails.status.filter(
+                    (item: any) => item.details === 'myPendingTasks'
+                  )[0].count
+                )
               )
-            rangeGroupPendingTasks =
-              pendingTaskDetails &&
-              pendingTaskDetails.status &&
-              pendingTaskDetails.status.filter(
-                (item: any) =>
-                  item.details.toLowerCase() === 'mygrouppendingtasks'
-              )
-            set_range_pendingAction(rangePendingTasks)
-            // set_myinprogressAction(inprogressTasks)
-            set_range_grouppendingAction(rangeGroupPendingTasks)
-            //set_mygroupunassignAction(mygroupUnassignTasks)
-          }
-        })
-        .catch((error) => {
-          setIsProgressLoader(false)
-          set_range_pendingAction([])
-          // set_myinprogressAction([])
-          set_range_grouppendingAction([])
-          // set_mygroupunassignAction([])
-        })
+              setIsProgressLoader(false)
+              setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
+              if (pendingTaskDetails && pendingTaskDetails.status) {
+                rangePendingTasks =
+                  pendingTaskDetails &&
+                  pendingTaskDetails.status &&
+                  pendingTaskDetails.status.filter(
+                    (item: any) =>
+                      item.details.toLowerCase() === 'mypendingtasks'
+                    // (item: any) =>
+                    //   item.details.toLowerCase() === 'mygrouppendingtasks'
+                  )
+                rangeGroupPendingTasks =
+                  pendingTaskDetails &&
+                  pendingTaskDetails.status &&
+                  pendingTaskDetails.status.filter(
+                    (item: any) =>
+                      item.details.toLowerCase() === 'mygrouppendingtasks'
+                  )
+                set_range_pendingAction(rangePendingTasks)
+                // set_myinprogressAction(inprogressTasks)
+                set_range_grouppendingAction(rangeGroupPendingTasks)
+                //set_mygroupunassignAction(mygroupUnassignTasks)
+              }
+            })
+            .catch((error) => {
+              setIsProgressLoader(false)
+              set_range_pendingAction([])
+              // set_myinprogressAction([])
+              set_range_grouppendingAction([])
+              // set_mygroupunassignAction([])
+            })
+      })
 
     return reset_all()
   }, [])

@@ -18,6 +18,7 @@ const {
   GET_USER_DETAILS_ALL,
   GET_ROLES_ALL,
   PUT_USER_GROUPS_ID,
+  GET_USER_GROUPS_ID,
   GET_USER_GROUPS_ALL,
   GET_TASKLIST_ID,
   GET_TASKLIST_ALL,
@@ -333,6 +334,14 @@ export const getUserGroupActiveAPI = () => {
   const url = `${BASE_URL}${GET_USER_GROUPS_ALL}`
   const params = 'limit=1000&statusIn=A'
   return serviceRequest(url, 'GET', undefined, params)
+}
+
+export const getUserGroupAPIWithGroupId = (groupId) => {
+  let url = `${BASE_URL}${GET_USER_GROUPS_ID}`
+  url = url.replace('{groupId}', groupId)
+  // const params = 'limit=1000'
+  // return serviceRequest(url, 'GET', undefined, params)
+  return serviceRequest(url, 'GET', undefined)
 }
 
 export const putUserGroupAPI = (req, groupId) => {
