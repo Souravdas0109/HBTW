@@ -336,12 +336,12 @@ export const getUserGroupActiveAPI = () => {
   return serviceRequest(url, 'GET', undefined, params)
 }
 
-export const getUserGroupAPIWithGroupId = (groupId) => {
-  let url = `${BASE_URL}${GET_USER_GROUPS_ID}`
-  url = url.replace('{groupId}', groupId)
-  // const params = 'limit=1000'
-  // return serviceRequest(url, 'GET', undefined, params)
-  return serviceRequest(url, 'GET', undefined)
+export const getUserGroupAPIWithGroupId = (groupIdIn) => {
+  let url = `${BASE_URL}${GET_USER_GROUPS_ALL}`
+  // url = url.replace('{groupId}', groupId)
+  const params = `groupIdIn=${groupIdIn}`
+  return serviceRequest(url, 'GET', undefined, params)
+  // return serviceRequest(url, 'GET', undefined)
 }
 
 export const putUserGroupAPI = (req, groupId) => {

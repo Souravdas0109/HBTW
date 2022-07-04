@@ -91,36 +91,66 @@ function RcmPendingActionsNextWeek(props: any) {
     }
   }, [])
 
+  const getProducrHierarchy = (userGroups: any) => {
+    let productArray: any = []
+    userGroups.forEach((groups: any) => {
+      return groups.productHierarchy.forEach((product: any) => {
+        productArray.push(product.hierarchyName.split(' > ')[1])
+      })
+    })
+    let productArray1 = productArray.filter(
+      (item: any, i: any, ar: any) => ar.indexOf(item) === i
+    )
+    return productArray1.join()
+  }
+
+  const getGroupId = (userGroups: any) => {
+    let productArray: any = []
+    userGroups.forEach((groups: any) => {
+      // return groups.productHierarchy.forEach((product: any) => {
+      productArray.push(groups.groupId)
+      // })
+    })
+    return productArray.join()
+  }
+
   useEffect(() => {
     if (eventPendingAction) {
       //setMyPendingActions(eventPendingAction[0].tasks)
-      const userGroupId =
-        userDetail.userdetails &&
-        userDetail.userdetails[0].usergroups[0].groupId
-      console.log(userGroupId)
+      // const userGroupId =
+      //   userDetail.userdetails &&
+      //   userDetail.userdetails[0].usergroups[0].groupId
+      // console.log(userGroupId)
       // let userGroup =
       //   userDetail.userdetails &&
       //   userDetail.userdetails[0].usergroups[0].groupName.split('-')
       // console.log(userGroup)
       // let userGroup1 = userGroup[0].trim()
       // console.log(userGroup1)
-      userGroupId &&
+      const wholeGroupId = getGroupId(
+        userDetail.userdetails && userDetail.userdetails[0].usergroups
+      )
+      console.log(wholeGroupId)
+      wholeGroupId &&
         getUserGroupAPIWithGroupId &&
-        getUserGroupAPIWithGroupId(userGroupId).then((res1) => {
+        getUserGroupAPIWithGroupId(wholeGroupId).then((res1) => {
           console.log('in')
           let userGroupdata = res1.data
-          console.log(
-            userGroupdata.usergroups[0].productHierarchy[0].hierarchyName
-          )
-          let userGroupData1 =
-            userGroupdata.usergroups[0].productHierarchy[0].hierarchyName.split(
-              ' > '
-            )
-          console.log(userGroupData1)
-          let userGroupData2 = userGroupData1[1] ? userGroupData1[1] : ''
-          console.log(userGroupData2)
+          // console.log(
+          //   userGroupdata.usergroups[0].productHierarchy[0].hierarchyName
+          // )
+          // let userGroupData1 =
+          //   userGroupdata.usergroups[0].productHierarchy[0].hierarchyName.split(
+          //     ' > '
+          //   )
+          // console.log(userGroupData1)
+          // let userGroupData2 = userGroupData1[1] ? userGroupData1[1] : ''
+          // console.log(userGroupData2)
           //  })
-          userGroupData2 &&
+          const wholeTradeGroup = getProducrHierarchy(userGroupdata.usergroups)
+          console.log(wholeTradeGroup)
+
+          wholeTradeGroup &&
             getStatusEventCamundaAPINew &&
             getStatusEventCamundaAPINew(
               userDetail &&
@@ -129,7 +159,7 @@ function RcmPendingActionsNextWeek(props: any) {
               userDetail &&
                 userDetail.userdetails &&
                 userDetail.userdetails[0].roles[0].roleName,
-              userGroupData2,
+              wholeTradeGroup,
               'myWk1Tasks'
             ).then((res: any) => {
               let groupPendingDetails = res.data
