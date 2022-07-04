@@ -242,6 +242,8 @@ function ManageEventCreate(props: any) {
 
   const toast = useRef<any>(null)
   const [toastRemove, setToastRemove] = React.useState('')
+  const [fileAttachmentConfirmed, setFileAttachmentConfirmed] =
+    useState<any>(false)
 
   useEffect(() => {
     // return () => resetErrorFile()
@@ -3939,7 +3941,7 @@ function ManageEventCreate(props: any) {
     let reviewDecision = ''
     let errorMsg = ''
     let successMsg = ''
-    let comments = 'string'
+    let comments = ''
     let eventState = ''
 
     if (clickState === 'save') {
@@ -4117,7 +4119,7 @@ function ManageEventCreate(props: any) {
       },
       logging: {
         // comments: 'string',
-        uploadRef: 'string',
+        uploadRef: '',
         comments: comments,
         // uploadRef: uploadedFile,
       },
@@ -4171,11 +4173,62 @@ function ManageEventCreate(props: any) {
       postFileAttachmentRangeResetAPI &&
         postFileAttachmentRangeResetAPI(formdata1, eventDetails[0].eventId)
           .then((res: any) => {
+            console.log('1')
             console.log(res.data)
             publishEvent.logging.uploadRef = res.data.attachmentUrl
+            //setFileAttachmentConfirmed(true)
+            console.log(publishEvent)
+            if (
+              eventDetails[0].eventStatus === 'Published' &&
+              clickState === 'update'
+            ) {
+              console.log('coming')
+              modifySaveManageEventHeaderAndTasks(
+                eventDetails[0].eventId,
+                publishEvent,
+                errorMsg,
+                successMsg,
+                clickState
+              )
+              return
+            }
+            //6 update when staus is published
           })
-          .catch((err: any) => {})
+          .catch((err: any) => {
+            //setFileAttachmentConfirmed(true)
+            console.log('2')
+            if (
+              eventDetails[0].eventStatus === 'Published' &&
+              clickState === 'update'
+            ) {
+              modifySaveManageEventHeaderAndTasks(
+                eventDetails[0].eventId,
+                publishEvent,
+                errorMsg,
+                successMsg,
+                clickState
+              )
+              return
+            }
+            //6 update when staus is published
+          })
       // })
+    } else {
+      //setFileAttachmentConfirmed(true)
+      console.log('3')
+      if (
+        eventDetails[0].eventStatus === 'Published' &&
+        clickState === 'update'
+      ) {
+        modifySaveManageEventHeaderAndTasks(
+          eventDetails[0].eventId,
+          publishEvent,
+          errorMsg,
+          successMsg,
+          clickState
+        )
+        return
+      } //6 update when staus is published
     }
     //1 cancel when published
     if (
@@ -4239,19 +4292,19 @@ function ManageEventCreate(props: any) {
       )
       return
     } //6 update when staus is published
-    if (
-      eventDetails[0].eventStatus === 'Published' &&
-      clickState === 'update'
-    ) {
-      modifySaveManageEventHeaderAndTasks(
-        eventDetails[0].eventId,
-        publishEvent,
-        errorMsg,
-        successMsg,
-        clickState
-      )
-      return
-    }
+    // if (
+    //   eventDetails[0].eventStatus === 'Published' &&
+    //   clickState === 'update'
+    // ) {
+    //   modifySaveManageEventHeaderAndTasks(
+    //     eventDetails[0].eventId,
+    //     publishEvent,
+    //     errorMsg,
+    //     successMsg,
+    //     clickState
+    //   )
+    //   return
+    // }
     if (
       eventDetails[0].eventStatus === 'Draft' &&
       clickState === 'dateChange'
