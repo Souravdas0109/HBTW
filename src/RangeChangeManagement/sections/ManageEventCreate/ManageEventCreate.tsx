@@ -4291,7 +4291,8 @@ function ManageEventCreate(props: any) {
         clickState
       )
       return
-    } //6 update when staus is published
+    } 
+    //6 update when staus is published
     // if (
     //   eventDetails[0].eventStatus === 'Published' &&
     //   clickState === 'update'

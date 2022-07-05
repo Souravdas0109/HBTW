@@ -446,7 +446,7 @@ function RcmPendingActions(props: any) {
                   ],
                   logging: {
                     comments: comments,
-                    updated: res.data.attachmentUrl,
+                    uploadRef: res.data.attachmentUrl,
                     // updated: '',
                   },
                 }
@@ -530,7 +530,7 @@ function RcmPendingActions(props: any) {
             logging: {
               comments: comments,
               //updated: res.data.attachmentUrl,
-              updated: '',
+              uploadRef: '',
             },
           }
           putCamundaMileStoneUpdate(assignToOther[i].eventId, claimPayload)

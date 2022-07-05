@@ -208,15 +208,24 @@ function Dashboard1(props: any) {
 
   const getProducrHierarchy = (userGroups: any) => {
     let productArray: any = []
+    let productNullArray: any = ''
     userGroups.forEach((groups: any) => {
       return groups.productHierarchy.forEach((product: any) => {
         productArray.push(product.hierarchyName.split(' > ')[1])
       })
     })
+    console.log(productArray)
     let productArray1 = productArray.filter(
       (item: any, i: any, ar: any) => ar.indexOf(item) === i
     )
-    return productArray1.join()
+    console.log(productArray1)
+    if (productArray1.length > 0) {
+      console.log('in')
+      return productArray1.join()
+    } else {
+      console.log('out')
+      return productNullArray
+    }
   }
 
   const getGroupId = (userGroups: any) => {
@@ -327,62 +336,121 @@ function Dashboard1(props: any) {
         //  })
         const wholeTradeGroup = getProducrHierarchy(userGroupdata.usergroups)
         console.log(wholeTradeGroup)
-        wholeTradeGroup &&
-          getStatusEventCamundaAPINew &&
-          getStatusEventCamundaAPINew(
-            userDetail &&
-              userDetail.userdetails &&
-              userDetail.userdetails[0].user.userId,
-            userDetail &&
-              userDetail.userdetails &&
-              userDetail.userdetails[0].roles[0].roleName,
-            wholeTradeGroup,
-            'summary'
-          )
-            // getStatusEventCamundaAPI &&
-            //   getStatusEventCamundaAPI()
-            .then((res) => {
-              const pendingTaskDetails = res.data
-              setEventDashData(pendingTaskDetails)
-              console.log(
-                parseInt(
-                  pendingTaskDetails.status.filter(
-                    (item: any) => item.details === 'myPendingTasks'
-                  )[0].count
+        if (wholeTradeGroup) {
+          wholeTradeGroup &&
+            getStatusEventCamundaAPINew &&
+            getStatusEventCamundaAPINew(
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].user.userId,
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].roles[0].roleName,
+              wholeTradeGroup,
+              'summary'
+            )
+              // getStatusEventCamundaAPI &&
+              //   getStatusEventCamundaAPI()
+              .then((res) => {
+                const pendingTaskDetails = res.data
+                setEventDashData(pendingTaskDetails)
+                console.log(
+                  parseInt(
+                    pendingTaskDetails.status.filter(
+                      (item: any) => item.details === 'myPendingTasks'
+                    )[0].count
+                  )
                 )
-              )
-              setIsProgressLoader(false)
-              setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
-              if (pendingTaskDetails && pendingTaskDetails.status) {
-                rangePendingTasks =
-                  pendingTaskDetails &&
-                  pendingTaskDetails.status &&
-                  pendingTaskDetails.status.filter(
-                    (item: any) =>
-                      item.details.toLowerCase() === 'mypendingtasks'
-                    // (item: any) =>
-                    //   item.details.toLowerCase() === 'mygrouppendingtasks'
+                setIsProgressLoader(false)
+                setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
+                if (pendingTaskDetails && pendingTaskDetails.status) {
+                  rangePendingTasks =
+                    pendingTaskDetails &&
+                    pendingTaskDetails.status &&
+                    pendingTaskDetails.status.filter(
+                      (item: any) =>
+                        item.details.toLowerCase() === 'mypendingtasks'
+                      // (item: any) =>
+                      //   item.details.toLowerCase() === 'mygrouppendingtasks'
+                    )
+                  rangeGroupPendingTasks =
+                    pendingTaskDetails &&
+                    pendingTaskDetails.status &&
+                    pendingTaskDetails.status.filter(
+                      (item: any) =>
+                        item.details.toLowerCase() === 'mygrouppendingtasks'
+                    )
+                  set_range_pendingAction(rangePendingTasks)
+                  // set_myinprogressAction(inprogressTasks)
+                  set_range_grouppendingAction(rangeGroupPendingTasks)
+                  //set_mygroupunassignAction(mygroupUnassignTasks)
+                }
+              })
+              .catch((error) => {
+                setIsProgressLoader(false)
+                set_range_pendingAction([])
+                // set_myinprogressAction([])
+                set_range_grouppendingAction([])
+                // set_mygroupunassignAction([])
+              })
+        } else {
+          //  wholeTradeGroup &&
+          getStatusEventCamundaAPINew &&
+            getStatusEventCamundaAPINew(
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].user.userId,
+              userDetail &&
+                userDetail.userdetails &&
+                userDetail.userdetails[0].roles[0].roleName,
+              wholeTradeGroup,
+              'summary'
+            )
+              // getStatusEventCamundaAPI &&
+              //   getStatusEventCamundaAPI()
+              .then((res) => {
+                const pendingTaskDetails = res.data
+                setEventDashData(pendingTaskDetails)
+                console.log(
+                  parseInt(
+                    pendingTaskDetails.status.filter(
+                      (item: any) => item.details === 'myPendingTasks'
+                    )[0].count
                   )
-                rangeGroupPendingTasks =
-                  pendingTaskDetails &&
-                  pendingTaskDetails.status &&
-                  pendingTaskDetails.status.filter(
-                    (item: any) =>
-                      item.details.toLowerCase() === 'mygrouppendingtasks'
-                  )
-                set_range_pendingAction(rangePendingTasks)
-                // set_myinprogressAction(inprogressTasks)
-                set_range_grouppendingAction(rangeGroupPendingTasks)
-                //set_mygroupunassignAction(mygroupUnassignTasks)
-              }
-            })
-            .catch((error) => {
-              setIsProgressLoader(false)
-              set_range_pendingAction([])
-              // set_myinprogressAction([])
-              set_range_grouppendingAction([])
-              // set_mygroupunassignAction([])
-            })
+                )
+                setIsProgressLoader(false)
+                setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
+                if (pendingTaskDetails && pendingTaskDetails.status) {
+                  rangePendingTasks =
+                    pendingTaskDetails &&
+                    pendingTaskDetails.status &&
+                    pendingTaskDetails.status.filter(
+                      (item: any) =>
+                        item.details.toLowerCase() === 'mypendingtasks'
+                      // (item: any) =>
+                      //   item.details.toLowerCase() === 'mygrouppendingtasks'
+                    )
+                  rangeGroupPendingTasks =
+                    pendingTaskDetails &&
+                    pendingTaskDetails.status &&
+                    pendingTaskDetails.status.filter(
+                      (item: any) =>
+                        item.details.toLowerCase() === 'mygrouppendingtasks'
+                    )
+                  set_range_pendingAction(rangePendingTasks)
+                  // set_myinprogressAction(inprogressTasks)
+                  set_range_grouppendingAction(rangeGroupPendingTasks)
+                  //set_mygroupunassignAction(mygroupUnassignTasks)
+                }
+              })
+              .catch((error) => {
+                setIsProgressLoader(false)
+                set_range_pendingAction([])
+                // set_myinprogressAction([])
+                set_range_grouppendingAction([])
+                // set_mygroupunassignAction([])
+              })
+        }
       })
 
     return reset_all()
@@ -1767,7 +1835,7 @@ function Dashboard1(props: any) {
             }
           })}
       </Grid>
-      <div>V-1.0.5</div>
+      <div>V-1.0.7</div>
     </div>
   )
 }
