@@ -208,7 +208,7 @@ function Dashboard1(props: any) {
 
   const getProducrHierarchy = (userGroups: any) => {
     let productArray: any = []
-    let productNullArray: any = ''
+    // let productNullArray: any = ''
     userGroups.forEach((groups: any) => {
       return groups.productHierarchy.forEach((product: any) => {
         productArray.push(product.hierarchyName.split(' > ')[1])
@@ -219,13 +219,14 @@ function Dashboard1(props: any) {
       (item: any, i: any, ar: any) => ar.indexOf(item) === i
     )
     console.log(productArray1)
-    if (productArray1.length > 0) {
-      console.log('in')
-      return productArray1.join()
-    } else {
-      console.log('out')
-      return productNullArray
-    }
+    // if (productArray1.length > 0) {
+    //   console.log('in')
+    return productArray1.join()
+    // } else {
+    //   console.log('out')
+    //   console.log(productArray1.join())
+    //   return productNullArray
+    // }
   }
 
   const getGroupId = (userGroups: any) => {

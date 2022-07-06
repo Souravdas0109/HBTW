@@ -149,26 +149,47 @@ function RcmPendingActionsNextWeek(props: any) {
           //  })
           const wholeTradeGroup = getProducrHierarchy(userGroupdata.usergroups)
           console.log(wholeTradeGroup)
-
-          wholeTradeGroup &&
+          if (wholeTradeGroup) {
+            wholeTradeGroup &&
+              getStatusEventCamundaAPINew &&
+              getStatusEventCamundaAPINew(
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].user.userId,
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].roles[0].roleName,
+                wholeTradeGroup,
+                'myWk1Tasks'
+              ).then((res: any) => {
+                let groupPendingDetails = res.data
+                setMyPendingActions(
+                  groupPendingDetails.status.filter(
+                    (item: any) => item.details === 'myWk1Tasks'
+                  )[0].tasks
+                )
+              })
+          } else {
+            //  wholeTradeGroup &&
             getStatusEventCamundaAPINew &&
-            getStatusEventCamundaAPINew(
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].user.userId,
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].roles[0].roleName,
-              wholeTradeGroup,
-              'myWk1Tasks'
-            ).then((res: any) => {
-              let groupPendingDetails = res.data
-              setMyPendingActions(
-                groupPendingDetails.status.filter(
-                  (item: any) => item.details === 'myWk1Tasks'
-                )[0].tasks
-              )
-            })
+              getStatusEventCamundaAPINew(
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].user.userId,
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].roles[0].roleName,
+                wholeTradeGroup,
+                'myWk1Tasks'
+              ).then((res: any) => {
+                let groupPendingDetails = res.data
+                setMyPendingActions(
+                  groupPendingDetails.status.filter(
+                    (item: any) => item.details === 'myWk1Tasks'
+                  )[0].tasks
+                )
+              })
+          }
         })
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)

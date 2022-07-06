@@ -136,30 +136,57 @@ function RcmGroupTaskRejected(props: any) {
           //  })
           const wholeTradeGroup = getProducrHierarchy(userGroupdata.usergroups)
           console.log(wholeTradeGroup)
-          wholeTradeGroup &&
+          if (wholeTradeGroup) {
+            wholeTradeGroup &&
+              getStatusEventCamundaAPINew &&
+              getStatusEventCamundaAPINew(
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].user.userId,
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].roles[0].roleName,
+                wholeTradeGroup,
+                'myGroupRejectedTasks'
+              ).then((res: any) => {
+                let groupPendingDetails = res.data
+                // console.log(
+                //   groupPendingDetails.status.filter(
+                //     (item: any) => item.details === 'myGroupPendingTasks'
+                //   )[0].tasks
+                // )
+                setMyPendingActions(
+                  groupPendingDetails.status.filter(
+                    (item: any) => item.details === 'myGroupRejectedTasks'
+                  )[0].tasks
+                )
+              })
+          } else {
+            // wholeTradeGroup &&
             getStatusEventCamundaAPINew &&
-            getStatusEventCamundaAPINew(
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].user.userId,
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].roles[0].roleName,
-              wholeTradeGroup,
-              'myGroupRejectedTasks'
-            ).then((res: any) => {
-              let groupPendingDetails = res.data
-              // console.log(
-              //   groupPendingDetails.status.filter(
-              //     (item: any) => item.details === 'myGroupPendingTasks'
-              //   )[0].tasks
-              // )
-              setMyPendingActions(
-                groupPendingDetails.status.filter(
-                  (item: any) => item.details === 'myGroupRejectedTasks'
-                )[0].tasks
-              )
-            })
+              getStatusEventCamundaAPINew(
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].user.userId,
+                userDetail &&
+                  userDetail.userdetails &&
+                  userDetail.userdetails[0].roles[0].roleName,
+                wholeTradeGroup,
+                'myGroupRejectedTasks'
+              ).then((res: any) => {
+                let groupPendingDetails = res.data
+                // console.log(
+                //   groupPendingDetails.status.filter(
+                //     (item: any) => item.details === 'myGroupPendingTasks'
+                //   )[0].tasks
+                // )
+                setMyPendingActions(
+                  groupPendingDetails.status.filter(
+                    (item: any) => item.details === 'myGroupRejectedTasks'
+                  )[0].tasks
+                )
+              })
+          }
         })
     } else {
       history.push(`${DEFAULT}${DASHBOARD}`)
