@@ -87,7 +87,10 @@ function RcmGroupTaskMissed(props: any) {
     let productArray1 = productArray.filter(
       (item: any, i: any, ar: any) => ar.indexOf(item) === i
     )
-    return productArray1.join()
+    // return productArray1.join()
+    let productArray2 = encodeURIComponent(productArray1.join())
+    console.log(productArray2)
+    return productArray2
   }
 
   const getGroupId = (userGroups: any) => {

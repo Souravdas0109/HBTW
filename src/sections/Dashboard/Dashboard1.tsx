@@ -215,18 +215,24 @@ function Dashboard1(props: any) {
       })
     })
     console.log(productArray)
+    let check1 = ''
+    let check2 = encodeURIComponent(check1)
+    console.log(check2)
     let productArray1 = productArray.filter(
       (item: any, i: any, ar: any) => ar.indexOf(item) === i
     )
     console.log(productArray1)
     // if (productArray1.length > 0) {
     //   console.log('in')
-    return productArray1.join()
+    let productArray2 = encodeURIComponent(productArray1.join())
+    console.log(productArray2)
+    // return productArray1.join()
     // } else {
     //   console.log('out')
     //   console.log(productArray1.join())
     //   return productNullArray
     // }
+    return productArray2
   }
 
   const getGroupId = (userGroups: any) => {
@@ -1836,7 +1842,7 @@ function Dashboard1(props: any) {
             }
           })}
       </Grid>
-      <div>V-1.0.10</div>
+      <div>V-1.0.11</div>
     </div>
   )
 }
