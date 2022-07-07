@@ -422,6 +422,7 @@ export const getColleagueAPI = (id) => {
   let url = `${BASE_URL_SIT}${GET_USER_INFO_OTHER}`
   url = url.replace('{userId}', id)
   return serviceRequestBasic(url, 'GET', undefined)
+  // return serviceRequest(url, 'GET', undefined)
 }
 
 export const getTasklistsAllAPI = (userId) => {
@@ -433,13 +434,15 @@ export const getTasklistsAllAPI = (userId) => {
 export const getTasklistsAPI = (requestId) => {
   let url = `${BASE_URL}${GET_TASKLIST_ID}`
   url = url.replace('{requestId}', requestId)
-  return serviceRequestBasic(url, 'GET', undefined)
+  // return serviceRequestBasic(url, 'GET', undefined)
+  return serviceRequest(url, 'GET', undefined)
 }
 
 export const getTasklogsAPI = (requestId) => {
   let url = `${BASE_URL}${GET_TASKLOG_ID}`
   url = url.replace('{requestId}', requestId)
-  return serviceRequestBasic(url, 'GET', undefined)
+  // return serviceRequestBasic(url, 'GET', undefined)
+  return serviceRequest(url, 'GET', undefined)
 }
 
 export const getResetTypes = () => {
@@ -561,8 +564,8 @@ export const getProductSupplierServiceByItemnumber = (itemNumber) => {
   let url = `${BASE_URL}${GET_PRODUCT_SUPPLIER_SERVICE}`
   url = url.replace('{itemNumber}', itemNumber)
   // let reqBody = `${JSON.stringify(req)}`
-  // return serviceRequest(url, "GET", undefined);
-  return serviceRequestBasic(url, 'GET', undefined)
+  return serviceRequest(url, 'GET', undefined)
+  // return serviceRequestBasic(url, 'GET', undefined)
 }
 export const getSupplierServiceBySupplierId = (supplierId) => {
   let url = `${BASE_URL}${GET_SUPPLIER_SERVICE}`

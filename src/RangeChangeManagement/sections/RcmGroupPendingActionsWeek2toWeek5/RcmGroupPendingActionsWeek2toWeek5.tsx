@@ -567,14 +567,14 @@ function RcmGroupPendingActionsWeek2toWeek5(props: any) {
                       showGridlines
                       //loading={manageUserLoading}
                     >
-                      <Column
+                      {/* <Column
                         selectionMode="multiple"
                         headerStyle={{
                           width: '3em',
                           backgroundColor: teal[900],
                           color: 'white',
                         }}
-                      ></Column>
+                      ></Column> */}
                       {pendingActionTableHeaders.map((column) => {
                         return (
                           <Column
