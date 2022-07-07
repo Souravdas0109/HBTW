@@ -1548,7 +1548,7 @@ function Dashboard1(props: any) {
                           {tabValue === 1 && (
                             <Box sx={{ p: 2 }}>
                               <Typography color="primary" variant="body2">
-                                Group Tasks
+                                Pending Due Date
                               </Typography>
                               <DataTable
                                 value={table2Data}
