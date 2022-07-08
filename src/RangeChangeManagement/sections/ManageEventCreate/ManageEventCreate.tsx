@@ -1646,10 +1646,21 @@ function ManageEventCreate(props: any) {
       console.log('date change', launchDateOld, launchDateNew)
       if (newDate != 0 && oldDate !== 0 && newDate !== oldDate) {
         let count: any = ''
-        let sysDate = new Date()
+        let sysDate1 = new Date().toISOString().split('T')[0]
+        let sysDate = new Date(sysDate1)
         taskDetails.map((task: any) => {
-          let taskDueDate = new Date(task.dueDate)
-          if (taskDueDate.getTime() < sysDate.getTime()) {
+          // let taskDueDate = new Date(task.dueDate)
+          let taskDueDate = task.dueDate.split(' ')[0]
+          // let taskDueDate1 = taskDueDate.toISOString().split('T')[0]
+          // let taskDueDate2 = new Date(taskDueDate1)
+          let taskDueDate1 = new Date(taskDueDate)
+          console.log(sysDate)
+          console.log(taskDueDate)
+          console.log(taskDueDate1)
+          // console.log(taskDueDate2)
+          console.log(taskDueDate1.getTime() - sysDate.getTime())
+          // if (taskDueDate.getTime() < sysDate.getTime()) {
+          if (taskDueDate1.getTime() < sysDate.getTime()) {
             count =
               count === '' ? count + task.taskId : count + ', ' + task.taskId
           }
@@ -4291,7 +4302,7 @@ function ManageEventCreate(props: any) {
         clickState
       )
       return
-    } 
+    }
     //6 update when staus is published
     // if (
     //   eventDetails[0].eventStatus === 'Published' &&

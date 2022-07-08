@@ -43,6 +43,7 @@
     "build:dev": "CI=false && cross-env REACT_APP_ENV=dev  react-scripts build",
     "build:sit": "CI=false && cross-env REACT_APP_ENV=sit  react-scripts build",
     "build:pre": "CI=false && cross-env REACT_APP_ENV=pre  react-scripts build",
+    "build:uat": "CI=false && cross-env REACT_APP_ENV=uat  react-scripts build",
     "build:prd": "CI=false && cross-env REACT_APP_ENV=prd  react-scripts build"
   },
   "husky": {

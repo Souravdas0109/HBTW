@@ -76,7 +76,7 @@ pipeline {
 	
 	parameters {
 		booleanParam(name: 'TAG_DEPLOY', defaultValue: false,description: 'Deployment from Tag!');
-		choice( name: 'DEPLOY_ENV', choices: ['DEV','SIT','PRE','PRD'], description: 'Environment to Deploy from Branch!');
+		choice( name: 'DEPLOY_ENV', choices: ['DEV','SIT','PRE','PRD','UAT'], description: 'Environment to Deploy from Branch!');
 		booleanParam(name: 'FTEST_USE', defaultValue: false,description: 'Functional test enable?');
 		string(name: 'CDN_S3_BUCKET_NAME', defaultValue: "mdev.hcw.commercial.hcw.mgrkbglzlm",description: 'S3 Origin Bucket Name?');
 		string(name: 'CLoudfront_Distribution_ID', defaultValue: 'E3B8KTERJEDXQX',description: 'CloudFront ID?');
