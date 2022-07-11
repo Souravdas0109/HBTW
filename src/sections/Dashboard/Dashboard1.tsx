@@ -245,11 +245,25 @@ function Dashboard1(props: any) {
     return productArray.join()
   }
 
+  const getRoleName = (userRoles: any) => {
+    let productArray: any = []
+    userRoles.forEach((roles: any) => {
+      // return groups.productHierarchy.forEach((product: any) => {
+      productArray.push(roles.roleName)
+      // })
+    })
+    return productArray.join()
+  }
+
   useEffect(() => {
     const wholeGroupId = getGroupId(
       userDetail.userdetails && userDetail.userdetails[0].usergroups
     )
     console.log(wholeGroupId)
+    const wholeRoleName = getRoleName(
+      userDetail.userdetails && userDetail.userdetails[0].roles
+    )
+    console.log(wholeRoleName)
     // const userGroupId =
     //   userDetail.userdetails && userDetail.userdetails[0].usergroups[0].groupId
     // console.log(userGroupId)
@@ -345,14 +359,16 @@ function Dashboard1(props: any) {
         console.log(wholeTradeGroup)
         if (wholeTradeGroup) {
           wholeTradeGroup &&
+            wholeRoleName &&
             getStatusEventCamundaAPINew &&
             getStatusEventCamundaAPINew(
               userDetail &&
                 userDetail.userdetails &&
                 userDetail.userdetails[0].user.userId,
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].roles[0].roleName,
+              // userDetail &&
+              //   userDetail.userdetails &&
+              //   userDetail.userdetails[0].roles[0].roleName,
+              wholeRoleName,
               wholeTradeGroup,
               'summary'
             )
@@ -402,14 +418,16 @@ function Dashboard1(props: any) {
               })
         } else {
           //  wholeTradeGroup &&
-          getStatusEventCamundaAPINew &&
+          wholeRoleName &&
+            getStatusEventCamundaAPINew &&
             getStatusEventCamundaAPINew(
               userDetail &&
                 userDetail.userdetails &&
                 userDetail.userdetails[0].user.userId,
-              userDetail &&
-                userDetail.userdetails &&
-                userDetail.userdetails[0].roles[0].roleName,
+              // userDetail &&
+              //   userDetail.userdetails &&
+              //   userDetail.userdetails[0].roles[0].roleName,
+              wholeRoleName,
               wholeTradeGroup,
               'summary'
             )
