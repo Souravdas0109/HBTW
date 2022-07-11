@@ -103,6 +103,16 @@ function RcmMyTaskRejected(props: any) {
     return productArray.join()
   }
 
+  const getRoleName = (userRoles: any) => {
+    let productArray: any = []
+    userRoles.forEach((roles: any) => {
+      // return groups.productHierarchy.forEach((product: any) => {
+      productArray.push(roles.roleName)
+      // })
+    })
+    return productArray.join()
+  }
+
   useEffect(() => {
     if (eventPendingAction) {
       //setMyPendingActions(eventPendingAction[0].tasks)
@@ -120,6 +130,10 @@ function RcmMyTaskRejected(props: any) {
         userDetail.userdetails && userDetail.userdetails[0].usergroups
       )
       console.log(wholeGroupId)
+      const wholeRoleName = getRoleName(
+        userDetail.userdetails && userDetail.userdetails[0].roles
+      )
+      console.log(wholeRoleName)
       wholeGroupId &&
         getUserGroupAPIWithGroupId &&
         getUserGroupAPIWithGroupId(wholeGroupId).then((res1) => {
@@ -140,14 +154,16 @@ function RcmMyTaskRejected(props: any) {
           console.log(wholeTradeGroup)
           if (wholeTradeGroup) {
             wholeTradeGroup &&
+              wholeRoleName &&
               getStatusEventCamundaAPINew &&
               getStatusEventCamundaAPINew(
                 userDetail &&
                   userDetail.userdetails &&
                   userDetail.userdetails[0].user.userId,
-                userDetail &&
-                  userDetail.userdetails &&
-                  userDetail.userdetails[0].roles[0].roleName,
+                // userDetail &&
+                //   userDetail.userdetails &&
+                //   userDetail.userdetails[0].roles[0].roleName,
+                wholeRoleName,
                 wholeTradeGroup,
                 'myRejectedTasks'
               ).then((res: any) => {
@@ -160,14 +176,16 @@ function RcmMyTaskRejected(props: any) {
               })
           } else {
             // wholeTradeGroup &&
-            getStatusEventCamundaAPINew &&
+            wholeRoleName &&
+              getStatusEventCamundaAPINew &&
               getStatusEventCamundaAPINew(
                 userDetail &&
                   userDetail.userdetails &&
                   userDetail.userdetails[0].user.userId,
-                userDetail &&
-                  userDetail.userdetails &&
-                  userDetail.userdetails[0].roles[0].roleName,
+                // userDetail &&
+                //   userDetail.userdetails &&
+                //   userDetail.userdetails[0].roles[0].roleName,
+                wholeRoleName,
                 wholeTradeGroup,
                 'myRejectedTasks'
               ).then((res: any) => {
