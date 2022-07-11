@@ -837,8 +837,11 @@ function RcmPendingActionsWeek5(props: any) {
                       // type="submit"
                       // size="small"
                       // onClick={handleAssign}
+                      // disabled={assignToOther.length>0?assignToOther.lenght>1?true:false:true}
                       onClick={() =>
-                        assignToOther.length > 0 && setOpenAssignDialog(true)
+                        assignToOther.length > 0 &&
+                        // assignToOther.length < 2 &&
+                        setOpenAssignDialog(true)
                       }
                     >
                       Assign to Other
