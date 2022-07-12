@@ -352,7 +352,7 @@ function RcmPendingActionsCurrentWeek(props: any) {
     setUserAssigned(null)
   }
 
-  const handleAssignTask = () => {
+  const handleAssignTask = async () => {
     if (assignToOther.length > 0) {
       setOpenAssignDialog(false)
       setIsProgressLoader(true)
@@ -366,7 +366,7 @@ function RcmPendingActionsCurrentWeek(props: any) {
           formdata1.append('fileIn', uploadedFile)
           postFileAttachmentRangeResetAPI &&
             postFileAttachmentRangeResetAPI(formdata1, assignToOther[i].eventId)
-              .then((res: any) => {
+              .then(async (res: any) => {
                 const claimPayload = userAssigned && {
                   reviewDecision: 'AssignTask',
                   requester: {
@@ -432,20 +432,34 @@ function RcmPendingActionsCurrentWeek(props: any) {
                     // updated: '',
                   },
                 }
-                putCamundaMileStoneUpdate(
-                  assignToOther[i].eventId,
-                  claimPayload
-                )
-                  .then((res1: any) => {
-                    console.log(res1)
-                    //setFailureCount((prevState) => prevState - 1)
+                // putCamundaMileStoneUpdate(
+                //   assignToOther[i].eventId,
+                //   claimPayload
+                // )
+                //   .then((res1: any) => {
+                //     console.log(res1)
+                //     setFailureCount((prevState) => prevState - 1)
+                //     setCheckCount((prevState) => prevState - 1)
+                //   })
+                //   .catch((err1: any) => {
+                //     console.log(err1)
+                //     //setFailureCount((prevState) => prevState - 1)
+                //     setCheckCount((prevState) => prevState - 1)
+                //   })
+                try {
+                  const camundaRes = await putCamundaMileStoneUpdate(
+                    assignToOther[i].eventId,
+                    claimPayload
+                  )
+                  console.log(camundaRes)
+                  if (camundaRes) {
+                    setFailureCount((prevState) => prevState - 1)
                     setCheckCount((prevState) => prevState - 1)
-                  })
-                  .catch((err1: any) => {
-                    console.log(err1)
-                    //setFailureCount((prevState) => prevState - 1)
-                    setCheckCount((prevState) => prevState - 1)
-                  })
+                  }
+                } catch (err) {
+                  //setFailureCount((prevState) => prevState - 1)
+                  setCheckCount((prevState) => prevState - 1)
+                }
               })
               .catch((err: any) => {
                 //setFailureCount((prevState) => prevState - 1)
@@ -515,17 +529,30 @@ function RcmPendingActionsCurrentWeek(props: any) {
               uploadRef: '',
             },
           }
-          putCamundaMileStoneUpdate(assignToOther[i].eventId, claimPayload)
-            .then((res1: any) => {
-              console.log(res1)
+          // putCamundaMileStoneUpdate(assignToOther[i].eventId, claimPayload)
+          //   .then((res1: any) => {
+          //     console.log(res1)
+          //     setFailureCount((prevState) => prevState - 1)
+          //     setCheckCount((prevState) => prevState - 1)
+          //   })
+          //   .catch((err1: any) => {
+          //     console.log(err1)
+          //     //setFailureCount((prevState) => prevState - 1)
+          //     setCheckCount((prevState) => prevState - 1)
+          //   })
+          try {
+            const camundaRes = await putCamundaMileStoneUpdate(
+              assignToOther[i].eventId,
+              claimPayload
+            )
+            if (camundaRes) {
               setFailureCount((prevState) => prevState - 1)
               setCheckCount((prevState) => prevState - 1)
-            })
-            .catch((err1: any) => {
-              console.log(err1)
-              //setFailureCount((prevState) => prevState - 1)
-              setCheckCount((prevState) => prevState - 1)
-            })
+            }
+            console.log(camundaRes)
+          } catch (err: any) {
+            setCheckCount((prevState) => prevState - 1)
+          }
         }
       }
     }
