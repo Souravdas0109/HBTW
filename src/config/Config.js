@@ -1,6 +1,6 @@
 const envDetails = {
   dev: {
-    BASE_URL: 'https://sit-api.morrisons.com/',
+    BASE_URL: 'https://dev-api.morrisons.com/',
     BASE_URL_SIT: 'https://sit-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',

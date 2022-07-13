@@ -224,8 +224,8 @@ function RcmPendingActionsNextWeek(props: any) {
       // setSelectedEvents([])
     } else {
       console.log([data])
-      // set_raf_pendingAction_CT06(data)
-      // history.push(`${DEFAULT}${DASHBOARD_RAF_CT06}`)
+      set_raf_pendingAction_CT06(data)
+      history.push(`${DEFAULT}${DASHBOARD_RAF_CT06}`)
       // setSelectedEvents([])
     }
   }
