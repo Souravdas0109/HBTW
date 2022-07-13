@@ -92,6 +92,7 @@ import {
   getSupplierSearchByIdNameSupplierAndSite,
   getLocationsStoreCodeAPI, //location/v2
   getRangeResetEventsStoreDepot,
+  patchRangeResetItems,
 } from '../../../api/Fetch'
 import { useHistory } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -363,8 +364,10 @@ function DelistsAddedToRange(props: any) {
               wholesale: item.rangestatus.wholesale
                 ? item.rangestatus.wholesale
                 : null,
-              // currentnoofrangedstores: item.rangedStoresCurrent,
-              currentnoofrangedstores: 100,
+              currentnoofrangedstores: item.rangedStoresCurrent
+                ? item.rangedStoresCurrent
+                : null,
+              // currentnoofrangedstores: 100,
               newnoofrangestores: item.rangedStoresNew
                 ? item.rangedStoresNew
                 : null,
@@ -452,6 +455,7 @@ function DelistsAddedToRange(props: any) {
               depotClearbyReservedQtyWholesale: null,
               depotClearbyReservedQtyOnline: null,
               depotClearbyReservedQtyTotal: null,
+              //
               // comments: item.comments ? item.comments : null, //uncomment when deploying
               // min: '500000033',
 
@@ -3112,6 +3116,107 @@ function DelistsAddedToRange(props: any) {
 
   const handleProductListSave = () => {
     console.log('handleProductListSave', importedData)
+    const formdata = importedData &&
+      eventDetails && {
+        items: importedData.map((item: any) => {
+          return {
+            itemNumber: item.min,
+            description: item.description,
+            department: eventDetails[0].department
+              ? eventDetails[0].department
+              : null,
+            departmentId: eventDetails[0].departmentId
+              ? eventDetails[0].departmentId
+              : null,
+            category: eventDetails[0].category
+              ? eventDetails[0].category
+              : null,
+            categoryId: eventDetails[0].categoryId
+              ? eventDetails[0].categoryId
+              : null,
+            status: eventDetails[0].status ? eventDetails[0].status : null,
+            type: item.actionType,
+            autoclear: item.autoclear ? item.autoclear : '',
+            depoClearWeek: item.clearDepotBy,
+            gscopDate: item.finalStopOrderDate,
+            supplierComittment: item.supplierCommitment,
+            wastage: item.includeInStoreWastage,
+            wastageRange: eventDetails[0].wastageRange
+              ? eventDetails[0].wastageRange
+              : null,
+            eventLineStatus: item.lineStatus,
+            man: item.man,
+            ingredientMin: item.ingredientMin,
+            pin: item.pin,
+            replaceMinDescription: item.replaceMinDescription,
+            existingSupplier: item.existingSupplier,
+            existingSupplierSite: item.existingSupplierSite,
+            rangedStoresCurrent: item.currentnoofrangedstores,
+            rangedStoresNew: item.newnoofrangestores,
+            currentVsNewStores: item.currentVersusNewStores,
+            rangedStoresPercent: item.storesRangedCurrentVsProposed,
+            shelfFillCurrent: item.currentShelfFill,
+            shelfFillNew: item.newShelfFill,
+            currentVsNewShelfFill: item.currentshelffill_vs_newfill,
+            shelfFillPercent: item.currentshelffill_vs_newfill_percant,
+            unitCost: item.unitcost,
+            caseCost: item.casecost,
+            caseSize: item.caseSize ? item.caseSize : null,
+            local: item.local,
+            onlineCfc: item.onlineCFC,
+            onlineStorePick: item.onlineStorePick,
+            wholesale: item.wholesale,
+            ownBrand: item.ownBrand,
+            clearancePricing: item.includeInClearancePricing,
+            storeStockUnit: item.storeStockUnit,
+            depotStockUnit: item.depotStockUnit,
+            frwdForecastToLaunch: item.forward_forecast_to_launch,
+            excessStock: item.excessstock,
+            weeksCover: item.weeksCoveronTotalStockonHandtoResetDate,
+            forecastWeekCover: item.forcastedWeeksCovertoResetDate,
+            suppCommFixedBuysSeasonal: item.suppCommFixedBuysSeasonal
+              ? item.suppCommFixedBuysSeasonal
+              : null,
+            depotShelfLife: item.depotShelfLifeMinimum,
+            productShelfLife: item.productShelfLifeInstore,
+            mfgShelfLife: item.shelfLifeatManufacture,
+            safewayBrandedEq: item.safewaybrandedequivalent,
+            comments: item.comments,
+            newSupplier: item.newSupplier ? item.newSupplier : null,
+            newSupplierSite: item.newSupplierSite ? item.newSupplierSite : null,
+            replaceMin: item.replaceMin,
+            effectiveFromDate: item.effectiveDateFrom,
+            effectiveToDate: item.effectiveDateTo,
+          }
+        }),
+      }
+    console.log(formdata)
+    patchRangeResetItems &&
+      patchRangeResetItems(rafpendingActionDetailsCT06.eventId, formdata)
+        .then((res: any) => {
+          console.log(res.data)
+          toast.current.show([
+            {
+              severity: 'success',
+              summary: 'Success!',
+              detail: 'Data saved successfully',
+              life: life,
+              className: 'login-toast',
+            },
+          ])
+        })
+        .catch((err: any) => {
+          console.log(err)
+          toast.current.show([
+            {
+              severity: 'error',
+              summary: 'Error!',
+              detail: 'Service error',
+              life: life,
+              className: 'login-toast',
+            },
+          ])
+        })
   }
 
   const [storeValue, setStoreValue] = useState<any>(null)
@@ -7001,7 +7106,7 @@ function DelistsAddedToRange(props: any) {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleProductListSave}
+                  //onClick={handleProductListSave}
                   disabled
                 >
                   Edit
@@ -7011,13 +7116,17 @@ function DelistsAddedToRange(props: any) {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={handleProductListSave}
+                  //onClick={handleProductListSave}
                 >
                   Reject
                 </Button>
               </Grid>
               <Grid item xl={3} lg={3} md={3} sm={6} xs={12}>
-                <Button variant="contained" color="primary">
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleProductListSave}
+                >
                   Save
                 </Button>
               </Grid>
