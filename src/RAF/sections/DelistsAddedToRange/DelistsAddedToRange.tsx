@@ -381,8 +381,8 @@ function DelistsAddedToRange(props: any) {
                 ? item.shelfFillCurrent
                 : null,
               newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
-              currentshelffill_vs_newfill_percant: item.currentVsNewShelfFill
-                ? item.currentVsNewShelfFill
+              currentshelffill_vs_newfill_percant: item.shelfFillPercent
+                ? item.shelfFillPercent
                 : null,
               ownBrand: item.ownBrand ? item.ownBrand : null,
               includeInClearancePricing: item.clearancePricing
@@ -3161,7 +3161,7 @@ function DelistsAddedToRange(props: any) {
             shelfFillPercent: item.currentshelffill_vs_newfill_percant,
             unitCost: item.unitcost,
             caseCost: item.casecost,
-            caseSize: item.caseSize ? item.caseSize : null,
+            caseSize: item.packquantity ? item.packquantity : null,
             local: item.local,
             onlineCfc: item.onlineCFC,
             onlineStorePick: item.onlineStorePick,
