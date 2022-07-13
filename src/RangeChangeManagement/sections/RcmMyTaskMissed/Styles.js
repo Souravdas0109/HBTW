@@ -73,6 +73,12 @@ export const useStyles = makeStyles((theme) => ({
     },
     'max-width': '85%',
   },
+  greenButtons: {
+    cursor: 'pointer',
+    color: theme.palette.primary.main,
+    border: 'none',
+    backgroundColor: 'inherit',
+  },
   comments: {
     width: '100%',
   },
