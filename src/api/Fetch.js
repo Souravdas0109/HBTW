@@ -59,6 +59,7 @@ const {
   GET_SUPPLIER_BY_SUPPLIER_AND_SITE,
   GET_LOCATIONS,
   PATCH_RANGERESET_ITEMS,
+  GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN,
 } = config
 
 export const userV2Login = (idToken) => {
@@ -610,6 +611,18 @@ export const patchRangeResetItems = (rangeResetId, req) => {
   url = url.replace('{rangeResetId}', rangeResetId)
   let reqBody = `${JSON.stringify(req)}`
   return serviceRequest(url, 'PATCH', reqBody)
+}
+
+export const getRangeResetEventsStoreDepot = (
+  rangeResetId,
+  minNumber,
+  storeOrDepot
+) => {
+  let url = `${BASE_URL}${GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN}`
+  url = url.replace('{rangeResetId}', rangeResetId)
+  url = url.replace('{MIN}', minNumber)
+  const params = `view=${storeOrDepot}`
+  return serviceRequest(url, 'GET', undefined, params)
 }
 
 // export const getItemWeekStoreViewForecastAPI = (

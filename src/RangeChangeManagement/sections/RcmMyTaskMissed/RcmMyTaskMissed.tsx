@@ -1037,7 +1037,7 @@ function RcmMyTaskRejected(props: any) {
           </div>
         </div>
       </div>
-      {/* {assignToOtherDialog} */}
+      {assignToOtherDialog}
     </>
   )
 }

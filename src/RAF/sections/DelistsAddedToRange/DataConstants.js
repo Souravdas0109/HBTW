@@ -1423,3 +1423,117 @@ export const depotViewResDummy = {
     // }
   ],
 }
+export const regionsButtonsDummy = {
+  regions: [
+    {
+      regionName: 'Greater London',
+      locations: [
+        {
+          locationId: '1',
+          locationName: 'Chingford',
+        },
+        {
+          locationId: '92',
+          locationName: 'Enfield',
+        },
+        {
+          locationId: '113',
+          locationName: 'Erith',
+        },
+        {
+          locationId: '191',
+          locationName: 'Canning Town',
+        },
+        {
+          locationId: '205',
+          locationName: 'Ealing',
+        },
+        {
+          locationId: '309',
+          locationName: 'Stratford',
+        },
+        {
+          locationId: '318',
+          locationName: 'Sutton',
+        },
+        {
+          locationId: '316',
+          locationName: 'Sidcup',
+        },
+        {
+          locationId: '313',
+          locationName: 'Wood Green',
+        },
+        {
+          locationId: '311',
+          locationName: 'Thamesmead',
+        },
+        {
+          locationId: '299',
+          locationName: 'Hatch End',
+        },
+        {
+          locationId: '296',
+          locationName: 'Becontree Heath',
+        },
+        {
+          locationId: '306',
+          locationName: 'Peckham',
+        },
+        {
+          locationId: '307',
+          locationName: 'Queensbury',
+        },
+        {
+          locationId: '304',
+          locationName: 'Holloway',
+        },
+        {
+          locationId: '305',
+          locationName: 'Palmers Green',
+        },
+        {
+          locationId: '302',
+          locationName: 'Acton',
+        },
+        {
+          locationId: '373',
+          locationName: 'Colindale',
+        },
+        {
+          locationId: '388',
+          locationName: 'Borehamwood',
+        },
+        {
+          locationId: '527',
+          locationName: 'Mitcham',
+        },
+        {
+          locationId: '447',
+          locationName: 'Welling',
+        },
+        {
+          locationId: '410',
+          locationName: 'Stamford Hill',
+        },
+        {
+          locationId: '549',
+          locationName: 'Harrow',
+        },
+        {
+          locationId: '576',
+          locationName: 'Croydon',
+        },
+      ],
+    },
+    {
+      regionName: 'Gibraltar',
+      locations: [
+        {
+          locationId: '452',
+          locationName: 'Gibraltar',
+        },
+      ],
+    },
+  ],
+}

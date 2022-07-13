@@ -39,6 +39,40 @@ export const useStyles = makeStyles((theme) => {
         backgroundColor: 'rgba(0, 0, 0, 0.08)',
       },
     },
+    storeview: {
+      background: '#004e37',
+      color: '#fff',
+      borderBottomLeftRadius: '0',
+      borderBottomRightRadius: '0',
+      marginLeft: '5px',
+      padding: '6px 15px',
+      '&:hover': {
+        background: '#004e37',
+      },
+    },
+    planview: {
+      background: '#e9ecef',
+      borderBottomLeftRadius: '0',
+      borderBottomRightRadius: '0',
+      marginRight: '5px',
+      padding: '6px 15px',
+    },
+    tableMain: {
+      border: '1px solid #a6a9ad',
+    },
+    table_th: {
+      textAlign: 'left',
+      background: '#004e37',
+      color: '#ffffff',
+      fontSize: '14px',
+    },
+    table_tr_th: {
+      paddingRight: '20px',
+      // fontWeight: 500,
+    },
+    rangeStoreDialogBox: {
+      'max-width': '50%',
+    },
     greenButtons: {
       height: 35,
       [theme.breakpoints.up('sm')]: {

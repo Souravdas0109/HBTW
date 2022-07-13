@@ -1,6 +1,6 @@
 const envDetails = {
   dev: {
-    BASE_URL: 'https://dev-api.morrisons.com/',
+    BASE_URL: 'https://sit-api.morrisons.com/',
     BASE_URL_SIT: 'https://sit-api.morrisons.com/',
     API_KEY: 'vqaiDRZzSQhA6CPAy0rSotsQAkRepprX',
     PRODUCT_HIERARCHY_GET: 'product/v1/hierarchies/reporting',
@@ -72,6 +72,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -149,6 +151,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -226,6 +230,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -303,6 +309,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -380,6 +388,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',
@@ -457,6 +467,8 @@ const envDetails = {
     GET_RANGE_SUMMARY_BY_ID_MIN:
       'rangereset/v2/rangeresets/{rangeResetId}/items/{MIN}/summary',
     GET_SUPPLIER_BY_SUPPLIER_AND_SITE: 'supplier/v1/search',
+    GET_STORE_DEPOT_FROM_RANGE_SUMMARY_BY_ID_MIN:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items/{MIN}/summary',
     //
     GOOGLE_CLIENT_ID:
       '171849099600-gb5qs9al4mvmk93j3nuam7mgqvv0pmct.apps.googleusercontent.com',

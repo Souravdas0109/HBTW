@@ -63,6 +63,7 @@ export const serviceRequestForFileUpload = (url, method, payload, params) => {
 export const serviceRequestBasic = (url, method, payload, params) => {
   const token =
     'dnFhaURSWnpTUWhBNkNQQXkwclNvdHNRQWtSZXBwclg6THhhVk01SllpckJya1FRdQ=='
+  // const token = `${process.env.REACT_APP_BASIC_TOKEN}`
   const headers = {
     'Content-Type': 'application/json',
     Authorization: `Basic ${token}`,
