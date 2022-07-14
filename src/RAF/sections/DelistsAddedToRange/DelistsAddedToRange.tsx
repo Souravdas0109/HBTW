@@ -3140,19 +3140,24 @@ function DelistsAddedToRange(props: any) {
             depoClearWeek: item.clearDepotBy,
             gscopDate: item.finalStopOrderDate,
             supplierComittment: item.supplierCommitment,
-            wastage: item.includeInStoreWastage,
+            wastage:
+              item.includeInStoreWastage !== 'NA'
+                ? item.includeInStoreWastage
+                : '',
             wastageRange: eventDetails[0].wastageRange
               ? eventDetails[0].wastageRange
               : null,
             eventLineStatus: item.lineStatus,
             man: item.man,
-            ingredientMin: item.ingredientMin,
+            ingredientMin:
+              item.ingredientMin !== 'NA' ? item.ingredientMin : null,
             pin: item.pin,
             replaceMinDescription: item.replaceMinDescription,
             existingSupplier: item.existingSupplier,
             existingSupplierSite: item.existingSupplierSite,
             rangedStoresCurrent: item.currentnoofrangedstores,
-            rangedStoresNew: item.newnoofrangestores,
+            rangedStoresNew:
+              item.newnoofrangestores !== 'NA' ? item.newnoofrangestores : null,
             currentVsNewStores: item.currentVersusNewStores,
             rangedStoresPercent: item.storesRangedCurrentVsProposed,
             shelfFillCurrent: item.currentShelfFill,
@@ -3167,7 +3172,10 @@ function DelistsAddedToRange(props: any) {
             onlineStorePick: item.onlineStorePick,
             wholesale: item.wholesale,
             ownBrand: item.ownBrand,
-            clearancePricing: item.includeInClearancePricing,
+            clearancePricing:
+              item.includeInClearancePricing !== 'NA'
+                ? item.includeInClearancePricing
+                : '',
             storeStockUnit: item.storeStockUnit,
             depotStockUnit: item.depotStockUnit,
             frwdForecastToLaunch: item.forward_forecast_to_launch,
