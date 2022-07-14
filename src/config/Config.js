@@ -59,8 +59,10 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
-    GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
+    GET_RANGE_BY_RANGEID:
+      'rangereset/v2/rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:
       'productsupplier/v1/items/{itemNumber}/suppliers',
@@ -138,7 +140,8 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
     GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:
@@ -217,7 +220,8 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
     GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:
@@ -296,7 +300,8 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
     GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:
@@ -375,7 +380,8 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
     GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:
@@ -454,7 +460,8 @@ const envDetails = {
       'commercial-workflow-range/v1/events/{eventId}/milestones/process/hbtwRangeEventManagementWorkflow',
     //range apis
     GET_CONFIG: 'rangereset/v2/config/{configType}',
-    PATCH_RANGERESET_ITEMS: 'rangeresetevents/{rangeResetId}/items',
+    PATCH_RANGERESET_ITEMS:
+      'rangereset/v2/rangeresetevents/{rangeResetId}/items',
     GET_RANGE_BY_RANGEID: 'rangereset/v2/rangeresets/{rangeResetId}',
     GET_PRODUCT_SERVICE: 'product/v1/items/{itemNumber}',
     GET_PRODUCT_SUPPLIER_SERVICE:

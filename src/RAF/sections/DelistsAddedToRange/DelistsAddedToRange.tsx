@@ -3136,7 +3136,7 @@ function DelistsAddedToRange(props: any) {
               : null,
             status: eventDetails[0].status ? eventDetails[0].status : null,
             type: item.actionType,
-            autoclear: item.autoclear ? item.autoclear : '',
+            autoclear: item.autoclear ? item.autoclear : null,
             depoClearWeek: item.clearDepotBy,
             gscopDate: item.finalStopOrderDate,
             supplierComittment: item.supplierCommitment,
@@ -6812,9 +6812,27 @@ function DelistsAddedToRange(props: any) {
       )
         .then((res: any) => {
           console.log(res.data)
+          toast.current.show([
+            {
+              severity: 'success',
+              summary: 'Success!',
+              detail: 'Task completed successfully',
+              life: life,
+              className: 'login-toast',
+            },
+          ])
         })
         .catch((err: any) => {
           console.log(err.response)
+          toast.current.show([
+            {
+              severity: 'error',
+              summary: 'Error!',
+              detail: 'Service Error',
+              life: life,
+              className: 'login-toast',
+            },
+          ])
         })
     }
   }
