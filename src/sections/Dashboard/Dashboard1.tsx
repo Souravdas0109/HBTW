@@ -185,6 +185,7 @@ function Dashboard1(props: any) {
   const [table1Data, setTable1Data] = useState<any>()
   const [table2Data, setTable2Data] = useState<any>()
   const [ontimeCompletion, setOntimeCompletion] = useState<any>(0)
+  // const [ontimeCompletion2, setOntimeCompletion2] = useState<any>(0)
   const [eventDashData, setEventDashData] = React.useState<any>()
   // let newMap1: Array<any> = []
 
@@ -385,7 +386,8 @@ function Dashboard1(props: any) {
                   )
                 )
                 setIsProgressLoader(false)
-                setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
+                // setOntimeCompletion(pendingTaskDetails.myOTC.ontimeCompletion)
+                // setOntimeCompletion2(pendingTaskDetails.ontimeCompletion)
                 if (pendingTaskDetails && pendingTaskDetails.status) {
                   rangePendingTasks =
                     pendingTaskDetails &&
@@ -444,7 +446,10 @@ function Dashboard1(props: any) {
                   )
                 )
                 setIsProgressLoader(false)
-                setOntimeCompletion(pendingTaskDetails.ontimeCompletion)
+                // setOntimeCompletion(pendingTaskDetails.myOTC.ontimeCompletion)
+                // setOntimeCompletion2(
+                //   pendingTaskDetails.groupOTC.ontimeCompletion
+                // )
                 if (pendingTaskDetails && pendingTaskDetails.status) {
                   rangePendingTasks =
                     pendingTaskDetails &&
@@ -494,6 +499,19 @@ function Dashboard1(props: any) {
 
     console.log(eventDashData)
   }, [eventDashData])
+
+  useEffect(() => {
+    console.log(tabValue)
+    if (eventDashData) {
+      if (tabValue === 1) {
+        setOntimeCompletion(eventDashData.groupOTC.ontimeCompletion)
+        console.log(tabValue)
+      } else {
+        setOntimeCompletion(eventDashData.myOTC.ontimeCompletion)
+        console.log(tabValue)
+      }
+    }
+  }, [eventDashData, tabValue])
 
   useEffect(() => {
     // console.log(mypendingAction)
@@ -1860,7 +1878,7 @@ function Dashboard1(props: any) {
             }
           })}
       </Grid>
-      <div>V-1.0.17</div>
+      <div>V-1.0.25</div>
     </div>
   )
 }

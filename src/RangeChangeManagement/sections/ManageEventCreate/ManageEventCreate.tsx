@@ -218,6 +218,8 @@ function ManageEventCreate(props: any) {
   const [saveConfirm, setSaveConfirm] = useState(false)
   const [removeConfirm, setRemoveConfirm] = useState(false)
   const [publishConfirm, setPublishConfirm] = useState(false)
+  const [publishConfirm1, setPublishConfirm1] = useState(false)
+  const [updateConfirm, setUpdateConfirm] = useState(false)
   const [cancelConfirm, setCancelConfirm] = useState(false)
   const [launchDateConfirm, setLaunchDateConfirm] = useState(false)
   const [launchDateOld, setLaunchDateOld] = useState<any>()
@@ -230,6 +232,8 @@ function ManageEventCreate(props: any) {
   const [currentTask, setCurrentTask] = useState<any>()
   const [eventSaved, setEventSaved] = useState(false)
   const [dueDateChangePublish, setDueDateChangePublish] = useState(false)
+
+  const [checkDiffDate, setCheckDiffDate] = useState(false)
 
   // const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
   const [referenceDocData, setReferenceDocData] = React.useState<any>()
@@ -482,7 +486,7 @@ function ManageEventCreate(props: any) {
             activeTaskId: milestone.activeTaskId,
             slaDate: milestone.slaDate,
             task: milestone.taskDescription,
-            dueDate: milestone.dueDate,
+            dueDate: milestone.dueDate.split(' ')[0],
             notifiedDate: milestone.notifyDate,
             healthcheckDate: milestone.healthcheckDate,
             assignedUserGroup: milestone.assigneeRole,
@@ -1599,6 +1603,7 @@ function ManageEventCreate(props: any) {
       />
     )
   }
+
   const cancelLaunchDateChange = () => {
     console.log('5')
     setEventDetails((prevState: any) => {
@@ -1632,6 +1637,53 @@ function ManageEventCreate(props: any) {
     // getEventAndTasks()
     setTableLoading(false)
   }
+
+  useEffect(() => {
+    if (eventDetails) {
+      console.log(eventDetails)
+      console.error(eventDetails[0].targetDate)
+      let sysDate1 = new Date().toISOString().split('T')[0]
+      let sysDate = new Date(sysDate1)
+      console.log(sysDate)
+      let launchDate = new Date(eventDetails[0].targetDate)
+      console.log(launchDate)
+      const diffDate =
+        (launchDate.getTime() - sysDate.getTime()) / (1000 * 60 * 60 * 24)
+      console.error(diffDate)
+      console.log(eventDetails[0].resetType)
+      if (eventDetails[0].resetType === 'Planned Range Change') {
+        if (diffDate >= 245) {
+          setCheckDiffDate(false)
+        } else {
+          setCheckDiffDate(true)
+        }
+      } else if (eventDetails[0].resetType === 'Seasonal Range Change') {
+        if (diffDate >= 245) {
+          setCheckDiffDate(false)
+        } else {
+          setCheckDiffDate(true)
+        }
+      } else if (eventDetails[0].resetType === 'Range Reset') {
+        if (diffDate >= 280) {
+          setCheckDiffDate(false)
+        } else {
+          setCheckDiffDate(true)
+        }
+      } else if (eventDetails[0].resetType === 'Seasonal Range Reset') {
+        if (diffDate >= 280) {
+          setCheckDiffDate(false)
+        } else {
+          setCheckDiffDate(true)
+        }
+      } else {
+        setCheckDiffDate(false)
+      }
+    }
+  }, [eventDetails])
+
+  useEffect(() => {
+    console.log(checkDiffDate)
+  }, [checkDiffDate])
 
   useEffect(() => {
     console.warn(eventDetails)
@@ -1695,6 +1747,16 @@ function ManageEventCreate(props: any) {
 
     let eventDetailData = eventDetails
     eventDetailData[0].targetDate = launchDateOld
+    let launchDateChange = new Date(launchDateOld)
+    var name =
+      department.replace(/ /g, '_') +
+      '_' +
+      launchDateChange.getDate() +
+      launchDateChange.toLocaleString('default', { month: 'short' }) +
+      launchDateChange.getFullYear()
+    console.log(name)
+    setEventName(name)
+    eventDetailData[0].eventName = name
     console.log('new data', eventDetailData)
     // console.log('7')
     setEventDetails([...eventDetailData])
@@ -3441,8 +3503,9 @@ function ManageEventCreate(props: any) {
     const dueDate = rowData['dueDate']
     return (
       <DatePicker
-        // disabled={rowData.visibility === 'Enabled' ? false : true}
-        disabled={true}
+        disabled={rowData.visibility === 'Enabled' ? false : true}
+        // disabled={true}
+        // disabled={false}
         // readOnly={rowData.visibility === 'Enabled' ? false : true}
         // readOnly={true}
         format="dd/MM/yy"
@@ -3450,10 +3513,10 @@ function ManageEventCreate(props: any) {
         onChange={(date: any) => {
           setTaskDetails((prevState: any) => {
             return prevState.map((state: any) => {
-              if (state.dueDate === dueDate) {
+              if (state.taskId === rowData.taskId) {
                 return {
                   ...state,
-                  dueDate: date,
+                  dueDate: new Date(date).toISOString().split('T')[0],
                 }
               } else {
                 return state
@@ -3466,6 +3529,7 @@ function ManageEventCreate(props: any) {
         //   //   fontSize: aboveSm ? '0.8rem' : '0.65rem',
         //   background: '#e9ecef',
         // }}
+        minDate={new Date()}
       />
     )
   }
@@ -4035,7 +4099,7 @@ function ManageEventCreate(props: any) {
         milestoneTaskId: val.taskId2,
         taskName: val.taskId,
         taskDescription: val.task,
-        dueDate: val.dueDate,
+        dueDate: val.dueDate + ' 01:00:00',
         notifyDate: val.notifiedDate,
         slaDate: val.slaDate,
         activeTaskId: val.activeTaskId,
@@ -4058,6 +4122,7 @@ function ManageEventCreate(props: any) {
         assigneeRole: val.assignedUserGroup,
       }
     })
+    console.log(taskDetailsData)
 
     // const eventTeamData = team.filter((val: any) => {
     //   const { persona, emailId, userId, name } = val
@@ -4593,6 +4658,16 @@ function ManageEventCreate(props: any) {
       label2="Are you sure you want to Publish the Event?"
     />
   )
+  const confirmPublishDialog1 = (
+    <ConfirmBox
+      cancelOpen={publishConfirm1}
+      handleCancel={() => setPublishConfirm1(false)}
+      // handleProceed={() => handlePublishEvent('Confirmed')}
+      handleProceed={() => handlePublishEvent('publish')}
+      label1="Event launch date is less than 40 weeks"
+      label2="Are you sure you want to Publish the Event?"
+    />
+  )
 
   const confirmCancelDialog = (
     <ConfirmBox
@@ -4605,6 +4680,17 @@ function ManageEventCreate(props: any) {
       }}
       label1="Confirm 'Cancel'"
       label2="Are you sure you want to Cancel the Event?"
+    />
+  )
+
+  const confirmUpdateDialog = (
+    <ConfirmBox
+      cancelOpen={updateConfirm}
+      handleCancel={() => setUpdateConfirm(false)}
+      // handleProceed={() => handlePublishEvent('Confirmed')}
+      handleProceed={() => setUpdateEventOpen(true)}
+      label1="Event launch date is less than 40 weeks"
+      label2="Are you sure you want to Update the Event?"
     />
   )
 
@@ -4660,7 +4746,6 @@ function ManageEventCreate(props: any) {
         onRemove={handleToaster}
       />
       <LoadingComponent showLoader={isProgressLoader} />
-
       {/* <Paper className={classes.root} elevation={0}> */}
       <div
         className="manageUser" //className={classes.root}
@@ -4922,7 +5007,11 @@ function ManageEventCreate(props: any) {
                             color="primary"
                             // type="submit"
                             // onClick={() => handlePublishEvent('Confirmed')}
-                            onClick={() => setPublishConfirm(true)}
+                            onClick={
+                              checkDiffDate && checkDiffDate === true
+                                ? () => setPublishConfirm1(true)
+                                : () => setPublishConfirm(true)
+                            }
                           >
                             Publish Event
                           </Button>
@@ -4937,7 +5026,11 @@ function ManageEventCreate(props: any) {
                             color="primary"
                             // type="submit"
                             // onClick={() => handlePublishEvent('Confirmed')}
-                            onClick={() => setUpdateEventOpen(true)}
+                            onClick={
+                              checkDiffDate && checkDiffDate === true
+                                ? () => setUpdateConfirm(true)
+                                : () => setUpdateEventOpen(true)
+                            }
                             disabled={
                               eventDetails &&
                               eventDetails[0].eventStatus.toLowerCase() ===
@@ -4968,6 +5061,8 @@ function ManageEventCreate(props: any) {
       {confirmCancelDialog}
       {confirmLaunchDateDialog}
       {confirmDueDateChangeDialog}
+      {confirmPublishDialog1}
+      {confirmUpdateDialog}
     </>
   )
 }

@@ -103,6 +103,7 @@ import { Toast } from 'primereact/toast'
 import SearchSelect from '../../../RangeChangeManagement/components/SearchSelect/SearchSelect'
 import DepotviewButtons from './DepotviewButtons'
 import './styles.css'
+import { setTimeout } from 'timers'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -309,6 +310,177 @@ function DelistsAddedToRange(props: any) {
         })
     }
   }, [rafpendingActionDetailsCT06])
+
+  const callGetAfterSave = () => {
+    getRangeByIdAndMinNumber(rafpendingActionDetailsCT06.eventId, '@all')
+      .then((res: any) => {
+        console.log('1304', res.data)
+        console.log('1304', JSON.stringify(res.data))
+        const data = res.data
+        if (data.length > 0) {
+          const data = res.data.map((item: any) => {
+            var minVal = 1000000000000
+            var max = 9999999999999
+            var rand = Math.floor(minVal + Math.random() * (max - minVal))
+            return {
+              _idCheck: rand,
+              actionType: item.type,
+              lineStatus: item.eventLineStatus,
+              // itemNumber: item.itemNumber, //userinput
+              min: item.itemNumber, //userinput
+              pin: item.pin ? item.pin : null,
+              pinArray: null,
+              ingredientMin: item.ingredientMin ? item.ingredientMin : null,
+              legacyItemNumbers: item.hasOwnProperty('legacyItemNumbers')
+                ? item.legacyItemNumbers
+                : null,
+              man: item.man ? item.man : null,
+              description: item.description ? item.description : null,
+              replaceMin: item.replaceMin ? item.replaceMin : null,
+              replaceMinDescription: item.replaceMinDescription
+                ? item.replaceMinDescription
+                : null,
+              unitretailInc: 'NA', //drop2
+              unitcost: item.unitCost, //drop2
+              unitretailEx: 'NA', //drop2
+              casecost: item.caseCost ? item.caseCost : null, //drop2
+              packquantity: item.caseSize ? item.caseSize : null, //drop2
+              supplierId: item.newSupplier ? item.newSupplier : null,
+              supplierSiteNameCode: item.newSupplierSite
+                ? item.newSupplierSite
+                : null,
+              local: item.local ? item.local : null,
+              perStorepPerWeek: item.hasOwnProperty('perStorepPerWeek')
+                ? item.perStorepPerWeek
+                : null,
+              onlineCFC: item.rangestatus.online[0]
+                ? item.rangestatus.online[0] === 'Online'
+                  ? 'Y'
+                  : 'N'
+                : null,
+              onlineStorePick: item.rangestatus.retail
+                ? item.rangestatus.retail.join(',')
+                : null,
+              wholesale: item.rangestatus.wholesale
+                ? item.rangestatus.wholesale
+                : null,
+              currentnoofrangedstores: item.rangedStoresCurrent
+                ? item.rangedStoresCurrent
+                : null,
+              // currentnoofrangedstores: 100,
+              newnoofrangestores: item.rangedStoresNew
+                ? item.rangedStoresNew
+                : null,
+              currentVersusNewStores: item.currentVsNewStores
+                ? item.currentVsNewStores
+                : null,
+              storesRangedCurrentVsProposed: item.rangedStoresPercent
+                ? item.rangedStoresPercent
+                : null,
+              currentShelfFill: item.shelfFillCurrent
+                ? item.shelfFillCurrent
+                : null,
+              newShelfFill: item.shelfFillNew ? item.shelfFillNew : null,
+              currentshelffill_vs_newfill_percant: item.shelfFillPercent
+                ? item.shelfFillPercent
+                : null,
+              ownBrand: item.ownBrand ? item.ownBrand : null,
+              includeInClearancePricing: item.clearancePricing
+                ? item.clearancePricing
+                : null,
+              includeInStoreWastage: item.wastage ? item.wastage : null,
+              clearDepotBy: item.depotClearWeek ? item.depotClearWeek : null,
+              supplierCommitment: item.suppCommFixedBuysSeasonal
+                ? item.suppCommFixedBuysSeasonal
+                : null,
+              finalStopOrderDate: item.gscopdate ? item.gscopdate.date : null,
+              systemSuggestedStopOrderDate: item.stopPODates
+                ? item.stopPODates
+                : null,
+              lastPoDate: item.lastPODate ? item.lastPODate : null,
+              depotShelfLifeMinimum: item.depotShelfLife
+                ? item.depotShelfLife
+                : null,
+              productShelfLifeInstore: item.productShelfLife
+                ? item.productShelfLife
+                : null,
+              shelfLifeatManufacture: item.mfgShelfLife
+                ? item.mfgShelfLife
+                : null,
+              // newnoofrangestores: item.rangedStoresNew
+              //   ? item.rangedStoresNew
+              //   : null,
+              totalstock: null, //nokey
+              storeStockUnit: item.totalStoreStock
+                ? item.totalStoreStock
+                : null,
+              depotStockUnit: item.totalDepotStock
+                ? item.totalDepotStock
+                : null,
+              // depotStockUnit: 100,
+              openPos: item.totalOpenPurchaseOrders
+                ? item.totalOpenPurchaseOrders
+                : null,
+              forward_forecast_to_launch: item.frwdForecastToLaunch
+                ? item.frwdForecastToLaunch
+                : null,
+              averageWeeklyVolume: item.total3MonthsPOHistory
+                ? item.total3MonthsPOHistory
+                : null,
+              weeksCoveronTotalStockonHandtoResetDate: item.weeksCover
+                ? item.weeksCover
+                : null,
+              forcastedWeeksCovertoResetDate: item.forecastWeekCover
+                ? item.forecastWeekCover
+                : null,
+              excessstock: item.excessStock ? item.excessStock : null,
+              safewaybrandedequivalent: item.safewayBrandedEq
+                ? item.safewayBrandedEq
+                : null,
+              effectiveDateFrom: item.effectiveFromDate
+                ? item.effectiveFromDate
+                : null,
+              effectiveDateTo: item.effectiveToDate
+                ? item.effectiveToDate
+                : null,
+              existingSupplier: item.existingSupplier
+                ? item.existingSupplier
+                : null,
+              existingSupplierSite: item.existingSupplierSite
+                ? item.existingSupplierSite
+                : null,
+              // noOfRecipeMin: null,
+              noOfRecipeMin: 100,
+              depotClearbyReservedQtyRetail: null,
+              depotClearbyReservedQtyWholesale: null,
+              depotClearbyReservedQtyOnline: null,
+              depotClearbyReservedQtyTotal: null,
+              //
+              // comments: item.comments ? item.comments : null, //uncomment when deploying
+              // min: '500000033',
+
+              //Depot stock Unit View Model data
+              // aggregatedStoreStockUnit: item.aggregatedstorestock ? item.aggregatedstorestock : null,
+              // totalPurchaseOrdersForecast: item.totalPurchaseOrdersForecast ?item.totalPurchaseOrdersForecast:null,
+              // total3MonthsPOHistory: item.total3MonthsPOHistory ? item.total3MonthsPOHistory :null,
+              // depotClearDate: item.depotClearDate ?  item.depotClearDate :null,
+              // salesForcastToTargetDate: 'NA',
+              // systemAdvisedStopOrderDate: 'NA',
+              // derangedLocations: item.derangedLocations,
+              // rangedStoresCurrent: item.rangedStoresCurrent,
+            }
+          })
+          //  return data
+          setImportedData(data)
+          console.log('setImportedData1304@all', data)
+          console.log('ImportedData1304@all', data)
+        }
+      })
+      .catch((err: any) => {
+        console.log(err)
+      })
+  }
+
   useEffect(() => {
     // getRangeByIdAndMinNumber('3400', '@all')
     // getRangeByIdAndMinNumber('1304', '@all')
@@ -3120,7 +3292,7 @@ function DelistsAddedToRange(props: any) {
       eventDetails && {
         items: importedData.map((item: any) => {
           return {
-            itemNumber: item.min,
+            itemNumber: item.min !== 'NA' ? item.min : null,
             description: item.description,
             department: eventDetails[0].department
               ? eventDetails[0].department
@@ -3148,11 +3320,14 @@ function DelistsAddedToRange(props: any) {
               ? eventDetails[0].wastageRange
               : null,
             eventLineStatus: item.lineStatus,
-            man: item.man,
+            man: item.man !== 'NA' ? item.man : null,
             ingredientMin:
               item.ingredientMin !== 'NA' ? item.ingredientMin : null,
-            pin: item.pin,
-            replaceMinDescription: item.replaceMinDescription,
+            pin: item.pin !== 'NA' ? item.pin : null,
+            replaceMinDescription:
+              item.replaceMinDescription !== 'NA'
+                ? item.replaceMinDescription
+                : '',
             existingSupplier: item.existingSupplier,
             existingSupplierSite: item.existingSupplierSite,
             rangedStoresCurrent: item.currentnoofrangedstores,
@@ -3192,7 +3367,7 @@ function DelistsAddedToRange(props: any) {
             comments: item.comments,
             newSupplier: item.newSupplier ? item.newSupplier : null,
             newSupplierSite: item.newSupplierSite ? item.newSupplierSite : null,
-            replaceMin: item.replaceMin,
+            replaceMin: item.replaceMin !== 'NA' ? item.replaceMin : null,
             effectiveFromDate: item.effectiveDateFrom,
             effectiveToDate: item.effectiveDateTo,
           }
@@ -3207,11 +3382,13 @@ function DelistsAddedToRange(props: any) {
             {
               severity: 'success',
               summary: 'Success!',
-              detail: 'Data saved successfully',
+              detail:
+                'Data saved successfully.Please wait for sometimes to get auto population data.',
               life: life,
               className: 'login-toast',
             },
           ])
+          setTimeout(callGetAfterSave, 10000)
         })
         .catch((err: any) => {
           console.log(err)
@@ -3224,6 +3401,7 @@ function DelistsAddedToRange(props: any) {
               className: 'login-toast',
             },
           ])
+          // setTimeout(callGetAfterSave, 10000)
         })
   }
 
@@ -4899,7 +5077,7 @@ function DelistsAddedToRange(props: any) {
           lineStatus: 'Draft',
           man: 'NA',
           ingredientMin: 'NA',
-          pin: 'NA    ',
+          pin: 'NA',
           description: '',
           replaceMin: 'NA',
           replaceMinDescription: 'NA',
