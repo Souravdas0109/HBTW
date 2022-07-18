@@ -1675,6 +1675,12 @@ function ManageEventCreate(props: any) {
         } else {
           setCheckDiffDate(true)
         }
+      } else if (eventDetails[0].resetType === 'Rapid Response') {
+        if (diffDate >= 28) {
+          setCheckDiffDate(false)
+        } else {
+          setCheckDiffDate(true)
+        }
       } else {
         setCheckDiffDate(false)
       }
