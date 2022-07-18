@@ -1303,11 +1303,105 @@ function ManageTaskEvent(props: any) {
   const statusTemplate = (rowData: any) => {
     if (
       rowData.status &&
-      (rowData.status.toLowerCase() === 'draft' ||
-        rowData.status.toLowerCase() === 'confirmed' ||
-        rowData.status.toLowerCase() === 'published')
+      // rowData.status.toLowerCase() === 'draft' ||
+      rowData.status.toLowerCase() === 'confirmed'
+      // ||
+      //   rowData.status.toLowerCase() === 'published'
     ) {
       return rowData.eventStatus
+    } else if (
+      rowData.status &&
+      (rowData.status.toLowerCase() === 'draft' ||
+        rowData.status.toLowerCase() === 'published')
+    ) {
+      let sysDate1 = new Date().toISOString().split('T')[0]
+      let sysDate = new Date(sysDate1)
+      console.log(sysDate)
+      let launchDate = new Date(rowData.targetDate.split(' ')[0])
+      console.log(launchDate)
+      const diffDate =
+        (launchDate.getTime() - sysDate.getTime()) / (1000 * 60 * 60 * 24)
+      console.error(diffDate)
+      if (rowData.resetType === 'Planned Range Change') {
+        if (diffDate < 245) {
+          return (
+            <div className={classes.errorDialog}>
+              {rowData.eventStatus}
+              <LightTooltip
+                title="Event launch date is less than 35 weeks"
+                position={'right'}
+                icon={<ErrorIcon color="secondary" fontSize="small" />}
+              />
+            </div>
+          )
+        } else {
+          return rowData.eventStatus
+        }
+      }
+      if (rowData.resetType === 'Seasonal Range Change') {
+        if (diffDate < 245) {
+          return (
+            <div className={classes.errorDialog}>
+              {rowData.eventStatus}
+              <LightTooltip
+                title="Event launch date is less than 35 weeks"
+                position={'right'}
+                icon={<ErrorIcon color="secondary" fontSize="small" />}
+              />
+            </div>
+          )
+        } else {
+          return rowData.eventStatus
+        }
+      }
+      if (rowData.resetType === 'Range Reset') {
+        if (diffDate < 280) {
+          return (
+            <div className={classes.errorDialog}>
+              {rowData.eventStatus}
+              <LightTooltip
+                title="Event launch date is less than 40 weeks"
+                position={'right'}
+                icon={<ErrorIcon color="secondary" fontSize="small" />}
+              />
+            </div>
+          )
+        } else {
+          return rowData.eventStatus
+        }
+      }
+      if (rowData.resetType === 'Seasonal Range Reset') {
+        if (diffDate < 280) {
+          return (
+            <div className={classes.errorDialog}>
+              {rowData.eventStatus}
+              <LightTooltip
+                title="Event launch date is less than 40 weeks"
+                position={'right'}
+                icon={<ErrorIcon color="secondary" fontSize="small" />}
+              />
+            </div>
+          )
+        } else {
+          return rowData.eventStatus
+        }
+      }
+      if (rowData.resetType === 'Rapid Response') {
+        if (diffDate < 28) {
+          return (
+            <div className={classes.errorDialog}>
+              {rowData.eventStatus}
+              <LightTooltip
+                title="Event launch date is less than 4 weeks"
+                position={'right'}
+                icon={<ErrorIcon color="secondary" fontSize="small" />}
+              />
+            </div>
+          )
+        } else {
+          return rowData.eventStatus
+        }
+      }
     } else if (
       rowData.status &&
       rowData.status.toLowerCase().includes('duplicate')
@@ -1315,22 +1409,6 @@ function ManageTaskEvent(props: any) {
       return (
         <div className={classes.errorDialog}>
           Error
-          {/* <LightTooltip
-            title={
-              <React.Fragment>
-                <div className={classes.errorTooltip}>
-                  <Typography color="error" variant="body2">
-
-                    {tooltripWord}
-                  </Typography>
-                </div>
-              </React.Fragment>
-            }
-            arrow
-            placement="right"
-          >
-            <ErrorIcon color="error" fontSize="small" />
-          </LightTooltip> */}
           <LightTooltip
             title={rowData.status}
             position={'right'}
@@ -1368,29 +1446,6 @@ function ManageTaskEvent(props: any) {
         return (
           <div className={classes.errorDialog}>
             Error
-            {/* <LightTooltip
-              title={
-                <React.Fragment>
-                  <div className={classes.errorTooltip}>
-                    <Typography color="error" variant="body2">
-
-                      {errorArray.map((item: any, index: any) => {
-                        return (
-                          <i key={index}>
-                            {item}
-                            <br />
-                          </i>
-                        )
-                      })}
-                    </Typography>
-                  </div>
-                </React.Fragment>
-              }
-              arrow
-              placement="right"
-            >
-              <ErrorIcon color="error" fontSize="small" />
-            </LightTooltip> */}
             <LightTooltip
               title={errorArray.map((item: any, index: any) => {
                 return (
@@ -1409,21 +1464,6 @@ function ManageTaskEvent(props: any) {
         return (
           <div className={classes.errorDialog}>
             Error
-            {/* <LightTooltip
-              title={
-                <React.Fragment>
-                  <div className={classes.errorTooltip}>
-                    <Typography color="error" variant="body2">
-                      {rowData.status}
-                    </Typography>
-                  </div>
-                </React.Fragment>
-              }
-              arrow
-              placement="right"
-            >
-              <ErrorIcon color="error" fontSize="small" />
-            </LightTooltip> */}
             <LightTooltip
               title={rowData.status}
               position={'right'}

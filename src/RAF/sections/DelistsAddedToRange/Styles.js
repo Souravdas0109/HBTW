@@ -11,6 +11,10 @@ export const useStyles = makeStyles((theme) => {
       color: 'blue',
       fontWeight: 'bold',
     },
+    blueTextButton: {
+      cursor: 'pointer',
+      fontWeight: 'bold',
+    },
     uploadTextfield: {
       width: '100%',
       height: '32px',
@@ -106,6 +110,11 @@ export const useStyles = makeStyles((theme) => {
     //         color: "white",
     //     },
     // },
+    disabled_color: {
+      '& .MuiIconButton-label': {
+        color: '#004e37 !important',
+      },
+    },
     whiteButton: {
       borderColor: theme.palette.primary.main,
       border: '1px solid',

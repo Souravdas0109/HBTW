@@ -234,6 +234,7 @@ function ManageEventCreate(props: any) {
   const [dueDateChangePublish, setDueDateChangePublish] = useState(false)
 
   const [checkDiffDate, setCheckDiffDate] = useState(false)
+  const [checkDiffDateMessage, setCheckDiffDateMessage] = useState('')
 
   // const [referenceDocData, setReferenceDocData] = React.useState<Array<any>>([])
   const [referenceDocData, setReferenceDocData] = React.useState<any>()
@@ -1656,30 +1657,35 @@ function ManageEventCreate(props: any) {
           setCheckDiffDate(false)
         } else {
           setCheckDiffDate(true)
+          setCheckDiffDateMessage('Event launch date is less than 35 weeks')
         }
       } else if (eventDetails[0].resetType === 'Seasonal Range Change') {
         if (diffDate >= 245) {
           setCheckDiffDate(false)
         } else {
           setCheckDiffDate(true)
+          setCheckDiffDateMessage('Event launch date is less than 35 weeks')
         }
       } else if (eventDetails[0].resetType === 'Range Reset') {
         if (diffDate >= 280) {
           setCheckDiffDate(false)
         } else {
           setCheckDiffDate(true)
+          setCheckDiffDateMessage('Event launch date is less than 40 weeks')
         }
       } else if (eventDetails[0].resetType === 'Seasonal Range Reset') {
         if (diffDate >= 280) {
           setCheckDiffDate(false)
         } else {
           setCheckDiffDate(true)
+          setCheckDiffDateMessage('Event launch date is less than 40 weeks')
         }
       } else if (eventDetails[0].resetType === 'Rapid Response') {
         if (diffDate >= 28) {
           setCheckDiffDate(false)
         } else {
           setCheckDiffDate(true)
+          setCheckDiffDateMessage('Event launch date is less than 4 weeks')
         }
       } else {
         setCheckDiffDate(false)
@@ -4670,7 +4676,7 @@ function ManageEventCreate(props: any) {
       handleCancel={() => setPublishConfirm1(false)}
       // handleProceed={() => handlePublishEvent('Confirmed')}
       handleProceed={() => handlePublishEvent('publish')}
-      label1="Event launch date is less than 40 weeks"
+      label1={checkDiffDateMessage}
       label2="Are you sure you want to Publish the Event?"
     />
   )
@@ -4695,7 +4701,7 @@ function ManageEventCreate(props: any) {
       handleCancel={() => setUpdateConfirm(false)}
       // handleProceed={() => handlePublishEvent('Confirmed')}
       handleProceed={() => setUpdateEventOpen(true)}
-      label1="Event launch date is less than 40 weeks"
+      label1={checkDiffDateMessage}
       label2="Are you sure you want to Update the Event?"
     />
   )
