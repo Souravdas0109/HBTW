@@ -358,15 +358,25 @@ export const productListCols = [
     width: '200px',
   },
   {
-    field: 'supplierId',
+    field: 'existingSupplier',
     header: 'Supplier Name',
     width: '200px',
   },
   {
-    field: 'supplierSiteNameCode',
+    field: 'existingSupplierSite',
     header: 'Supplier Site Name & Code',
     width: '200px',
   },
+  // {
+  //   field: 'existingSupplier',
+  //   header: 'Existing Supplier',
+  //   width: '150px',
+  // },
+  // {
+  //   field: 'existingSupplierSite',
+  //   header: 'Existing Supplier Site',
+  //   width: '150px',
+  // },
   {
     field: 'local',
     // header: "Local",
@@ -567,16 +577,7 @@ export const productListCols = [
     header: 'Effective Date (To)',
     width: '200px',
   },
-  {
-    field: 'existingSupplier',
-    header: 'Existing Supplier',
-    width: '150px',
-  },
-  {
-    field: 'existingSupplierSite',
-    header: 'Existing Supplier Site',
-    width: '150px',
-  },
+
   {
     field: 'newSupplier',
     header: 'New Supplier',
@@ -1990,3 +1991,92 @@ export const recipeMinDummy = {
     },
   ],
 }
+
+// const delistProductMin = "Delist Product (MIN)";
+// const productDistributionIncreaseMin =
+//   "Product Distribution Increase (MIN)";
+// const productDistributionDecreaseMin =
+//   "Product Distribution Decrease (MIN)";
+// const productShelfSpaceIncrease = "Product Shelf Space Increase";
+// const productShelfSpaceDecrease = "Product Shelf Space Decrease";
+// const newProductMin = "New Product (MIN)";
+// const newOutercaseCode = "New Outercase Code (PIN)";
+// const delistOutercaseCode = "Delist Outercase Code (PIN)";
+// const newIngredientMin = "New Ingredient (MIN)";
+// const delistIngredientMin = "Delist Ingredient (MIN)";
+// const supplyChange = "Supplier Change";
+// const placeholderMin = "New Product (MIN) Placeholder";
+
+export const actionTypeList = {
+  delistProductMin: 'Delist Product (MIN)',
+  productDistributionIncreaseMin: 'Product Distribution Increase (MIN)',
+  productDistributionDecreaseMin: 'Product Distribution Decrease (MIN)',
+  productShelfSpaceIncrease: 'Product Shelf Space Increase',
+  productShelfSpaceDecrease: 'Product Shelf Space Decrease',
+  newProductMin: 'New Product (MIN)',
+  newOutercaseCode: 'New Outercase Code (PIN)',
+  delistOutercaseCode: 'Delist Outercase Code (PIN)',
+  newIngredientMin: 'New Ingredient (MIN)',
+  delistIngredientMin: 'Delist Ingredient (MIN)',
+  supplyChange: 'Supplier Change',
+  placeholderMin: 'New Product (MIN) Placeholder',
+}
+// let delistMinHover =
+//     'Product to delist from all distribution points (Stores, Online,Wholesale and Group)'
+//   let productDistributionIncreaseMinHover =
+//     'To request an increase in the of number stores a product is ranged in'
+//   let productDistributionDecreaseMinHover =
+//     'To request an Decrease in the of number stores a product is ranged in'
+//   let productShelfSpaceIncreaseHover =
+//     'To request an increase of space on shelf for a product remaining in the same store distribution'
+//   let productShelfSpaceDecreaseHover =
+//     'To request an decrease of space on shelf for a product remaining in the same store distribution'
+//   let newProductMinHover = 'New product to range'
+//   let newOutercaseCodeHover =
+//     'New outercase code linked to an existing MIN. e.g. Outercase moves from a case of 12 to a case of 6'
+//   let delistOutercaseCodeHover =
+//     'Delist outercase code linked to an existing MIN. e.g. Removing an outercase size'
+//   let newIngredientMinHover =
+//     'New ingredient MIN e.g. Market Street bulk 16kg flour for use in the instore bakery'
+//   let delistIngredientMinHover =
+//     'Delist ingredient MIN e.g. Market Street bulk 16kg flour for use in the instore bakery'
+//   let supplyChangeHover = 'Change of Supplier, the MIN and PIN remain the same'
+//   let placeholderMinHover =
+//     'Select if New Line Form Process has not began to trigger a new line set up. This line will populate with details once the new line set up process is complete'
+export const actionTypeListHovers = {
+  delistMinHover:
+    'Product to delist from all distribution points (Stores, Online,Wholesale and Group)',
+  productDistributionIncreaseMinHover:
+    'To request an increase in the of number stores a product is ranged in',
+  productDistributionDecreaseMinHover:
+    'To request an Decrease in the of number stores a product is ranged in',
+  productShelfSpaceIncreaseHover:
+    'To request an increase of space on shelf for a product remaining in the same store distribution',
+  productShelfSpaceDecreaseHover:
+    'To request an decrease of space on shelf for a product remaining in the same store distribution',
+  newProductMinHover: 'New product to range',
+  newOutercaseCodeHover:
+    'New outercase code linked to an existing MIN. e.g. Outercase moves from a case of 12 to a case of 6',
+  delistOutercaseCodeHover:
+    'Delist outercase code linked to an existing MIN. e.g. Removing an outercase size',
+  newIngredientMinHover:
+    'New ingredient MIN e.g. Market Street bulk 16kg flour for use in the instore bakery',
+  delistIngredientMinHover:
+    'Delist ingredient MIN e.g. Market Street bulk 16kg flour for use in the instore bakery',
+  supplyChangeHover: 'Change of Supplier, the MIN and PIN remain the same',
+  placeholderMinHover:
+    'Select if New Line Form Process has not began to trigger a new line set up. This line will populate with details once the new line set up process is complete',
+}
+
+//delistProductMin add-done upload-done
+//productDistributionIncreaseMin add-no upload-done
+//productDistributionDecreaseMin add-no upload-done
+//productShelfSpaceIncrease add-done upload-done
+//productShelfSpaceDecrease add-done upload-done
+//newProductMin add-done upload-done
+//newOutercaseCode add-done upload-done
+//delistOutercaseCode add-done upload-done
+//newIngredientMin add-done upload-done
+//delistIngredientMin add-done upload-done
+//supplyChange add-no upload-done
+//placeholderMin add-done upload-done

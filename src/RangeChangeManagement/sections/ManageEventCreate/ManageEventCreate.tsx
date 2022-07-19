@@ -3513,6 +3513,7 @@ function ManageEventCreate(props: any) {
 
   const dueDateTemplate = (rowData: any) => {
     const dueDate = rowData['dueDate']
+    // const targetDate = eventDetails && eventDetails[0].targetDate
     return (
       <DatePicker
         disabled={rowData.visibility === 'Enabled' ? false : true}
@@ -3541,6 +3542,7 @@ function ManageEventCreate(props: any) {
         //   //   fontSize: aboveSm ? '0.8rem' : '0.65rem',
         //   background: '#e9ecef',
         // }}
+        // maxDate={targetDate}
         minDate={new Date()}
       />
     )

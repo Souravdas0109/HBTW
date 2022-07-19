@@ -71,6 +71,8 @@ import {
   depotViewResDummy,
   storeViewDummyRes,
   regionsButtonsDummy,
+  actionTypeList,
+  actionTypeListHovers,
   // supplierCodes
 } from './DataConstants'
 // import TextFieldWithSearch from './sections/TextFieldWithSearch/TextFieldWithSearch'
@@ -134,6 +136,39 @@ function DelistsAddedToRange(props: any) {
   const history = useHistory()
   const small = useMediaQuery(theme.breakpoints.up('md'))
   const radio = <Radio color="primary" />
+  const {
+    delistProductMin,
+    productDistributionIncreaseMin,
+    productDistributionDecreaseMin,
+    productShelfSpaceIncrease,
+    productShelfSpaceDecrease,
+    newProductMin,
+    newOutercaseCode,
+    delistOutercaseCode,
+    newIngredientMin,
+    delistIngredientMin,
+    supplyChange,
+    placeholderMin,
+  }: any = actionTypeList
+  const {
+    delistMinHover,
+    productDistributionIncreaseMinHover,
+    productDistributionDecreaseMinHover,
+    productShelfSpaceIncreaseHover,
+    productShelfSpaceDecreaseHover,
+    newProductMinHover,
+    newOutercaseCodeHover,
+    delistOutercaseCodeHover,
+    newIngredientMinHover,
+    delistIngredientMinHover,
+    supplyChangeHover,
+    placeholderMinHover,
+  }: any = actionTypeListHovers
+  console.log(
+    'actionTypeList',
+    delistProductMin,
+    productDistributionIncreaseMin
+  )
 
   const [productType, setProductType] = useState<any>('existingProducts')
   // const [eventDetails, setEventDetails] = useState<any>(delistToRangeData)
@@ -352,8 +387,8 @@ function DelistsAddedToRange(props: any) {
               unitretailEx: 'NA', //drop2
               casecost: item.caseCost ? item.caseCost : null, //drop2
               packquantity: item.caseSize ? item.caseSize : null, //drop2
-              supplierId: item.newSupplier ? item.newSupplier : null,
-              supplierSiteNameCode: item.newSupplierSite
+              newSupplier: item.newSupplier ? item.newSupplier : null,
+              newSupplierSite: item.newSupplierSite
                 ? item.newSupplierSite
                 : null,
               local: item.local ? item.local : null,
@@ -625,7 +660,7 @@ function DelistsAddedToRange(props: any) {
         <>{data}</>
       )
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const onlineCFCTemplate = (rowData: any) => {
@@ -673,7 +708,7 @@ function DelistsAddedToRange(props: any) {
         <>{data}</>
       )
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const onlineStorePickTemplate = (rowData: any) => {
@@ -730,7 +765,7 @@ function DelistsAddedToRange(props: any) {
         <>{data}</>
       )
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const wholesaleTemplate = (rowData: any) => {
@@ -779,7 +814,7 @@ function DelistsAddedToRange(props: any) {
         <>{data}</>
       )
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   // const pinTemplate = () => {
@@ -815,6 +850,127 @@ function DelistsAddedToRange(props: any) {
         })}
       </Select>
     )
+  }
+  const legacyItemNumbersImportedTemplate = (rowData: any) => {
+    // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    // if (editClick && check.length > 0 && check[0].min === rowData.min) {
+    //   return (
+    //     // <OutlinedInput
+    //     //   value={rowData && rowData.legacyItemNumbers}
+    //     //   onChange={(e: any) => {
+    //     //     setImportedData((prevState: any) => {
+    //     //       return onChangeProductTableFields(
+    //     //         prevState,
+    //     //         'legacyItemNumbers',
+    //     //         rowData,
+    //     //         e.target.value
+    //     //       )
+    //     //     })
+    //     //   }}
+    //     //   className={classes.tableTextField}
+    //     // />
+    //     <DelistInputEdit
+    //       rowData={rowData}
+    //       setImportedData={setImportedData}
+    //       onChangeProductTableFields={onChangeProductTableFields}
+    //       field={'legacyItemNumbers'}
+    //     />
+    //   )
+    // } else {
+    //   return <>{rowData && rowData.legacyItemNumbers}</>
+    // }
+
+    if (
+      rowData &&
+      rowData.hasOwnProperty('legacyItemNumbers') &&
+      rowData.legacyItemNumbers
+    ) {
+      if (
+        rowData.actionType !== placeholderMin ||
+        rowData.actionType !== supplyChange
+      ) {
+        return <>{rowData && rowData.legacyItemNumbers}</>
+      } else {
+        return <>NA</>
+      }
+    }
+  }
+  const manImportedTemplate = (rowData: any) => {
+    if (rowData && rowData.hasOwnProperty('man') && rowData.man) {
+      if (
+        rowData.actionType !== placeholderMin ||
+        rowData.actionType !== supplyChange
+      ) {
+        return <>{rowData && rowData.man}</>
+      } else {
+        return <>NA</>
+      }
+    } else {
+    }
+  }
+  const caseCostImportedTemplate = (rowData: any) => {
+    // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    // if (editClick && check.length > 0 && check[0].min === rowData.min) {
+    //   return (
+    //     <DelistInputEdit
+    //       rowData={rowData}
+    //       setImportedData={setImportedData}
+    //       onChangeProductTableFields={onChangeProductTableFields}
+    //       field={'casecost'}
+    //     />
+    //   )
+    // } else {
+    //   return <>{rowData && rowData.casecost}</>
+    // }
+    if (rowData.actionType !== supplyChange) {
+      return <>{rowData && rowData.casecost}</>
+    } else {
+      return <>NA</>
+    }
+  }
+  const packQuantityImportedTemplate = (rowData: any) => {
+    // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    // if (editClick && check.length > 0 && check[0].min === rowData.min) {
+    //   return (
+    //     <DelistInputEdit
+    //       rowData={rowData}
+    //       setImportedData={setImportedData}
+    //       onChangeProductTableFields={onChangeProductTableFields}
+    //       field={'packquantity'}
+    //     />
+    //   )
+    // } else {
+    //   return <>{rowData && rowData.packquantity}</>
+    // }
+    if (rowData.actionType !== supplyChange) {
+      return <>{rowData && rowData.packquantity}</>
+    } else {
+      return <>NA</>
+    }
+  }
+  const replaceMinDescriptionImportedTemplate = (rowData: any) => {
+    // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    // if (editClick && check.length > 0 && check[0].min === rowData.min) {
+    //   return (
+    //     <DelistInputEdit
+    //       rowData={rowData}
+    //       setImportedData={setImportedData}
+    //       onChangeProductTableFields={onChangeProductTableFields}
+    //       field={'replaceMinDescription'}
+    //     />
+    //   )
+    // } else {
+    //   return <>{rowData && rowData.replaceMinDescription}</>
+    // }
+    return <>{rowData && rowData.replaceMinDescription}</>
+  }
+
+  const unitCostImportedTemplate = (rowData: any) => {
+    if (rowData.actionType !== supplyChange) {
+      return <>{rowData && rowData.unitcost}</>
+    } else {
+      return <>NA</>
+    }
   }
 
   const includeInClearancePricingTemplate = (rowData: any) => {
@@ -852,7 +1008,7 @@ function DelistsAddedToRange(props: any) {
       //   return <>{rowData.includeInClearancePricing}</>
       // }
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const clearDepotByTemplate = (rowData: any) => {
@@ -894,130 +1050,130 @@ function DelistsAddedToRange(props: any) {
   }
 
   const effectiveDateFromProductTableTemplate = (rowData: any) => {
-    if (
-      rowData &&
-      rowData.hasOwnProperty('effectiveDateFrom') &&
-      rowData.effectiveDateFrom !== ''
-    ) {
-      return (
-        <DatePicker
-          format="dd/MM/yy"
-          value={
-            rowData &&
-            (rowData['effectiveDateFrom'] ? rowData['effectiveDateFrom'] : null)
-          }
-          onChange={(date: any) => {
-            let newDate = date.toISOString().split('T')[0]
-            setImportedData((prevState: any) => {
-              return onChangeProductTableFields(
-                prevState,
-                'effectiveDateFrom',
-                rowData,
-                newDate
-              )
-            })
-          }}
-          TextFieldComponent={(props: any) => (
-            <OutlinedInput
-              margin="dense"
-              onClick={props.onClick}
-              value={props.value}
-              onChange={props.onChange}
-              // className={classes.dateFields}
-            />
-          )}
-        />
-      )
-    } else {
-      return <>NA</>
-    }
+    // if (
+    //   rowData &&
+    //   rowData.hasOwnProperty('effectiveDateFrom') &&
+    //   rowData.effectiveDateFrom !== ''
+    // ) {
+    return (
+      <DatePicker
+        format="dd/MM/yy"
+        value={
+          rowData &&
+          (rowData['effectiveDateFrom'] ? rowData['effectiveDateFrom'] : null)
+        }
+        onChange={(date: any) => {
+          let newDate = date.toISOString().split('T')[0]
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'effectiveDateFrom',
+              rowData,
+              newDate
+            )
+          })
+        }}
+        TextFieldComponent={(props: any) => (
+          <OutlinedInput
+            margin="dense"
+            onClick={props.onClick}
+            value={props.value}
+            onChange={props.onChange}
+            // className={classes.dateFields}
+          />
+        )}
+      />
+    )
+    // } else {
+    //   return <>NA</>
+    // }
   }
   const effectiveDateToProductTableTemplate = (rowData: any) => {
-    if (
-      rowData &&
-      rowData.hasOwnProperty('effectiveDateTo') &&
-      rowData.effectiveDateTo !== ''
-    ) {
-      return (
-        <DatePicker
-          format="dd/MM/yy"
-          value={
-            rowData &&
-            (rowData['effectiveDateTo'] ? rowData['effectiveDateTo'] : null)
-          }
-          onChange={(date: any) => {
-            let newDate = date.toISOString().split('T')[0]
-            setImportedData((prevState: any) => {
-              return onChangeProductTableFields(
-                prevState,
-                'effectiveDateTo',
-                rowData,
-                newDate
-              )
-            })
-          }}
-          TextFieldComponent={(props: any) => (
-            <OutlinedInput
-              margin="dense"
-              onClick={props.onClick}
-              value={props.value}
-              onChange={props.onChange}
-              // className={classes.dateFields}
-            />
-          )}
-        />
-      )
-    } else {
-      return <>NA</>
-    }
+    // if (
+    //   rowData &&
+    //   rowData.hasOwnProperty('effectiveDateTo') &&
+    //   rowData.effectiveDateTo !== ''
+    // ) {
+    return (
+      <DatePicker
+        format="dd/MM/yy"
+        value={
+          rowData &&
+          (rowData['effectiveDateTo'] ? rowData['effectiveDateTo'] : null)
+        }
+        onChange={(date: any) => {
+          let newDate = date.toISOString().split('T')[0]
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'effectiveDateTo',
+              rowData,
+              newDate
+            )
+          })
+        }}
+        TextFieldComponent={(props: any) => (
+          <OutlinedInput
+            margin="dense"
+            onClick={props.onClick}
+            value={props.value}
+            onChange={props.onChange}
+            // className={classes.dateFields}
+          />
+        )}
+      />
+    )
+    // } else {
+    //   return <>NA</>
+    // }
   }
   const finalStopOrderDateTemplate = (rowData: any) => {
-    if (
-      rowData &&
-      rowData.hasOwnProperty('finalStopOrderDate') &&
-      rowData.finalStopOrderDate !== ''
-    ) {
-      return (
-        <DatePicker
-          format="dd/MM/yy"
-          value={
-            rowData &&
-            (rowData['finalStopOrderDate']
-              ? rowData['finalStopOrderDate']
-              : null)
-          }
-          onChange={(date: any) => {
-            let newDate = date.toISOString().split('T')[0]
-            setImportedData((prevState: any) => {
-              return onChangeProductTableFields(
-                prevState,
-                'finalStopOrderDate',
-                rowData,
-                newDate
-              )
-            })
-          }}
-          TextFieldComponent={(props: any) => (
-            <OutlinedInput
-              margin="dense"
-              onClick={props.onClick}
-              value={props.value}
-              onChange={props.onChange}
-              // className={classes.dateFields}
-            />
-          )}
-        />
-      )
-    } else {
-      return <>NA</>
-    }
+    // if (
+    //   rowData &&
+    //   rowData.hasOwnProperty('finalStopOrderDate') &&
+    //   rowData.finalStopOrderDate !== ''
+    // ) {
+    return (
+      <DatePicker
+        format="dd/MM/yy"
+        value={
+          rowData &&
+          (rowData['finalStopOrderDate'] ? rowData['finalStopOrderDate'] : null)
+        }
+        onChange={(date: any) => {
+          let newDate = date.toISOString().split('T')[0]
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'finalStopOrderDate',
+              rowData,
+              newDate
+            )
+          })
+        }}
+        TextFieldComponent={(props: any) => (
+          <OutlinedInput
+            margin="dense"
+            onClick={props.onClick}
+            value={props.value}
+            onChange={props.onChange}
+            // className={classes.dateFields}
+          />
+        )}
+      />
+    )
+    // } else {
+    //   return <>NA</>
+    // }
   }
   const systemGeneratedStopOrderDateTemplate = (rowData: any) => {
     if (
-      rowData &&
-      //rowData.actionType === 'Delist Product (MIN)' &&
-      rowData.hasOwnProperty('systemSuggestedStopOrderDate') &&
-      rowData.systemSuggestedStopOrderDate !== ''
+      (rowData &&
+        // rowData.actionType === delistProductMin &&
+        rowData.hasOwnProperty('systemSuggestedStopOrderDate') &&
+        rowData.systemSuggestedStopOrderDate !== '' &&
+        rowData.actionType === delistProductMin) ||
+      rowData.actionType === delistOutercaseCode
     ) {
       return (
         <DatePicker
@@ -1051,14 +1207,15 @@ function DelistsAddedToRange(props: any) {
         />
       )
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const lastPoDateTemplate = (rowData: any) => {
     if (
       rowData &&
       rowData.hasOwnProperty('lastPoDate') &&
-      rowData.lastPoDate !== ''
+      rowData.lastPoDate !== '' &&
+      rowData.actionType !== placeholderMin
     ) {
       // if (rowData.actionType === 'Delist Product (MIN)') {
       return (
@@ -1093,7 +1250,7 @@ function DelistsAddedToRange(props: any) {
       //   return <>{rowData.lastPoDate}</>
       // }
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const includeInStoreWastageTemplate = (rowData: any) => {
@@ -1126,38 +1283,38 @@ function DelistsAddedToRange(props: any) {
       //   return <>{rowData.includeInStoreWastage}</>
       // }
     } else {
-      return <>NA</>
+      return <></>
     }
   }
   const supplierCommitmentTemplate = (rowData: any) => {
-    if (
-      rowData &&
-      rowData.hasOwnProperty('supplierCommitment') &&
-      rowData.supplierCommitment
-    ) {
-      // if (rowData.actionType === 'Delist Product (MIN)') {
-      return (
-        <OutlinedInput
-          value={rowData && rowData.supplierCommitment}
-          onChange={(e: any) => {
-            setImportedData((prevState: any) => {
-              return onChangeProductTableFields(
-                prevState,
-                'supplierCommitment',
-                rowData,
-                e.target.value
-              )
-            })
-          }}
-          className={classes.tableTextField}
-        />
-      )
-      // } else {
-      //   return <>{rowData.supplierCommitment}</>
-      // }
-    } else {
-      return <>NA</>
-    }
+    // if (
+    //   rowData &&
+    //   rowData.hasOwnProperty('supplierCommitment') &&
+    //   rowData.supplierCommitment
+    // ) {
+    // if (rowData.actionType === 'Delist Product (MIN)') {
+    return (
+      <OutlinedInput
+        value={rowData && rowData.supplierCommitment}
+        onChange={(e: any) => {
+          setImportedData((prevState: any) => {
+            return onChangeProductTableFields(
+              prevState,
+              'supplierCommitment',
+              rowData,
+              e.target.value
+            )
+          })
+        }}
+        className={classes.tableTextField}
+      />
+    )
+    // } else {
+    //   return <>{rowData.supplierCommitment}</>
+    // }
+    // } else {
+    //   return <>NA</>
+    // }
   }
   const convertedTargetDateTemplate = (rowData: any) => {
     if (rowData.targetDate) {
@@ -1234,9 +1391,9 @@ function DelistsAddedToRange(props: any) {
   const pinProductListTemplate = (rowData: any) => {
     if (
       rowData &&
-      (rowData.actionType === 'Derange' ||
-        rowData.actionType === 'Delist Product (MIN)' ||
-        rowData.actionType === 'Delist')
+      (rowData.actionType !== supplyChange ||
+        rowData.actionType !== delistOutercaseCode ||
+        rowData.actionType !== newOutercaseCode)
     ) {
       return (
         <>
@@ -1586,7 +1743,7 @@ function DelistsAddedToRange(props: any) {
         getAndCheckItemNumber([
           ingredient.ingredientMin,
           // '100001499',
-          'Delist Ingredient (MIN)',
+          delistIngredientMin,
           '',
           '',
           'NA',
@@ -1685,9 +1842,12 @@ function DelistsAddedToRange(props: any) {
     // console.log('ingredientMinTemplate', rowData)
     if (
       rowData &&
-      (rowData.actionType === 'Derange' ||
-        rowData.actionType === 'Delist Product (MIN)' ||
-        rowData.actionType === 'Delist')
+      (rowData.actionType !== delistOutercaseCode ||
+        rowData.actionType !== placeholderMin ||
+        rowData.actionType !== newOutercaseCode ||
+        rowData.actionType !== supplyChange ||
+        rowData.actionType !== newIngredientMin ||
+        rowData.actionType !== delistIngredientMin)
     ) {
       return (
         <>
@@ -1699,13 +1859,13 @@ function DelistsAddedToRange(props: any) {
               {rowData.ingredientMin}
             </div>
           ) : (
-            'NA'
+            ''
           )}
         </>
       )
     } else {
       return (
-        <>{rowData && rowData.ingredientMin ? rowData.ingredientMin : 'NA'}</>
+        <>{rowData && rowData.ingredientMin ? rowData.ingredientMin : ''}</>
       )
     }
   }
@@ -1769,9 +1929,9 @@ function DelistsAddedToRange(props: any) {
     // console.log('ingredientMinTemplate', rowData)
     if (
       rowData &&
-      (rowData.actionType === 'Derange' ||
-        rowData.actionType === 'Delist Ingredient (MIN)' ||
-        rowData.actionType === 'New Ingredient (MIN)')
+      (rowData.actionType !== delistOutercaseCode ||
+        rowData.actionType !== newOutercaseCode ||
+        rowData.actionType !== supplyChange)
     ) {
       return (
         <>
@@ -1783,7 +1943,7 @@ function DelistsAddedToRange(props: any) {
               {rowData.noOfRecipeMin}
             </div>
           ) : (
-            'NA'
+            ''
           )}
         </>
       )
@@ -1985,27 +2145,20 @@ function DelistsAddedToRange(props: any) {
     if (
       rowData &&
       rowData.hasOwnProperty('depotStockUnit') &&
-      rowData.depotStockUnit
+      rowData.depotStockUnit &&
+      rowData.actionType !== placeholderMin
     ) {
-      if (
-        rowData.actionType === 'Delist' ||
-        rowData.actionType === 'Delist Product (MIN)' ||
-        rowData.actionType === 'Delist'
-      ) {
-        return (
-          <div
-            onClick={() => handleDepotStockDialogOpen(rowData)}
-            className={classes.tableLinks}
-          >
-            {rowData.depotStockUnit}
-            {/* click */}
-          </div>
-        )
-      } else {
-        return <> {rowData.depotStockUnit}</>
-      }
+      return (
+        <div
+          onClick={() => handleDepotStockDialogOpen(rowData)}
+          className={classes.tableLinks}
+        >
+          {rowData.depotStockUnit}
+          {/* click */}
+        </div>
+      )
     } else {
-      return <>NA</>
+      return <>0</>
     }
   }
   useEffect(() => {
@@ -2098,13 +2251,14 @@ function DelistsAddedToRange(props: any) {
           result.map((d: any, index: any) => {
             if (
               d.ActionType &&
-              d.ActionType === 'Delist Product (MIN)' &&
-              actionType.value === 'Delist Product (MIN)' //for multipe excel files upload remove actiontype.value in all types
+              d.ActionType === delistProductMin &&
+              actionType.value === delistProductMin &&
+              d.MINPIN !== undefined //for multipe excel files upload remove actiontype.value in all types
               // || actionType === undefined
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
-                'Delist Product (MIN)',
+                delistProductMin,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2119,12 +2273,13 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'New Product (MIN)' &&
-              actionType.value === 'New Product (MIN)'
+              d.ActionType === newProductMin &&
+              actionType.value === newProductMin &&
+              d.MINPIN !== undefined
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
-                'New Product (MIN)',
+                newProductMin,
                 index + 1,
                 d.Comments, //optional
                 d.NewNumberofRangeStores, //optional
@@ -2139,12 +2294,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Delist Ingredient (MIN)' &&
-              actionType.value === 'Delist Ingredient (MIN)'
+              d.ActionType === delistIngredientMin &&
+              actionType.value === delistIngredientMin
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
-                'Delist Ingredient (MIN)',
+                delistIngredientMin,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2159,12 +2314,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'New Ingredient (MIN)' &&
-              actionType.value === 'New Ingredient (MIN)'
+              d.ActionType === newIngredientMin &&
+              actionType.value === newIngredientMin
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
-                'New Ingredient (MIN)',
+                newIngredientMin,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2179,12 +2334,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Delist Outercase Code (PIN)' &&
-              actionType.value === 'Delist Outercase Code (PIN)'
+              d.ActionType === delistOutercaseCode &&
+              actionType.value === delistOutercaseCode
             ) {
               getAndCheckItemNumber([
                 d.MINPIN,
-                'Delist Outercase Code (PIN)',
+                delistOutercaseCode,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2199,12 +2354,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'New Outercase Code (PIN)' &&
-              actionType.value === 'New Outercase Code (PIN)'
+              d.ActionType === newOutercaseCode &&
+              actionType.value === newOutercaseCode
             ) {
               getAndCheckItemNumber([
                 d.MINPIN,
-                'New Outercase Code (PIN)',
+                newOutercaseCode,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2219,12 +2374,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Product Shelf Space Increase' &&
-              actionType.value === 'Product Shelf Space Increase'
+              d.ActionType === productShelfSpaceIncrease &&
+              actionType.value === productShelfSpaceIncrease
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
-                'Product Shelf Space Increase',
+                productShelfSpaceIncrease,
                 index + 1,
                 d.Comments,
                 'NA',
@@ -2239,12 +2394,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Product Shelf Space Decrease' &&
-              actionType.value === 'Product Shelf Space Decrease'
+              d.ActionType === productShelfSpaceDecrease &&
+              actionType.value === productShelfSpaceDecrease
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
-                'Product Shelf Space Decrease',
+                productShelfSpaceDecrease,
                 index + 1,
                 d.Comments,
                 'NA',
@@ -2259,12 +2414,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Supplier Change' &&
-              actionType.value === 'Supplier Change'
+              d.ActionType === supplyChange &&
+              actionType.value === supplyChange
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
-                'Supplier Change',
+                supplyChange,
                 index + 1,
                 d.Comments, //optional
                 'NA',
@@ -2280,13 +2435,14 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Product Distribution Decrease (MIN)' &&
-              actionType.value === 'Product Distribution Decrease (MIN)' &&
+              d.ActionType === productDistributionDecreaseMin &&
+              // actionType.includes(productDistributionDecreaseMin) &&
+              actionType.value === productDistributionDecreaseMin &&
               d.NewNumberofStoresRestrictions !== undefined
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
-                'Product Distribution Decrease (MIN)',
+                productDistributionDecreaseMin,
                 index + 1,
                 d.Comments, //optional
                 // d.NewNumberofRangeStores, // Mandatory
@@ -2302,12 +2458,12 @@ function DelistsAddedToRange(props: any) {
               ])
             } else if (
               d.ActionType &&
-              d.ActionType === 'Product Distribution Increase (MIN)' &&
-              actionType.value === 'Product Distribution Increase (MIN)'
+              d.ActionType === productDistributionIncreaseMin &&
+              actionType.value === productDistributionIncreaseMin
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, //Mandatory
-                'Product Distribution Increase (MIN)',
+                productDistributionIncreaseMin,
                 index + 1,
                 d.Comments, //optional
                 d.NewNumberofRangeStores, //optional
@@ -2320,6 +2476,8 @@ function DelistsAddedToRange(props: any) {
                 '',
                 '',
               ])
+            } else if (d.ActionType && d.ActionType === placeholderMin) {
+              ///placeholder do here for bulk upload
             } else {
               console.log(d.MINPIN + 'Error')
               // setExceelErrors((prevState: any) => {
@@ -2586,13 +2744,12 @@ function DelistsAddedToRange(props: any) {
       _idCheck: rand,
       actionType: type,
       lineStatus:
-        actionTypeSelected === 'Delist Product (MIN)' ||
-        type === 'Delist Product (MIN)'
+        actionTypeSelected === delistProductMin || type === delistProductMin
           ? 'Request For Stock Count'
           : 'Draft',
       min: min ? min : minValue,
       pin: '',
-      ingredientMin: 'NA',
+      ingredientMin: '',
       ingredientDetails: '',
       legacyItemNumbers: '',
       man: '',
@@ -2611,18 +2768,18 @@ function DelistsAddedToRange(props: any) {
       onlineCFC: 'Y',
       onlineStorePick: 'Y',
       wholesale: 'Y',
-      currentnoofrangedstores: '',
-      newnoofrangestores: 'NA', //current
+      currentnoofrangedstores: 0,
+      newnoofrangestores: 0, //current
       // newnoofrangestores:"",
-      currentVersusNewStores: '',
-      storesRangedCurrentVsProposed: '',
-      currentShelfFill: '',
-      newShelfFill: '',
-      currentshelffill_vs_newfill: '',
-      currentshelffill_vs_newfill_percant: '',
+      currentVersusNewStores: 0,
+      storesRangedCurrentVsProposed: 0,
+      currentShelfFill: 0,
+      newShelfFill: 0,
+      currentshelffill_vs_newfill: 0,
+      currentshelffill_vs_newfill_percant: 0,
       ownBrand: 'Y',
-      includeInClearancePricing: 'NA',
-      includeInStoreWastage: 'NA',
+      includeInClearancePricing: '',
+      includeInStoreWastage: '',
       clearDepotBy: '',
       supplierCommitment: '',
       finalStopOrderDate: '',
@@ -2652,7 +2809,7 @@ function DelistsAddedToRange(props: any) {
       depotClearbyReservedQtyTotal: '',
       comments: comments,
       //Additional below keys:
-      storeCode: 'NA',
+      storeCode: '',
       pinArray: '',
       purchaseOrderIfExistsInSummary: '',
     }
@@ -2696,17 +2853,17 @@ function DelistsAddedToRange(props: any) {
           ? productServieResponse1.value.data.productLife
               .productLifeAtTimeOfManufacture
           : null
-      if (type === 'Delist Outercase Code (PIN)') {
+      if (type === delistOutercaseCode) {
         formData.effectiveDateFrom = delistPin_effectiveDate_From
         formData.effectiveDateTo = delistPin_effectiveDate_To
         formData.comments = comments === '' ? comment : comments
       }
-      if (type === 'New Outercase Code (PIN)') {
+      if (type === newOutercaseCode) {
         formData.effectiveDateFrom = delistPin_effectiveDate_From
         formData.effectiveDateTo = delistPin_effectiveDate_To
         formData.comments = comments === '' ? comment : comments
       }
-      if (type === 'Supplier Change') {
+      if (type === supplyChange) {
         // supplierExisting_x,
         // supplierSiteExisting_x,
         // supplierNew_x,
@@ -2717,8 +2874,10 @@ function DelistsAddedToRange(props: any) {
         formData.newSupplierSite = supplierSiteNew_x
       }
     }
-    formData.supplierId = supplierV1.supplierName
-    formData.supplierSiteNameCode = supplierV1.supplierSiteNameCode
+    // formData.supplierId = supplierV1.supplierName;
+    // formData.supplierSiteNameCode = supplierV1.supplierSiteNameCode;
+    formData.existingSupplier = supplierV1.supplierName
+    formData.existingSupplierSite = supplierV1.supplierSiteNameCode
     if (values[1].value) {
       const rangeIdMinV1 = values[1].value.data //
       formData.lastPoDate = rangeIdMinV1.lastPODate //rangeresetIdMinService
@@ -2746,7 +2905,7 @@ function DelistsAddedToRange(props: any) {
       }
     }
 
-    if (type === 'Delist Product (MIN)') {
+    if (type === delistProductMin) {
       formData.comments = comments === '' ? comment : comments
       if (productServieResponse1.status !== 'rejected') {
         // formData.ingredientMin = parseInt(
@@ -2772,7 +2931,7 @@ function DelistsAddedToRange(props: any) {
       }
     }
     if (
-      type === 'New Product (MIN)' ||
+      type === newProductMin ||
       type === 'Product Distribution Decrease (MIN)' ||
       type === 'Product Distribution Increase (MIN)'
     ) {
@@ -2965,13 +3124,13 @@ function DelistsAddedToRange(props: any) {
     console.log('clicked')
 
     // return
-    if (actionType.value === 'Delist Product (MIN)') {
+    if (actionType.value === delistProductMin) {
       handleActionTypeDialogClose()
       if (min !== '') {
         console.log('hello')
         getAndCheckItemNumber([
           min,
-          'Delist Product (MIN)',
+          delistProductMin,
           '',
           '',
           'NA',
@@ -2985,13 +3144,13 @@ function DelistsAddedToRange(props: any) {
           '',
         ])
       }
-    } else if (actionType.value === 'New Product (MIN)') {
+    } else if (actionType.value === newProductMin) {
       handleActionTypeDialogClose()
       if (min !== '') {
         console.log('hello')
         getAndCheckItemNumber([
           min,
-          'New Product (MIN)',
+          newProductMin,
           '',
           '',
           noOfStores,
@@ -3005,11 +3164,11 @@ function DelistsAddedToRange(props: any) {
           '',
         ])
       }
-    } else if (actionType.value === 'Delist Ingredient (MIN)') {
+    } else if (actionType.value === delistIngredientMin) {
       handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
-        'Delist Ingredient (MIN)',
+        delistIngredientMin,
         '',
         '',
         'NA',
@@ -3022,13 +3181,13 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === 'New Ingredient (MIN)') {
+    } else if (actionType.value === newIngredientMin) {
       checkProductCompositionService(min)
       newIngredient && handleActionTypeDialogClose()
       newIngredient &&
         getAndCheckItemNumber([
           min,
-          'New Ingredient (MIN)',
+          newIngredientMin,
           '',
           '',
           'NA',
@@ -3041,11 +3200,11 @@ function DelistsAddedToRange(props: any) {
           '',
           '',
         ])
-    } else if (actionType.value === 'Delist Outercase Code (PIN)') {
+    } else if (actionType.value === delistOutercaseCode) {
       handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
-        'Delist Outercase Code (PIN)',
+        delistOutercaseCode,
         '',
         '',
         'NA',
@@ -3058,11 +3217,11 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === 'New Outercase Code (PIN)') {
+    } else if (actionType.value === newOutercaseCode) {
       handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
-        'New Outercase Code (PIN)',
+        newOutercaseCode,
         '',
         '',
         'NA',
@@ -3075,11 +3234,11 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === 'Product Shelf Space Increase') {
+    } else if (actionType.value === productShelfSpaceIncrease) {
       handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
-        'Product Shelf Space Increase',
+        productShelfSpaceIncrease,
         '',
         comments,
         'NA',
@@ -3092,11 +3251,11 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === 'Product Shelf Space Decrease') {
+    } else if (actionType.value === productShelfSpaceDecrease) {
       handleActionTypeDialogClose()
       getAndCheckItemNumber([
         min,
-        'Product Shelf Space Decrease',
+        productShelfSpaceDecrease,
         '',
         comments,
         'NA',
@@ -3336,7 +3495,6 @@ function DelistsAddedToRange(props: any) {
                 />
               </ListItemIcon>
               <ListItemText primary={option} />
-              <ListItemText primary={'Sridhar'} />
             </MenuItem>
           ))}
         </Select>
@@ -3684,7 +3842,8 @@ function DelistsAddedToRange(props: any) {
                 >
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      Delist Product (MIN)
+                      {/* Delist Product (MIN) */}
+                      {delistProductMin}
                     </Typography>
                   </Box>
                   <Box>
@@ -3733,12 +3892,13 @@ function DelistsAddedToRange(props: any) {
               </>
             )}
 
-            {actionType && actionType.value === 'New Product (MIN)' && (
+            {actionType && actionType.value === newProductMin && (
               <>
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      New Product (MIN)
+                      {/* New Product (MIN) */}
+                      {newProductMin}
                     </Typography>
                   </Box>
                   <Box>
@@ -3820,7 +3980,7 @@ function DelistsAddedToRange(props: any) {
                 </Box>
               </>
             )}
-            {actionType && actionType.value === 'Delist Ingredient (MIN)' && (
+            {actionType && actionType.value === delistIngredientMin && (
               <>
                 <Box
                   sx={{
@@ -3832,7 +3992,8 @@ function DelistsAddedToRange(props: any) {
                 >
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      Delist Ingredient (MIN)
+                      {/* Delist Ingredient (MIN) */}
+                      {delistIngredientMin}
                       <span style={{ color: 'red' }}>*</span>
                     </Typography>
                   </Box>
@@ -3881,12 +4042,13 @@ function DelistsAddedToRange(props: any) {
                 </Box>
               </>
             )}
-            {actionType && actionType.value === 'New Ingredient (MIN)' && (
+            {actionType && actionType.value === newIngredientMin && (
               <>
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
                     <Typography variant="subtitle2" color="primary">
-                      New Ingredient (MIN)
+                      {/* New Ingredient (MIN) */}
+                      {newIngredientMin}
                       <span style={{ color: 'red' }}>*</span>
                     </Typography>
                   </Box>
@@ -3972,7 +4134,7 @@ function DelistsAddedToRange(props: any) {
                 </Box>
               </>
             )}
-            {actionType && actionType.value === 'Delist Outercase Code (PIN)' && (
+            {actionType && actionType.value === delistOutercaseCode && (
               <>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <Box
@@ -4071,7 +4233,7 @@ function DelistsAddedToRange(props: any) {
                 </MuiPickersUtilsProvider>
               </>
             )}
-            {actionType && actionType.value === 'New Outercase Code (PIN)' && (
+            {actionType && actionType.value === newOutercaseCode && (
               <>
                 <MuiPickersUtilsProvider utils={DateFnsUtils}>
                   <Box
@@ -4170,7 +4332,7 @@ function DelistsAddedToRange(props: any) {
                 </MuiPickersUtilsProvider>
               </>
             )}
-            {actionType && actionType.value === 'Product Shelf Space Increase' && (
+            {actionType && actionType.value === productShelfSpaceIncrease && (
               <>
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
@@ -4271,7 +4433,7 @@ function DelistsAddedToRange(props: any) {
               </>
             )}
 
-            {actionType && actionType.value === 'Product Shelf Space Decrease' && (
+            {actionType && actionType.value === productShelfSpaceDecrease && (
               <>
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
                   <Box>
@@ -4806,7 +4968,13 @@ function DelistsAddedToRange(props: any) {
                   header={col.header}
                   body={
                     (col.field === 'lineStatus' && lineStatusTemplate) ||
+                    (col.field === 'legacyItemNumbers' &&
+                      legacyItemNumbersImportedTemplate) ||
                     (col.field === 'pin' && pinProductListTemplate) ||
+                    (col.field === 'man' && manImportedTemplate) ||
+                    (col.field === 'casecost' && caseCostImportedTemplate) ||
+                    (col.field === 'packquantity' &&
+                      packQuantityImportedTemplate) ||
                     (col.field === 'includeInClearancePricing' &&
                       includeInClearancePricingTemplate) ||
                     (col.field === 'ingredientMin' && ingredientMinTemplate) ||
@@ -4814,6 +4982,7 @@ function DelistsAddedToRange(props: any) {
                     (col.field === 'clearDepotBy' && clearDepotByTemplate) ||
                     (col.field === 'existingSupplier' &&
                       existingSupplierProductListTemplate) ||
+                    (col.field === 'unitcost' && unitCostImportedTemplate) ||
                     (col.field === 'local' && localTemplate) ||
                     (col.field === 'onlineCFC' && onlineCFCTemplate) ||
                     (col.field === 'onlineStorePick' &&
@@ -4901,16 +5070,16 @@ function DelistsAddedToRange(props: any) {
 
         newData.push({
           _idCheck: rand,
-          actionType: 'New Product (MIN) Placeholder',
-          min: 'NA',
+          actionType: placeholderMin,
+          min: '',
           comments: '',
           lineStatus: 'Draft',
-          man: 'NA',
-          ingredientMin: 'NA',
-          pin: 'NA',
+          man: '',
+          ingredientMin: '',
+          pin: '',
           description: '',
-          replaceMin: 'NA',
-          replaceMinDescription: 'NA',
+          replaceMin: '',
+          replaceMinDescription: '',
           existingSupplier: '',
           existingSupplierSite: '',
           newnoofrangestores: '',
@@ -5319,37 +5488,102 @@ function DelistsAddedToRange(props: any) {
           console.log(data)
           const data1 = xlsx.utils.sheet_to_json(ws, { header: 1 })
           const cols: any = data1[0]
+          const json = JSON.parse(
+            JSON.stringify(data).replace(/"\s+|\s+"/g, '"')
+          )
 
-          let newData = data.map((d: any, index: any) => {
+          const convert = (obj: any) => {
+            const result: any = {}
+
+            Object.keys(obj).forEach(function (key: any) {
+              result[key.replace(/ /g, '').replace(/[()|/]/g, '')] = obj[key]
+            })
+            return result
+          }
+          var result = json.map(function (o: any) {
+            return convert(o)
+          })
+
+          // const validate = result.forEach((val: any) => {
+          //   if (
+          //     val.hasOwnProperty('Description') &&
+          //     val.hasOwnProperty('OwnBrand')
+          //   ) {
+          //     return val
+          //   }
+          // })
+
+          const validate = result.filter((val: any) => {
+            return (
+              val.hasOwnProperty('Description') &&
+              val.hasOwnProperty('OwnBrand')
+            )
+          })
+
+          let newData = validate.map((d: any) => {
             var minVal = 1000000000000
             var max = 9999999999999
             var rand = Math.floor(minVal + Math.random() * (max - minVal))
             return {
               _idCheck: rand,
-              actionType: 'New Product (MIN) Placeholder',
-              min: `0${index}00${index}`,
-              comments: d[cols[12]] ? d[cols[12]] : '',
+              actionType: placeholderMin,
+              description: d.Description ? d.Description : '',
+              ownBrand: d.OwnBrand ? d.OwnBrand : '',
+              barcode: d.BarCode ? d.BarCode : '',
+              existingSupplier: d.SupplierCode ? d.SupplierCode : '', // supplier site field
+              existingSupplierSite: d.SupplierSiteCode
+                ? d.SupplierSiteCode
+                : '', // supplier site code
+              packquantity: d.CasePack ? d.CasePack : '',
+              newnoofrangestores: d.NewNumberofRangeStores
+                ? d.NewNumberofRangeStores
+                : '',
+              storeCode: d.StoreCode ? d.StoreCode : '',
+              local: d.Local ? d.Local : '',
+              onlineCFC: d.OnlineCFC ? d.OnlineCFC : '',
+              onlineStorePick: d.OnlineStorePick ? d.OnlineStorePick : '',
+              wholesale: d.Wholesale ? d.Wholesale : '',
+              comments: d.Comments ? d.Comments : '',
               lineStatus: 'Draft',
-              man: 'NA',
-              ingredientMin: 'NA',
-              pin: 'NA    ',
-              description: d[cols[0]] ? d[cols[0]] : '',
-              replaceMin: 'NA',
-              replaceMinDescription: 'NA',
-              existingSupplier: d[cols[3]] ? d[cols[3]] : '',
-              existingSupplierSite: d[cols[4]] ? d[cols[4]] : '',
-              newnoofrangestores: d[cols[6]] ? d[cols[6]] : '',
-              storeCode: d[cols[7]] ? d[cols[7]] : '',
-              ownBrand: d[cols[1]] ? d[cols[1]] : '',
-              barcode: d[cols[2]] ? d[cols[2]] : '',
-              packquantity: d[cols[5]] ? d[cols[5]] : '',
-              local: d[cols[8]] ? d[cols[8]] : '',
-              onlineCFC: d[cols[9]] ? d[cols[9]] : '',
-              onlineStorePick: d[cols[10]] ? d[cols[10]] : '',
-              wholesale: d[cols[11]] ? d[cols[11]] : '',
+              man: '',
+              ingredientMin: '',
+              pin: '',
+              replaceMin: '',
+              replaceMinDescription: '',
             }
           })
+          console.log('newData', newData)
 
+          // let newData = validate.map((d: any, index: any) => {
+          //   var minVal = 1000000000000
+          //   var max = 9999999999999
+          //   var rand = Math.floor(minVal + Math.random() * (max - minVal))
+
+          //   return {
+          //     _idCheck: rand,
+          //     actionType: placeholderMin,
+          //     min: `0${index}00${index}`,
+          //     comments: d[cols[12]] ? d[cols[12]] : '',
+          //     lineStatus: 'Draft',
+          //     man: 'NA',
+          //     ingredientMin: 'NA',
+          //     pin: 'NA    ',
+          //     description: d[cols[0]] ? d[cols[0]] : '',
+          //     replaceMin: 'NA',
+          //     replaceMinDescription: 'NA',
+          //     existingSupplier: d[cols[3]] ? d[cols[3]] : '',
+          //     existingSupplierSite: d[cols[4]] ? d[cols[4]] : '',
+          //     newnoofrangestores: d[cols[6]] ? d[cols[6]] : '',
+          //     storeCode: d[cols[7]] ? d[cols[7]] : '',
+          //     ownBrand: d[cols[1]] ? d[cols[1]] : '',
+          //     barcode: d[cols[2]] ? d[cols[2]] : '',
+          //     packquantity: d[cols[5]] ? d[cols[5]] : '',
+          //     local: d[cols[8]] ? d[cols[8]] : '',
+          //     onlineCFC: d[cols[9]] ? d[cols[9]] : '',
+          //     onlineStorePick: d[cols[10]] ? d[cols[10]] : '',
+          //     wholesale: d[cols[11]] ? d[cols[11]] : '',
+          //   }
+          // })
           newData.map((rowdata: any) => {
             return barcodetemplateCheck(rowdata, rowdata.barcode)
           })
@@ -6760,7 +6994,7 @@ function DelistsAddedToRange(props: any) {
   const handleCompleteTask = () => {
     if (rafpendingActionDetailsCT06) {
       const completePayload = {
-        reviewDecision: 'Complete',
+        reviewDecision: 'CompleteTask',
         requester: {
           persona: rafpendingActionDetailsCT06.assigneeRole,
           details: {
