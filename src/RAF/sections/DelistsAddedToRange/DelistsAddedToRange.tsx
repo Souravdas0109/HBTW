@@ -1402,14 +1402,16 @@ function DelistsAddedToRange(props: any) {
               onClick={() => handlePinDialogOpen(rowData)}
               className={classes.tableLinks}
             >
-              {rowData.pin}
+              {rowData.pin !== '' ? rowData.pin : ''}
             </div>
           ) : (
             <div
               onClick={() => handlePinDialogOpen(rowData)}
               className={classes.tableLinks}
             >
-              {rowData.pinArray ? rowData.pinArray[0].packNumber : 'NA'}
+              {rowData.pinArray && rowData.pinArray.length > 0
+                ? rowData.pinArray[0].packNumber
+                : ''}
             </div>
             // 'NA'
           )}
@@ -1505,6 +1507,7 @@ function DelistsAddedToRange(props: any) {
             variant="contained"
             // onClick={handleDelistIngredientMin}
             onClick={() => handleUpdatePin(pinNumberSet)}
+            disabled={true}
           >
             Add Pin
           </Button>
@@ -1856,7 +1859,9 @@ function DelistsAddedToRange(props: any) {
               onClick={() => handleIngredientDialogOpen(rowData)}
               className={classes.tableLinks}
             >
-              {rowData.ingredientMin}
+              {rowData.ingredientMin !== '' && rowData.ingredientMin !== 'NA'
+                ? rowData.ingredientMin
+                : ''}
             </div>
           ) : (
             ''
@@ -1865,7 +1870,8 @@ function DelistsAddedToRange(props: any) {
       )
     } else {
       return (
-        <>{rowData && rowData.ingredientMin ? rowData.ingredientMin : ''}</>
+        // <>{rowData && rowData.ingredientMin ? rowData.ingredientMin : ''}</>
+        <>NA</>
       )
     }
   }
@@ -3299,7 +3305,7 @@ function DelistsAddedToRange(props: any) {
             autoclear: item.autoclear ? item.autoclear : null,
             depoClearWeek: item.clearDepotBy,
             gscopDate: item.finalStopOrderDate,
-            supplierComittment: item.supplierCommitment,
+            supplierComitment: item.supplierCommitment,
             wastage:
               item.includeInStoreWastage !== 'NA'
                 ? item.includeInStoreWastage

@@ -1701,50 +1701,50 @@ function ManageEventCreate(props: any) {
     console.warn(eventDetails)
   }, [eventDetails])
 
-  useEffect(() => {
-    if (taskDetails) {
-      // setIsProgressLoader(true)
-      let newDate = launchDateNew ? new Date(launchDateNew).getTime() : 0
-      let oldDate = launchDateOld ? new Date(launchDateOld).getTime() : 0
-      let resetDate = launchDateOld
-      console.log('date change', launchDateOld, launchDateNew)
-      if (newDate != 0 && oldDate !== 0 && newDate !== oldDate) {
-        let count: any = ''
-        let sysDate1 = new Date().toISOString().split('T')[0]
-        let sysDate = new Date(sysDate1)
-        taskDetails.map((task: any) => {
-          // let taskDueDate = new Date(task.dueDate)
-          let taskDueDate = task.dueDate.split(' ')[0]
-          // let taskDueDate1 = taskDueDate.toISOString().split('T')[0]
-          // let taskDueDate2 = new Date(taskDueDate1)
-          let taskDueDate1 = new Date(taskDueDate)
-          console.log(sysDate)
-          console.log(taskDueDate)
-          console.log(taskDueDate1)
-          // console.log(taskDueDate2)
-          console.log(taskDueDate1.getTime() - sysDate.getTime())
-          // if (taskDueDate.getTime() < sysDate.getTime()) {
-          if (taskDueDate1.getTime() < sysDate.getTime()) {
-            count =
-              count === '' ? count + task.taskId : count + ', ' + task.taskId
-          }
-        })
-        setDueDateErrorCount(count)
+  // useEffect(() => {
+  //   if (taskDetails) {
+  //     // setIsProgressLoader(true)
+  //     let newDate = launchDateNew ? new Date(launchDateNew).getTime() : 0
+  //     let oldDate = launchDateOld ? new Date(launchDateOld).getTime() : 0
+  //     let resetDate = launchDateOld
+  //     console.log('date change', launchDateOld, launchDateNew)
+  //     if (newDate != 0 && oldDate !== 0 && newDate !== oldDate) {
+  //       let count: any = ''
+  //       let sysDate1 = new Date().toISOString().split('T')[0]
+  //       let sysDate = new Date(sysDate1)
+  //       taskDetails.map((task: any) => {
+  //         // let taskDueDate = new Date(task.dueDate)
+  //         let taskDueDate = task.dueDate.split(' ')[0]
+  //         // let taskDueDate1 = taskDueDate.toISOString().split('T')[0]
+  //         // let taskDueDate2 = new Date(taskDueDate1)
+  //         let taskDueDate1 = new Date(taskDueDate)
+  //         console.log(sysDate)
+  //         console.log(taskDueDate)
+  //         console.log(taskDueDate1)
+  //         // console.log(taskDueDate2)
+  //         console.log(taskDueDate1.getTime() - sysDate.getTime())
+  //         // if (taskDueDate.getTime() < sysDate.getTime()) {
+  //         if (taskDueDate1.getTime() < sysDate.getTime()) {
+  //           count =
+  //             count === '' ? count + task.taskId : count + ', ' + task.taskId
+  //         }
+  //       })
+  //       setDueDateErrorCount(count)
 
-        if (count != '') {
-          setDueDateErrorTasks(count)
-          setDueDateErrorOpen(true)
-          // setIsProgressLoader(true)
-          setLaunchDateNew('')
-        } else {
-          // if(oldDate)
-          setLaunchDateOld(launchDateNew)
-          setLaunchDateNew('')
-          // setIsProgressLoader(true)
-        }
-      }
-    }
-  }, [taskDetails])
+  //       if (count != '') {
+  //         setDueDateErrorTasks(count)
+  //         setDueDateErrorOpen(true)
+  //         // setIsProgressLoader(true)
+  //         setLaunchDateNew('')
+  //       } else {
+  //         // if(oldDate)
+  //         setLaunchDateOld(launchDateNew)
+  //         setLaunchDateNew('')
+  //         // setIsProgressLoader(true)
+  //       }
+  //     }
+  //   }
+  // }, [taskDetails])
 
   useEffect(() => {
     console.log('Launch date old', launchDateOld)
@@ -3513,39 +3513,75 @@ function ManageEventCreate(props: any) {
 
   const dueDateTemplate = (rowData: any) => {
     const dueDate = rowData['dueDate']
-    // const targetDate = eventDetails && eventDetails[0].targetDate
-    return (
-      <DatePicker
-        disabled={rowData.visibility === 'Enabled' ? false : true}
-        // disabled={true}
-        // disabled={false}
-        // readOnly={rowData.visibility === 'Enabled' ? false : true}
-        // readOnly={true}
-        format="dd/MM/yy"
-        value={dueDate}
-        onChange={(date: any) => {
-          setTaskDetails((prevState: any) => {
-            return prevState.map((state: any) => {
-              if (state.taskId === rowData.taskId) {
-                return {
-                  ...state,
-                  dueDate: new Date(date).toISOString().split('T')[0],
+    const targetDate = eventDetails && eventDetails[0].targetDate
+    const CTName = rowData['taskId']
+    if (CTName === 'CT36') {
+      return (
+        <DatePicker
+          disabled={rowData.visibility === 'Enabled' ? false : true}
+          // disabled={true}
+          // disabled={false}
+          // readOnly={rowData.visibility === 'Enabled' ? false : true}
+          // readOnly={true}
+          format="dd/MM/yy"
+          value={dueDate}
+          onChange={(date: any) => {
+            setTaskDetails((prevState: any) => {
+              return prevState.map((state: any) => {
+                if (state.taskId === rowData.taskId) {
+                  return {
+                    ...state,
+                    dueDate: new Date(date).toISOString().split('T')[0],
+                  }
+                } else {
+                  return state
                 }
-              } else {
-                return state
-              }
+              })
             })
-          })
-        }}
-        // className={rowData.visibility === 'Enabled' ? '' : classes.duedate}
-        // style={{
-        //   //   fontSize: aboveSm ? '0.8rem' : '0.65rem',
-        //   background: '#e9ecef',
-        // }}
-        // maxDate={targetDate}
-        minDate={new Date()}
-      />
-    )
+          }}
+          // className={rowData.visibility === 'Enabled' ? '' : classes.duedate}
+          // style={{
+          //   //   fontSize: aboveSm ? '0.8rem' : '0.65rem',
+          //   background: '#e9ecef',
+          // }}
+          // maxDate={targetDate}
+          minDate={new Date()}
+        />
+      )
+    } else {
+      return (
+        <DatePicker
+          disabled={rowData.visibility === 'Enabled' ? false : true}
+          // disabled={true}
+          // disabled={false}
+          // readOnly={rowData.visibility === 'Enabled' ? false : true}
+          // readOnly={true}
+          format="dd/MM/yy"
+          value={dueDate}
+          onChange={(date: any) => {
+            setTaskDetails((prevState: any) => {
+              return prevState.map((state: any) => {
+                if (state.taskId === rowData.taskId) {
+                  return {
+                    ...state,
+                    dueDate: new Date(date).toISOString().split('T')[0],
+                  }
+                } else {
+                  return state
+                }
+              })
+            })
+          }}
+          // className={rowData.visibility === 'Enabled' ? '' : classes.duedate}
+          // style={{
+          //   //   fontSize: aboveSm ? '0.8rem' : '0.65rem',
+          //   background: '#e9ecef',
+          // }}
+          maxDate={targetDate}
+          minDate={new Date()}
+        />
+      )
+    }
   }
 
   const notifiedDateTemplate = (rowData: any) => {
