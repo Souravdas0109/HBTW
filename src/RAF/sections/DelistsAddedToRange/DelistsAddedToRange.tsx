@@ -438,8 +438,10 @@ function DelistsAddedToRange(props: any) {
                 : null,
               includeInStoreWastage: item.wastage ? item.wastage : null,
               clearDepotBy: item.depotClearWeek ? item.depotClearWeek : null,
-              supplierCommitment: item.suppCommFixedBuysSeasonal
-                ? item.suppCommFixedBuysSeasonal
+              supplierCommitment: item.supplierCommitment
+                ? item.supplierCommitment.quantity
+                  ? item.supplierCommitment.quantity
+                  : null
                 : null,
               finalStopOrderDate: item.gscopdate ? item.gscopdate.date : null,
               systemSuggestedStopOrderDate: item.stopPODates
@@ -3305,7 +3307,7 @@ function DelistsAddedToRange(props: any) {
             autoclear: item.autoclear ? item.autoclear : null,
             depoClearWeek: item.clearDepotBy,
             gscopDate: item.finalStopOrderDate,
-            supplierComitment: item.supplierCommitment,
+            supplierCommitment: item.supplierCommitment,
             wastage:
               item.includeInStoreWastage !== 'NA'
                 ? item.includeInStoreWastage
