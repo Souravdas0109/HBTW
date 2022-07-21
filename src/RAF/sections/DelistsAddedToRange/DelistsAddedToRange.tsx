@@ -1297,6 +1297,7 @@ function DelistsAddedToRange(props: any) {
     // if (rowData.actionType === 'Delist Product (MIN)') {
     return (
       <OutlinedInput
+        type="number"
         value={rowData && rowData.supplierCommitment}
         onChange={(e: any) => {
           setImportedData((prevState: any) => {
@@ -2835,10 +2836,16 @@ function DelistsAddedToRange(props: any) {
 
     if (productServieResponse1.status !== 'rejected') {
       // formData.pin = productServieResponse1.value.data.packs[0].packNumber //pin
-      formData.pin = productServieResponse1.value.data.packs[0].packNumber //pin
-      formData.packquantity = parseInt(
-        productServieResponse1.value.data.packs[0].packQuantity
-      ) // Packquantity
+      formData.pin = productServieResponse1.value.data.packs
+        ? productServieResponse1.value.data.packs.length > 0
+          ? productServieResponse1.value.data.packs[0].packNumber
+          : ''
+        : '' //pin
+      formData.packquantity = productServieResponse1.value.data.packs
+        ? productServieResponse1.value.data.packs.length > 0
+          ? parseInt(productServieResponse1.value.data.packs[0].packQuantity)
+          : ''
+        : '' // Packquantity
       formData.pinArray = productServieResponse1.value.data.packs //total packs array
       formData.man = productServieResponse1.value.data.parentItemNumber // parentItemNumber
       // formData.packquantity = parseInt(
@@ -2906,10 +2913,16 @@ function DelistsAddedToRange(props: any) {
         productServieResponse1.status !== 'rejected' &&
         rangeIdMinV1.purchaseOrders.locations.length === 0
       ) {
-        formData.pin = productServieResponse1.value.data.packs[0].packNumber //pin
-        formData.packquantity = parseInt(
-          productServieResponse1.value.data.packs[0].packQuantity
-        ) // Packquantity
+        formData.pin = productServieResponse1.value.data.packs
+          ? productServieResponse1.value.data.packs.length > 0
+            ? productServieResponse1.value.data.packs[0].packNumber
+            : ''
+          : '' //pin
+        formData.packquantity = productServieResponse1.value.data.packs
+          ? productServieResponse1.value.data.packs.length > 0
+            ? parseInt(productServieResponse1.value.data.packs[0].packQuantity)
+            : ''
+          : '' // Packquantity
       }
     }
 
