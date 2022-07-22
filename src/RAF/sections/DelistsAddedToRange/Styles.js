@@ -110,6 +110,9 @@ export const useStyles = makeStyles((theme) => {
     //         color: "white",
     //     },
     // },
+    tableTextFieldEdited: {
+      fontSize: '12px !important',
+    },
     disabled_color: {
       '& .MuiIconButton-label': {
         color: '#004e37 !important',

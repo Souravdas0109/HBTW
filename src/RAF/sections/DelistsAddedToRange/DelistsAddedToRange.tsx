@@ -105,7 +105,10 @@ import LoadingComponent from '../../../components/LoadingComponent/LoadingCompon
 import { Toast } from 'primereact/toast'
 import SearchSelect from '../../../RangeChangeManagement/components/SearchSelect/SearchSelect'
 import DepotviewButtons from './DepotviewButtons'
+import DelistInputEdit from './DelistInputEdit'
+import ActionTypeHover from './ActionTypeHover'
 import './styles.css'
+import { exportExcel } from './ExportExcel'
 
 const ITEM_HEIGHT = 48
 const ITEM_PADDING_TOP = 8
@@ -130,6 +133,7 @@ const MenuProps: Partial<MenuPropsType> = {
 
 function DelistsAddedToRange(props: any) {
   const { rafpendingActionDetailsCT06, userDetail } = props
+  const { taskName: taskId } = rafpendingActionDetailsCT06 || {}
   const { DEFAULT, DASHBOARD_RANGE_PENDINGACTION, DASHBOARD } = routes
   const classes = useStyles()
   const theme = useTheme()
@@ -175,7 +179,7 @@ function DelistsAddedToRange(props: any) {
   const [eventDetails, setEventDetails] = useState<any>()
   const [actionType, setActionType] = useState<any>()
   const [actionTypeSelected, setActionTypeSelected] = useState<any>()
-  const [actionTypeOptions, setActionTypeOptions] = useState<any>()
+  const [actionTypeOptions, setActionTypeOptions] = useState<any>([])
   const [min, setMin] = useState<any>('')
   const [existingSearchFields, setExistingSearchFields] = useState<any>()
   const [productId, setProductId] = useState<any>('')
@@ -245,6 +249,13 @@ function DelistsAddedToRange(props: any) {
   const [currentNoOfRangeStores, setCurrentNoOfRangeStores] = useState<any>(0)
   const [currentShelfFill, setCurrentShelfFill] = useState<any>(0)
   const [newShelfFill, setNewShelfFill] = useState<any>(0)
+  const [newStoreCount, setNewStoreCount] = useState<any>(0)
+  const [storeViewData, setStoreViewData] = useState<any>(0)
+  const [storeViewDialogOpen, setStoreViewDialogOpen] = useState<any>(false)
+  const [supplierExisting, setSupplierExisting] = useState<any>('')
+  const [supplierSiteExisting, setSupplierSiteExisting] = useState<any>('')
+  const [supplierNew, setSupplierNew] = useState<any>('')
+  const [supplierSiteNew, setSupplierSiteNew] = useState<any>('')
 
   // const stylesInp = {
   //   container: {
@@ -521,7 +532,7 @@ function DelistsAddedToRange(props: any) {
               depotClearbyReservedQtyOnline: null,
               depotClearbyReservedQtyTotal: null,
               //
-              comments: item.comments ? item.comments : null, //uncomment when deploying
+              // comments: item.comments ? item.comments : null, //uncomment when deploying
               // min: '500000033',
 
               //Depot stock Unit View Model data
@@ -712,7 +723,7 @@ function DelistsAddedToRange(props: any) {
                 depotClearbyReservedQtyOnline: null,
                 depotClearbyReservedQtyTotal: null,
                 //
-                comments: item.comments ? item.comments : null, //uncomment when deploying
+                // comments: item.comments ? item.comments : null, //uncomment when deploying
                 // min: '500000033',
 
                 //Depot stock Unit View Model data
@@ -825,7 +836,7 @@ function DelistsAddedToRange(props: any) {
   }
 
   const localTemplate = (rowData: any) => {
-    if (rowData && rowData.depot && rowData.local !== '') {
+    if (rowData && rowData.local !== '') {
       let data
       if (rowData.local === 'true' || rowData.local === 'Y') {
         data = 'Y'
@@ -1030,6 +1041,44 @@ function DelistsAddedToRange(props: any) {
   //     return <TextFieldWithSearch value={buyingMinIngredients} onChangeFn={setBuyingMinIngredients} onSearch={console.log} />
   // }
 
+  const actionTypeTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <Select
+          value={rowData && rowData.actionType}
+          onChange={(e: any) => {
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'actionType',
+                rowData,
+                e.target.value
+              )
+            })
+          }}
+          input={<OutlinedInput margin="dense" className={classes.muiSelect} />}
+        >
+          {actionTypeOptions.map((type: any) => {
+            if (type.value !== 'Multiple Selection') {
+              return (
+                <MenuItem
+                  value={type.value}
+                  key={type.label}
+                  className={classes.muiSelect}
+                >
+                  {type.value}
+                </MenuItem>
+              )
+            }
+          })}
+        </Select>
+      )
+    } else {
+      return <span>{rowData.actionType}</span>
+    }
+  }
+
   const lineStatusTemplate = (rowData: any) => {
     return (
       <Select
@@ -1056,6 +1105,27 @@ function DelistsAddedToRange(props: any) {
       </Select>
     )
   }
+  const descriptionImportedTemplate = (rowData: any) => {
+    // if (actionType.value === 'CT18') {
+    // }
+
+    // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+
+    // if (editClick && check.length > 0 && check[0].min === rowData.min) {
+    //   return (
+    //     <DelistInputEdit
+    //       rowData={rowData}
+    //       setImportedData={setImportedData}
+    //       onChangeProductTableFields={onChangeProductTableFields}
+    //       field={'description'}
+    //     />
+    //   )
+    // } else {
+    //   return <>{rowData && rowData.description}</>
+    // }
+    return <>{rowData && rowData.description}</>
+  }
+
   const legacyItemNumbersImportedTemplate = (rowData: any) => {
     // const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     // if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -1087,30 +1157,38 @@ function DelistsAddedToRange(props: any) {
 
     if (
       rowData &&
-      rowData.hasOwnProperty('legacyItemNumbers') &&
-      rowData.legacyItemNumbers
+      rowData.actionType !== placeholderMin &&
+      rowData.actionType !== supplyChange
     ) {
-      if (
-        rowData.actionType !== placeholderMin ||
-        rowData.actionType !== supplyChange
-      ) {
-        return <>{rowData && rowData.legacyItemNumbers}</>
-      } else {
-        return <>NA</>
-      }
+      return <>{rowData && rowData.legacyItemNumbers}</>
+    } else if (
+      rowData.actionType === placeholderMin ||
+      rowData.actionType === supplyChange
+    ) {
+      return <>NA</>
+    } else {
+      return <></>
     }
   }
   const manImportedTemplate = (rowData: any) => {
-    if (rowData && rowData.hasOwnProperty('man') && rowData.man) {
-      if (
-        rowData.actionType !== placeholderMin ||
-        rowData.actionType !== supplyChange
-      ) {
-        return <>{rowData && rowData.man}</>
-      } else {
-        return <>NA</>
-      }
+    // if (rowData && rowData.hasOwnProperty('man') && rowData.man) {
+    //   if (
+    //     rowData.actionType !== placeholderMin &&
+    //     rowData.actionType !== supplyChange
+    //   ) {
+    //     return <>{rowData && rowData.man}</>
+    //   } else {
+    //     return <>NA</>
+    //   }
+    // } else {
+    // }
+    if (
+      rowData.actionType !== placeholderMin &&
+      rowData.actionType !== supplyChange
+    ) {
+      return <>{rowData && rowData.man}</>
     } else {
+      return <>NA</>
     }
   }
   const caseCostImportedTemplate = (rowData: any) => {
@@ -1127,7 +1205,10 @@ function DelistsAddedToRange(props: any) {
     // } else {
     //   return <>{rowData && rowData.casecost}</>
     // }
-    if (rowData.actionType !== supplyChange) {
+    if (
+      rowData.actionType !== supplyChange &&
+      rowData.actionType !== placeholderMin
+    ) {
       return <>{rowData && rowData.casecost}</>
     } else {
       return <>NA</>
@@ -1170,9 +1251,48 @@ function DelistsAddedToRange(props: any) {
     return <>{rowData && rowData.replaceMinDescription}</>
   }
 
+  const unitretailIncImportedTemplate = (rowData: any) => {
+    return <>NA</>
+  }
+  const unitretailExImportedTemplate = (rowData: any) => {
+    return <>NA</>
+  }
+
   const unitCostImportedTemplate = (rowData: any) => {
-    if (rowData.actionType !== supplyChange) {
+    if (
+      rowData.actionType !== supplyChange &&
+      rowData.actionType !== placeholderMin
+    ) {
       return <>{rowData && rowData.unitcost}</>
+    } else {
+      return <>NA</>
+    }
+  }
+  const perStorepPerWeekImportedTemplate = (rowData: any) => {
+    if (rowData.actionType !== placeholderMin) {
+      const check = supplierSelected.filter(
+        (val: any) => rowData.min === val.min
+      )
+      if (editClick && check.length > 0 && check[0].min === rowData.min) {
+        return (
+          <OutlinedInput
+            value={rowData && rowData.perStorepPerWeek}
+            onChange={(e: any) => {
+              setImportedData((prevState: any) => {
+                return onChangeProductTableFields(
+                  prevState,
+                  'perStorepPerWeek',
+                  rowData,
+                  e.target.value
+                )
+              })
+            }}
+            className={classes.tableTextField}
+          />
+        )
+      } else {
+        return <>{rowData && rowData.perStorepPerWeek}</>
+      }
     } else {
       return <>NA</>
     }
@@ -1260,35 +1380,49 @@ function DelistsAddedToRange(props: any) {
     //   rowData.hasOwnProperty('effectiveDateFrom') &&
     //   rowData.effectiveDateFrom !== ''
     // ) {
-    return (
-      <DatePicker
-        format="dd/MM/yy"
-        value={
-          rowData &&
-          (rowData['effectiveDateFrom'] ? rowData['effectiveDateFrom'] : null)
-        }
-        onChange={(date: any) => {
-          let newDate = date.toISOString().split('T')[0]
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'effectiveDateFrom',
-              rowData,
-              newDate
-            )
-          })
-        }}
-        TextFieldComponent={(props: any) => (
-          <OutlinedInput
-            margin="dense"
-            onClick={props.onClick}
-            value={props.value}
-            onChange={props.onChange}
-            // className={classes.dateFields}
-          />
-        )}
-      />
-    )
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DatePicker
+          format="dd/MM/yy"
+          value={
+            rowData &&
+            (rowData['effectiveDateFrom'] ? rowData['effectiveDateFrom'] : null)
+          }
+          onChange={(date: any) => {
+            let newDate = date.toISOString().split('T')[0]
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'effectiveDateFrom',
+                rowData,
+                newDate
+              )
+            })
+          }}
+          TextFieldComponent={(props: any) => (
+            <OutlinedInput
+              margin="dense"
+              onClick={props.onClick}
+              value={props.value}
+              onChange={props.onChange}
+              // className={classes.dateFields}
+            />
+          )}
+        />
+      )
+    } else {
+      return (
+        <>
+          {/* {rowData &&
+            rowData.effectiveDateFrom.split(' ')[0].replaceAll('-', '/')} */}
+          {rowData &&
+            rowData.effectiveDateFrom &&
+            rowData.effectiveDateFrom.split(' ')[0].replaceAll('-', '/')}
+        </>
+      )
+    }
+
     // } else {
     //   return <>NA</>
     // }
@@ -1299,35 +1433,45 @@ function DelistsAddedToRange(props: any) {
     //   rowData.hasOwnProperty('effectiveDateTo') &&
     //   rowData.effectiveDateTo !== ''
     // ) {
-    return (
-      <DatePicker
-        format="dd/MM/yy"
-        value={
-          rowData &&
-          (rowData['effectiveDateTo'] ? rowData['effectiveDateTo'] : null)
-        }
-        onChange={(date: any) => {
-          let newDate = date.toISOString().split('T')[0]
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'effectiveDateTo',
-              rowData,
-              newDate
-            )
-          })
-        }}
-        TextFieldComponent={(props: any) => (
-          <OutlinedInput
-            margin="dense"
-            onClick={props.onClick}
-            value={props.value}
-            onChange={props.onChange}
-            // className={classes.dateFields}
-          />
-        )}
-      />
-    )
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DatePicker
+          format="dd/MM/yy"
+          value={
+            rowData &&
+            (rowData['effectiveDateTo'] ? rowData['effectiveDateTo'] : null)
+          }
+          onChange={(date: any) => {
+            let newDate = date.toISOString().split('T')[0]
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'effectiveDateTo',
+                rowData,
+                newDate
+              )
+            })
+          }}
+          TextFieldComponent={(props: any) => (
+            <OutlinedInput
+              margin="dense"
+              onClick={props.onClick}
+              value={props.value}
+              onChange={props.onChange}
+              // className={classes.dateFields}
+            />
+          )}
+        />
+      )
+    } else {
+      {
+        rowData &&
+          rowData.effectiveDateTo &&
+          rowData.effectiveDateTo.split(' ')[0].replaceAll('-', '/')
+      }
+    }
+
     // } else {
     //   return <>NA</>
     // }
@@ -1338,35 +1482,43 @@ function DelistsAddedToRange(props: any) {
     //   rowData.hasOwnProperty('finalStopOrderDate') &&
     //   rowData.finalStopOrderDate !== ''
     // ) {
-    return (
-      <DatePicker
-        format="dd/MM/yy"
-        value={
-          rowData &&
-          (rowData['finalStopOrderDate'] ? rowData['finalStopOrderDate'] : null)
-        }
-        onChange={(date: any) => {
-          let newDate = date.toISOString().split('T')[0]
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'finalStopOrderDate',
-              rowData,
-              newDate
-            )
-          })
-        }}
-        TextFieldComponent={(props: any) => (
-          <OutlinedInput
-            margin="dense"
-            onClick={props.onClick}
-            value={props.value}
-            onChange={props.onChange}
-            // className={classes.dateFields}
-          />
-        )}
-      />
-    )
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DatePicker
+          format="dd/MM/yy"
+          value={
+            rowData &&
+            (rowData['finalStopOrderDate']
+              ? rowData['finalStopOrderDate']
+              : null)
+          }
+          onChange={(date: any) => {
+            let newDate = date.toISOString().split('T')[0]
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'finalStopOrderDate',
+                rowData,
+                newDate
+              )
+            })
+          }}
+          TextFieldComponent={(props: any) => (
+            <OutlinedInput
+              margin="dense"
+              onClick={props.onClick}
+              value={props.value}
+              onChange={props.onChange}
+              // className={classes.dateFields}
+            />
+          )}
+        />
+      )
+    } else {
+      return <>{rowData && rowData.finalStopOrderDate}</>
+    }
+
     // } else {
     //   return <>NA</>
     // }
@@ -1411,6 +1563,11 @@ function DelistsAddedToRange(props: any) {
           )}
         />
       )
+    } else if (
+      rowData.actionType === newProductMin ||
+      rowData.actionType === placeholderMin
+    ) {
+      return <>NA</>
     } else {
       return <></>
     }
@@ -1419,10 +1576,9 @@ function DelistsAddedToRange(props: any) {
     if (
       rowData &&
       rowData.hasOwnProperty('lastPoDate') &&
-      rowData.lastPoDate !== '' &&
       rowData.actionType !== placeholderMin
     ) {
-      // if (rowData.actionType === 'Delist Product (MIN)') {
+      // if (rowData.actionType === delistProductMin) {
       return (
         <DatePicker
           format="dd/MM/yy"
@@ -1454,6 +1610,8 @@ function DelistsAddedToRange(props: any) {
       // } else {
       //   return <>{rowData.lastPoDate}</>
       // }
+    } else if (rowData.actionType === placeholderMin) {
+      return <>NA</>
     } else {
       return <></>
     }
@@ -1464,7 +1622,7 @@ function DelistsAddedToRange(props: any) {
       rowData.hasOwnProperty('includeInStoreWastage') &&
       rowData.includeInStoreWastage
     ) {
-      // if (rowData.actionType === 'Delist Product (MIN)') {
+      // if (rowData.actionType === delistProductMin) {
       return (
         <Checkbox
           className={classes.disabled_color}
@@ -1492,35 +1650,39 @@ function DelistsAddedToRange(props: any) {
     }
   }
   const supplierCommitmentTemplate = (rowData: any) => {
-    // if (
-    //   rowData &&
-    //   rowData.hasOwnProperty('supplierCommitment') &&
-    //   rowData.supplierCommitment
-    // ) {
-    // if (rowData.actionType === 'Delist Product (MIN)') {
-    return (
-      <OutlinedInput
-        type="number"
-        value={rowData && rowData.supplierCommitment}
-        onChange={(e: any) => {
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'supplierCommitment',
-              rowData,
-              e.target.value
-            )
-          })
-        }}
-        className={classes.tableTextField}
-      />
-    )
-    // } else {
-    //   return <>{rowData.supplierCommitment}</>
-    // }
-    // } else {
-    //   return <>NA</>
-    // }
+    if (rowData && rowData.actionType !== placeholderMin) {
+      const check = supplierSelected.filter(
+        (val: any) => rowData.min === val.min
+      )
+      if (editClick && check.length > 0 && check[0].min === rowData.min) {
+        return (
+          // <OutlinedInput
+          //   value={rowData && rowData.supplierCommitment}
+          //   onChange={(e: any) => {
+          //     setImportedData((prevState: any) => {
+          //       return onChangeProductTableFields(
+          //         prevState,
+          //         'supplierCommitment',
+          //         rowData,
+          //         e.target.value
+          //       )
+          //     })
+          //   }}
+          //   className={classes.tableTextField}
+          // />
+          <DelistInputEdit
+            rowData={rowData}
+            setImportedData={setImportedData}
+            onChangeProductTableFields={onChangeProductTableFields}
+            field={'supplierCommitment'}
+          />
+        )
+      } else {
+        return <>{rowData.supplierCommitment}</>
+      }
+    } else {
+      return <>NA</>
+    }
   }
   const convertedTargetDateTemplate = (rowData: any) => {
     if (rowData.targetDate) {
@@ -1597,9 +1759,10 @@ function DelistsAddedToRange(props: any) {
   const pinProductListTemplate = (rowData: any) => {
     if (
       rowData &&
-      (rowData.actionType !== supplyChange ||
-        rowData.actionType !== delistOutercaseCode ||
-        rowData.actionType !== newOutercaseCode)
+      rowData.actionType !== supplyChange &&
+      rowData.actionType !== delistOutercaseCode &&
+      rowData.actionType !== newOutercaseCode &&
+      rowData.actionType !== placeholderMin
     ) {
       return (
         <>
@@ -1627,8 +1790,11 @@ function DelistsAddedToRange(props: any) {
          )} */}
         </>
       )
+    } else if (rowData.actionType === placeholderMin) {
+      return <>NA</>
     } else {
-      return <>{rowData && rowData.pin ? rowData.pin : 'NA'}</>
+      // return <>{rowData && rowData.pin ? rowData.pin : 'NA'}</>
+      return <>{rowData && rowData.pin}</>
     }
     // return (
     //   <>
@@ -1728,6 +1894,10 @@ function DelistsAddedToRange(props: any) {
   useEffect(() => {
     console.log('depotRegions', depotRegions)
   }, [depotRegions])
+  useEffect(() => {
+    console.log('rafpendingActionDetailsCT06', rafpendingActionDetailsCT06)
+    console.log('taskId', taskId)
+  }, [rafpendingActionDetailsCT06])
 
   const getStoreDepot = (rowData: any, store: any) => {
     setIsProgressLoader(true)
@@ -1862,7 +2032,14 @@ function DelistsAddedToRange(props: any) {
               </Button>
               <Button className={classes.storeview}>Store View</Button>
             </span>
-            <Button style={{ color: '#004e37' }}>Download</Button>
+            <button
+              className="backButton"
+              onClick={() =>
+                exportExcel(storeViewApi, rangedStoresTableCols, 'StoresData')
+              }
+            >
+              Download
+            </button>
           </Box>
           <DataTable
             // value={rangedStoresTableData}
@@ -1870,6 +2047,8 @@ function DelistsAddedToRange(props: any) {
             value={storeViewApi}
             showGridlines
             className="p-datatable-sm"
+            scrollable
+            scrollHeight="400px"
           >
             {rangedStoresTableCols.map((col: any) => {
               return (
@@ -1896,7 +2075,7 @@ function DelistsAddedToRange(props: any) {
     if (
       rowData &&
       rowData.hasOwnProperty('currentnoofrangedstores') &&
-      rowData.currentnoofrangedstores !== ''
+      rowData.currentnoofrangedstores !== 0
     ) {
       return (
         //  <Typography color="primary">
@@ -1913,23 +2092,104 @@ function DelistsAddedToRange(props: any) {
       // return <>NA</>
     }
   }
+
+  const newNoOfRangeStoresTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newnoofrangestores'}
+        />
+      )
+    } else {
+      return <>{rowData.newnoofrangestores}</>
+    }
+  }
+  const newShelfFillImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newShelfFill'}
+        />
+      )
+    } else {
+      return <>{rowData.newShelfFill}</>
+    }
+  }
+  const depotClearReservedQtyRetailImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'depotClearbyReservedQtyRetail'}
+        />
+      )
+    } else {
+      return <>{rowData.depotClearbyReservedQtyRetail}</>
+    }
+  }
+  const depotClearReservedQtyWholesaleImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'depotClearbyReservedQtyWholesale'}
+        />
+      )
+    } else {
+      return <>{rowData.depotClearbyReservedQtyWholesale}</>
+    }
+  }
+  const depotClearReservedQtyOnlineImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'depotClearbyReservedQtyOnline'}
+        />
+      )
+    } else {
+      return <>{rowData.depotClearbyReservedQtyOnline}</>
+    }
+  }
   const commentsTemplate = (rowData: any) => {
-    return (
-      <OutlinedInput
-        value={rowData && rowData.comments}
-        onChange={(e: any) => {
-          setImportedData((prevState: any) => {
-            return onChangeProductTableFields(
-              prevState,
-              'comments',
-              rowData,
-              e.target.value
-            )
-          })
-        }}
-        className={classes.tableTextField}
-      />
-    )
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (editClick && check.length > 0 && check[0].min === rowData.min) {
+      return (
+        <OutlinedInput
+          value={rowData && rowData.comments}
+          onChange={(e: any) => {
+            setImportedData((prevState: any) => {
+              return onChangeProductTableFields(
+                prevState,
+                'comments',
+                rowData,
+                e.target.value
+              )
+            })
+          }}
+          className={classes.tableTextField}
+        />
+      )
+    } else {
+      return <>{rowData && rowData.comments}</>
+    }
   }
   const existingSupplierProductListTemplate = (rowData: any) => {
     return <span>{rowData && rowData.existingSupplier}</span>
@@ -2051,12 +2311,12 @@ function DelistsAddedToRange(props: any) {
     // console.log('ingredientMinTemplate', rowData)
     if (
       rowData &&
-      (rowData.actionType !== delistOutercaseCode ||
-        rowData.actionType !== placeholderMin ||
-        rowData.actionType !== newOutercaseCode ||
-        rowData.actionType !== supplyChange ||
-        rowData.actionType !== newIngredientMin ||
-        rowData.actionType !== delistIngredientMin)
+      rowData.actionType !== delistOutercaseCode &&
+      rowData.actionType !== placeholderMin &&
+      rowData.actionType !== newOutercaseCode &&
+      rowData.actionType !== supplyChange &&
+      rowData.actionType !== newIngredientMin &&
+      rowData.actionType !== delistIngredientMin
     ) {
       return (
         <>
@@ -2374,17 +2634,41 @@ function DelistsAddedToRange(props: any) {
     }
   }
   useEffect(() => {
-    getConfigType('Action Type').then((res: any) => {
-      const actionOptions = res.data.map((actionType: any) => {
-        return {
-          label: actionType.configValue,
-          value: actionType.configValue,
-        }
+    setActionTypeOptions([])
+    getConfigType('Action Type')
+      .then((res: any) => {
+        const actionOptions = res.data.map((actionType: any) => {
+          if (actionType.configValue !== placeholderMin) {
+            return {
+              // label: actionType.configValue,
+              label: <ActionTypeHover title={actionType.configValue} />,
+              value: actionType.configValue,
+            }
+          } else {
+            return {
+              label: actionType.configValue,
+              value: actionType.configValue,
+              color: 'red',
+              isDisabled: true,
+            }
+          }
+          // return actionType.configValue
+        })
+        console.log(actionOptions)
+        // setActionTypeOptions(actionOptions])
+        setActionTypeOptions((prevState: any) => [
+          ...prevState,
+          {
+            label: 'Multiple Selection',
+            value: 'Multiple Selection',
+          },
+          ...actionOptions,
+        ])
       })
-      console.log(actionOptions)
-      setActionTypeOptions(actionOptions)
-    })
-  }, [])
+      .catch((err: any) => {
+        console.log('ERROR')
+      })
+  }, [actionType])
 
   const handleActionType = (e: any) => {
     if (e) {
@@ -2464,8 +2748,10 @@ function DelistsAddedToRange(props: any) {
             if (
               d.ActionType &&
               d.ActionType === delistProductMin &&
-              actionType.value === delistProductMin &&
-              d.MINPIN !== undefined //for multipe excel files upload remove actiontype.value in all types
+              (actionType.value === delistProductMin ||
+                actionType.value === 'Multiple Selection') && //for multipe excel files upload remove actionType.value in all types
+              // actionType.includes(delistProductMin)
+              d.MINPIN !== undefined //for multipe excel files upload remove actionType.value in all types
               // || actionType === undefined
             ) {
               getAndCheckItemNumber([
@@ -2486,7 +2772,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === newProductMin &&
-              actionType.value === newProductMin &&
+              (actionType.value === newProductMin ||
+                actionType.value === 'Multiple Selection') &&
               d.MINPIN !== undefined
             ) {
               getAndCheckItemNumber([
@@ -2507,7 +2794,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === delistIngredientMin &&
-              actionType.value === delistIngredientMin
+              (actionType.value === delistIngredientMin ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
@@ -2527,7 +2815,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === newIngredientMin &&
-              actionType.value === newIngredientMin
+              (actionType.value === newIngredientMin ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN,
@@ -2547,7 +2836,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === delistOutercaseCode &&
-              actionType.value === delistOutercaseCode
+              (actionType.value === delistOutercaseCode ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MINPIN,
@@ -2567,7 +2857,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === newOutercaseCode &&
-              actionType.value === newOutercaseCode
+              (actionType.value === newOutercaseCode ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MINPIN,
@@ -2587,7 +2878,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === productShelfSpaceIncrease &&
-              actionType.value === productShelfSpaceIncrease
+              (actionType.value === productShelfSpaceIncrease ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
@@ -2607,7 +2899,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === productShelfSpaceDecrease &&
-              actionType.value === productShelfSpaceDecrease
+              (actionType.value === productShelfSpaceDecrease ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
@@ -2627,7 +2920,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === supplyChange &&
-              actionType.value === supplyChange
+              (actionType.value === supplyChange ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, // Mandatory
@@ -2649,7 +2943,8 @@ function DelistsAddedToRange(props: any) {
               d.ActionType &&
               d.ActionType === productDistributionDecreaseMin &&
               // actionType.includes(productDistributionDecreaseMin) &&
-              actionType.value === productDistributionDecreaseMin &&
+              (actionType.value === productDistributionDecreaseMin ||
+                actionType.value === 'Multiple Selection') &&
               d.NewNumberofStoresRestrictions !== undefined
             ) {
               getAndCheckItemNumber([
@@ -2671,7 +2966,8 @@ function DelistsAddedToRange(props: any) {
             } else if (
               d.ActionType &&
               d.ActionType === productDistributionIncreaseMin &&
-              actionType.value === productDistributionIncreaseMin
+              (actionType.value === productDistributionIncreaseMin ||
+                actionType.value === 'Multiple Selection')
             ) {
               getAndCheckItemNumber([
                 d.MIN ? d.MIN : d.MINPIN, //Mandatory
@@ -2715,7 +3011,7 @@ function DelistsAddedToRange(props: any) {
           //   setImportedData([...newData])
           // }
         }
-
+        setActionType('')
         reader.readAsArrayBuffer(uploadedFile)
       })
     } else {
@@ -3024,6 +3320,7 @@ function DelistsAddedToRange(props: any) {
       storeCode: '',
       pinArray: '',
       purchaseOrderIfExistsInSummary: '',
+      storeNumbersForspecificStoreRange: '',
     }
     console.log('values-promise.allSettled', values)
     values.map((val: any) => {
@@ -3169,17 +3466,17 @@ function DelistsAddedToRange(props: any) {
       formData.newnoofrangestores = newnoofrangestoreNewMin
       formData.comments = comments === '' ? comment : comments
     }
-    if (type === 'Delist Ingredient (MIN)') {
+    if (type === delistIngredientMin) {
       formData.comments = comments === '' ? comment : comments
     }
-    if (type === 'New Ingredient (MIN)') {
+    if (type === newIngredientMin) {
       formData.comments = comments === '' ? comment : comments
     }
-    if (type === 'Product Shelf Space Increase') {
+    if (type === productShelfSpaceIncrease) {
       formData.newShelfFill = shelfFillNew === '' ? 'NA' : shelfFillNew
       formData.comments = comments === '' ? comment : comments
     }
-    if (type === 'Product Shelf Space Decrease') {
+    if (type === productShelfSpaceDecrease) {
       formData.newShelfFill = shelfFillNew
       formData.comments = comments === '' ? comment : comments
     }
@@ -3247,7 +3544,7 @@ function DelistsAddedToRange(props: any) {
         rafpendingActionDetailsCT06.eventId,
         minValue,
         'store'
-      ),
+      ), //summary
       getProductSupplierServiceByItemnumber(minValue),
       // getProductCompositionServiceByItemnumber()
       // getProductCompositionServiceByItemnumber('112056236'),
@@ -3458,8 +3755,105 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
-    } else if (actionType.value === productShelfSpaceIncrease) {
+    } else if (actionType.value === productDistributionIncreaseMin) {
+      // getRangeByIdAndMinNumber('1304', min)
+      //   .then((res: any) => {
+      //     setMinCheckError(false)
+      //     console.log('checking min', res.data)
+      //     let shelfFillCurrent = res.data.shelfFillCurrent
+      //       ? res.data.shelfFillCurrent
+      //       : 0
+      //     setCurrentShelfFill(shelfFillCurrent)
+      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
+      //       ? res.data.rangedStoresCurrent
+      //       : 0
+      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
+      //     setMinCheck(true)
+      //   })
+      //   .catch((err: any) => {
+      //     setMinCheck(false)
+      //     setMinCheckError(true)
+      //   })
+
+      // minCheck &&
       handleActionTypeDialogClose()
+      // minCheck &&
+      getAndCheckItemNumber([
+        min,
+        productDistributionIncreaseMin,
+        '',
+        comments,
+        newStoreCount,
+        'NA',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ])
+    } else if (actionType.value === productDistributionDecreaseMin) {
+      // getRangeByIdAndMinNumber('1304', min)
+      //   .then((res: any) => {
+      //     setMinCheckError(false)
+      //     console.log('checking min', res.data)
+      //     let shelfFillCurrent = res.data.shelfFillCurrent
+      //       ? res.data.shelfFillCurrent
+      //       : 0
+      //     setCurrentShelfFill(shelfFillCurrent)
+      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
+      //       ? res.data.rangedStoresCurrent
+      //       : 0
+      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
+      //     setMinCheck(true)
+      //   })
+      //   .catch((err: any) => {
+      //     setMinCheck(false)
+      //     setMinCheckError(true)
+      //   })
+
+      // minCheck &&
+      handleActionTypeDialogClose()
+      // minCheck &&
+      getAndCheckItemNumber([
+        min,
+        productDistributionDecreaseMin,
+        '',
+        comments,
+        newStoreCount,
+        'NA',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+      ])
+    } else if (actionType.value === productShelfSpaceIncrease) {
+      // getRangeByIdAndMinNumber('1304', min)
+      //   .then((res: any) => {
+      //     setMinCheckError(false)
+      //     console.log('checking min', res.data)
+      //     let shelfFillCurrent = res.data.shelfFillCurrent
+      //       ? res.data.shelfFillCurrent
+      //       : 0
+      //     setCurrentShelfFill(shelfFillCurrent)
+      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
+      //       ? res.data.rangedStoresCurrent
+      //       : 0
+      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
+      //     setMinCheck(true)
+      //   })
+      //   .catch((err: any) => {
+      //     setMinCheck(false)
+      //     setMinCheckError(true)
+      //   })
+
+      // minCheck &&
+      handleActionTypeDialogClose()
+      // minCheck &&
       getAndCheckItemNumber([
         min,
         productShelfSpaceIncrease,
@@ -3476,7 +3870,28 @@ function DelistsAddedToRange(props: any) {
         '',
       ])
     } else if (actionType.value === productShelfSpaceDecrease) {
+      // getRangeByIdAndMinNumber('1304', min)
+      //   .then((res: any) => {
+      //     setMinCheckError(false)
+      //     console.log('checking min', res.data)
+      //     let shelfFillCurrent = res.data.shelfFillCurrent
+      //       ? res.data.shelfFillCurrent
+      //       : 0
+      //     setCurrentShelfFill(shelfFillCurrent)
+      //     let rangedStoresCurrent = res.data.rangedStoresCurrent
+      //       ? res.data.rangedStoresCurrent
+      //       : 0
+      //     setCurrentNoOfRangeStores(rangedStoresCurrent)
+      //     setMinCheck(true)
+      //   })
+      //   .catch((err: any) => {
+      //     setMinCheck(false)
+      //     setMinCheckError(true)
+      //   })
+
+      // minCheck &&
       handleActionTypeDialogClose()
+      // minCheck &&
       getAndCheckItemNumber([
         min,
         productShelfSpaceDecrease,
@@ -3492,10 +3907,29 @@ function DelistsAddedToRange(props: any) {
         '',
         '',
       ])
+    } else if (actionType.value === 'Supplier Change') {
+      handleActionTypeDialogClose()
+      getAndCheckItemNumber([
+        min,
+        'Supplier Change',
+        '',
+        comments,
+        'NA',
+        'NA',
+        newPinDateFrom,
+        newPinDateTo,
+        '',
+        '',
+        supplierExisting,
+        supplierSiteExisting,
+        supplierNew,
+        supplierSiteNew,
+      ])
     }
   }
 
   const handleProductListSave = () => {
+    return console.log('handleProductListSave', importedData)
     console.log('handleProductListSave', importedData)
     const formdata = importedData &&
       eventDetails && {
@@ -3760,6 +4194,7 @@ function DelistsAddedToRange(props: any) {
             onClick={props.onClick}
             value={props.value}
             onChange={props.onChange}
+            className={classes.inputFields}
           />
         )}
       />
@@ -3781,6 +4216,7 @@ function DelistsAddedToRange(props: any) {
             onClick={props.onClick}
             value={props.value}
             onChange={props.onChange}
+            className={classes.inputFields}
           />
         )}
       />
@@ -3802,6 +4238,7 @@ function DelistsAddedToRange(props: any) {
             onClick={props.onClick}
             value={props.value}
             onChange={props.onChange}
+            className={classes.inputFields}
           />
         )}
       />
@@ -3823,11 +4260,113 @@ function DelistsAddedToRange(props: any) {
             onClick={props.onClick}
             value={props.value}
             onChange={props.onChange}
+            className={classes.inputFields}
           />
         )}
       />
     )
   }
+  const handleGetStoreDetails = () => {
+    setIsProgressLoader(true)
+    getRangeResetEventsStoreDepot('3901', min, 'store')
+      .then((res: any) => {
+        setIsProgressLoader(false)
+        if (
+          actionType.value === 'Product Distribution Increase (MIN)' ||
+          actionType.value === 'Product Distribution Decrease (MIN)' ||
+          actionType.value === 'Supplier Change' ||
+          actionType.value === 'Product Shelf Space Increase' ||
+          actionType.value === 'Product Shelf Space Decrease'
+        ) {
+          let rangedStoresCurrent = res.data.rangedStoresCurrent
+            ? res.data.rangedStoresCurrent
+            : 0
+          console.log('responsedata', res.data)
+          setCurrentNoOfRangeStores(rangedStoresCurrent)
+          setCurrentShelfFill(res.data.shelfFillCurrent)
+          if (res.data.hasOwnProperty('storeView')) {
+            setStoreViewData(res.data.storeView)
+          }
+          console.log('existing', res.data.existingSupplier)
+          setSupplierExisting(res.data.existingSupplier)
+          setSupplierSiteExisting(res.data.existingSupplierSite)
+          // else {
+          //   setStoreViewApi([])
+          //   setStorePopupHeader('')
+          // }
+        }
+      })
+      .catch((err: any) => {
+        setIsProgressLoader(false)
+        setCurrentNoOfRangeStores(0)
+        setCurrentShelfFill(0)
+        setSupplierExisting('')
+        setSupplierSiteExisting('')
+      })
+  }
+
+  const handleStoreViewDialogOpen = () => {
+    setStoreViewDialogOpen(true)
+  }
+  const handleStoreViewDialogClose = () => {
+    setStoreViewDialogOpen(false)
+  }
+  const storeViewDialog = (
+    <Dialog
+      open={storeViewDialogOpen}
+      onClose={handleStoreViewDialogClose}
+      fullWidth
+      classes={{ paperFullWidth: classes.placeholderDialog }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          //   width: small ? '500px' : '260px',
+          // height: "250px",
+          //border: '3px solid green',
+          borderRadius: 5,
+          padding: '10px',
+        }}
+      >
+        <DialogHeader
+          title={`Add ${actionType && actionType.value}`}
+          onClose={handleStoreViewDialogClose}
+        />
+
+        <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+          <Box sx={{ p: 1, display: 'flex', flexDirection: 'row' }}>
+            <Box>
+              <Typography color="primary" variant="subtitle2">
+                Store View
+              </Typography>
+            </Box>
+          </Box>
+          <DataTable
+            value={storeViewData}
+            showGridlines
+            scrollable
+            scrollHeight="400px"
+          >
+            {rangedStoresTableCols.map((col: any) => {
+              return (
+                <Column
+                  key={col.field}
+                  header={col.header}
+                  field={col.field}
+                  bodyStyle={tableBodyStyle(col.width)}
+                  headerStyle={tableHeaderStyle(
+                    col.width,
+                    theme.palette.primary.main
+                  )}
+                />
+              )
+            })}
+          </DataTable>
+        </Box>
+      </Box>
+    </Dialog>
+  )
 
   const actionTypeDialog = (
     <Dialog
@@ -4041,7 +4580,7 @@ function DelistsAddedToRange(props: any) {
             <Box sx={{ p: 1, display: 'flex', flexDirection: 'row' }}>
               <Box>
                 <Typography variant="body2" color="error">
-                  {min} is not an Invalid MIN.
+                  {min} is not an valid MIN.
                 </Typography>
               </Box>
             </Box>
@@ -4055,7 +4594,7 @@ function DelistsAddedToRange(props: any) {
               width: '100%',
             }}
           >
-            {actionType && actionType.value === 'Delist Product (MIN)' && (
+            {actionType && actionType.value === delistProductMin && (
               <>
                 <Box
                   sx={{
@@ -4557,6 +5096,196 @@ function DelistsAddedToRange(props: any) {
                 </MuiPickersUtilsProvider>
               </>
             )}
+            {actionType &&
+              actionType.value === 'Product Distribution Increase (MIN)' && (
+                <>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        MIN
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        <OutlinedInput
+                          value={min}
+                          onChange={(e: any) => {
+                            setCurrentNoOfRangeStores(0)
+                            setMin(e.target.value)
+                          }}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Current no. of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        className={classes.blueText}
+                      >
+                        {currentNoOfRangeStores && storeViewData ? (
+                          <button
+                            onClick={handleStoreViewDialogOpen}
+                            className={classes.blueTextButton}
+                          >
+                            {currentNoOfRangeStores && currentNoOfRangeStores}
+                          </button>
+                        ) : (
+                          <>0</>
+                        )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        New no.of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                       type="text"
+                       value={comments}
+                       onChange={(e: any) => setComments(e.target.value)}
+                     /> */}
+                        <OutlinedInput
+                          type="number"
+                          value={newStoreCount}
+                          onChange={(e: any) => {
+                            if (e.target.value >= 0) {
+                              setNewStoreCount(e.target.value)
+                            }
+                          }}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Comments
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                       type="text"
+                       value={comments}
+                       onChange={(e: any) => setComments(e.target.value)}
+                     /> */}
+                        <OutlinedInput
+                          value={comments}
+                          onChange={(e: any) => setComments(e.target.value)}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              )}
+            {actionType &&
+              actionType.value === 'Product Distribution Decrease (MIN)' && (
+                <>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        MIN
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        <OutlinedInput
+                          value={min}
+                          onChange={(e: any) => {
+                            setCurrentNoOfRangeStores(0)
+                            setMin(e.target.value)
+                          }}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Current no. of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography
+                        variant="subtitle2"
+                        className={classes.blueText}
+                      >
+                        {currentNoOfRangeStores && storeViewData ? (
+                          <button
+                            onClick={handleStoreViewDialogOpen}
+                            className={classes.blueTextButton}
+                          >
+                            {currentNoOfRangeStores && currentNoOfRangeStores}
+                          </button>
+                        ) : (
+                          <>0</>
+                        )}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        New no.of Range Stores
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                       type="text"
+                       value={comments}
+                       onChange={(e: any) => setComments(e.target.value)}
+                     /> */}
+                        <OutlinedInput
+                          type="number"
+                          value={newStoreCount}
+                          onChange={(e: any) => {
+                            if (e.target.value >= 0) {
+                              setNewStoreCount(e.target.value)
+                            }
+                          }}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Comments
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                       type="text"
+                       value={comments}
+                       onChange={(e: any) => setComments(e.target.value)}
+                     /> */}
+                        <OutlinedInput
+                          value={comments}
+                          onChange={(e: any) => setComments(e.target.value)}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                </>
+              )}
             {actionType && actionType.value === productShelfSpaceIncrease && (
               <>
                 <Box sx={{ p: 1, display: 'flex', flexDirection: 'column' }}>
@@ -4570,8 +5299,11 @@ function DelistsAddedToRange(props: any) {
                       <OutlinedInput
                         value={min}
                         onChange={(e: any) => {
-                          setMinCheckError(false)
+                          // setMinCheckError(false)
                           setMin(e.target.value)
+                          setMin(e.target.value)
+                          setCurrentNoOfRangeStores(0)
+                          setCurrentShelfFill(0)
                         }}
                         className={classes.inputFields}
                       />
@@ -4589,7 +5321,16 @@ function DelistsAddedToRange(props: any) {
                       variant="subtitle2"
                       className={classes.blueText}
                     >
-                      {currentNoOfRangeStores && currentNoOfRangeStores}
+                      {currentNoOfRangeStores && storeViewData ? (
+                        <button
+                          onClick={handleStoreViewDialogOpen}
+                          className={classes.blueTextButton}
+                        >
+                          {currentNoOfRangeStores && currentNoOfRangeStores}
+                        </button>
+                      ) : (
+                        <>0</>
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -4671,8 +5412,9 @@ function DelistsAddedToRange(props: any) {
                       <OutlinedInput
                         value={min}
                         onChange={(e: any) => {
-                          setMinCheckError(false)
                           setMin(e.target.value)
+                          setCurrentNoOfRangeStores(0)
+                          setCurrentShelfFill(0)
                         }}
                         className={classes.inputFields}
                       />
@@ -4690,7 +5432,16 @@ function DelistsAddedToRange(props: any) {
                       variant="subtitle2"
                       className={classes.blueText}
                     >
-                      {currentNoOfRangeStores && currentNoOfRangeStores}
+                      {currentNoOfRangeStores && storeViewData ? (
+                        <button
+                          onClick={handleStoreViewDialogOpen}
+                          className={classes.blueTextButton}
+                        >
+                          {currentNoOfRangeStores && currentNoOfRangeStores}
+                        </button>
+                      ) : (
+                        <>0</>
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -4758,6 +5509,229 @@ function DelistsAddedToRange(props: any) {
                 </Box>
               </>
             )}
+            {actionType && actionType.value === 'Supplier Change' && (
+              <>
+                <MuiPickersUtilsProvider utils={DateFnsUtils}>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Delist MIN/PIN
+                        <span style={{ color: 'red' }}>*</span>
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={min}
+                          onChange={(e: any) => {
+                            setMin(e.target.value)
+                            setSupplierExisting('')
+                            setSupplierSiteExisting('')
+                          }}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Supplier (Existing)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={supplierExisting}
+                          // onChange={(e: any) =>
+                          //   setSupplierExisting(e.target.value)
+                          // }
+                          disabled
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Supplier Site (Existing)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={supplierSiteExisting}
+                          disabled
+                          // onChange={(e: any) =>
+                          //   setSupplierSiteExisting(e.target.value)
+                          // }
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Supplier (New)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={supplierNew}
+                          onChange={(e: any) => setSupplierNew(e.target.value)}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Supplier Site (New)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={min}
+                        onChange={(e: any) => setMin(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={supplierSiteNew}
+                          onChange={(e: any) =>
+                            setSupplierSiteNew(e.target.value)
+                          }
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Effective Date(From)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {newPinEffectiveDateFrom()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Effective Date(To)
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {newPinEffectiveDateTo()}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box
+                    sx={{
+                      p: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      // flexGrow: '1',
+                    }}
+                  >
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        Comments
+                      </Typography>
+                    </Box>
+                    <Box>
+                      <Typography variant="subtitle2" color="primary">
+                        {/* <input
+                        type="text"
+                        value={comments}
+                        onChange={(e: any) => setComments(e.target.value)}
+                      /> */}
+                        <OutlinedInput
+                          value={comments}
+                          onChange={(e: any) => setComments(e.target.value)}
+                          className={classes.inputFields}
+                        />
+                      </Typography>
+                    </Box>
+                  </Box>
+                </MuiPickersUtilsProvider>
+              </>
+            )}
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
             <Box sx={{ p: 2 }}>
@@ -4769,6 +5743,22 @@ function DelistsAddedToRange(props: any) {
                 Save
               </Button>
             </Box>
+            {actionType &&
+              (actionType.value === 'Product Shelf Space Decrease' ||
+                actionType.value === 'Product Shelf Space Increase' ||
+                actionType.value === 'Product Distribution Increase (MIN)' ||
+                actionType.value === 'Supplier Change' ||
+                actionType.value === 'Product Distribution Decrease (MIN)') && (
+                <Box sx={{ p: 2 }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={handleGetStoreDetails} //De-list save
+                  >
+                    Get MIN Details
+                  </Button>
+                </Box>
+              )}
           </Box>
         </Box>
       </Box>
@@ -5079,6 +6069,48 @@ function DelistsAddedToRange(props: any) {
   useEffect(() => {
     console.log('replacement list', replacementAssociationProduct)
   }, [replacementAssociationProduct])
+  const [supplierSelected, setSupplierSelected] = useState<any>([])
+  const [editButtonSupply, setEditButtonSupply] = useState<any>(true)
+  const [editClick, setEditClick] = useState<any>(false)
+
+  useEffect(() => {
+    // console.log('supplierSelected', supplierSelected)
+    if (supplierSelected.length > 0) {
+      setEditButtonSupply(false)
+    } else {
+      setEditButtonSupply(true)
+      setEditClick(false)
+    }
+  }, [supplierSelected])
+
+  const handleProductListEdit = () => {
+    setEditClick(true)
+    console.log('handleProductListEdit')
+  }
+
+  const handleProductTableSelect = (e: any) => {
+    let selectedData = e.value
+
+    let replacementData = selectedData.filter((selected: any) => {
+      return (
+        selected.actionType !== 'New Product (MIN)' &&
+        selected.actionType !== 'New MIN' &&
+        selected.actionType !== 'New Product (MIN) Placeholder' &&
+        selected.actionType !== 'Placeholder MIN'
+      )
+    })
+    console.log('replaced', replacementData)
+
+    setSelectedProductListItems(selectedData)
+
+    setReplacementAssociationProduct(replacementData)
+    setSupplierSelected(selectedData)
+  }
+  // const refreshPage = () => {
+  //   setIsProgressLoader(true)
+  //   setRefreshClick(!refreshClick)
+  //   setIsProgressLoader(false)
+  // }
   const productListTable = (
     <Grid
       item
@@ -5169,8 +6201,10 @@ function DelistsAddedToRange(props: any) {
             selectionMode="checkbox"
             selection={selectedProductListItems}
             onSelectionChange={(e: any) => {
-              setSelectedProductListItems(e.value)
-              setReplacementAssociationProduct(e.value)
+              // setSelectedProductListItems(e.value)
+              // setReplacementAssociationProduct(e.value)
+              // setSupplierSelected(e.value)
+              handleProductTableSelect(e)
             }}
             showGridlines
             scrollable
@@ -5192,27 +6226,52 @@ function DelistsAddedToRange(props: any) {
                   field={col.field}
                   header={col.header}
                   body={
+                    (col.field === 'actionType' && actionTypeTemplate) ||
                     (col.field === 'lineStatus' && lineStatusTemplate) ||
+                    (col.field === 'pin' && pinProductListTemplate) ||
+                    (col.field === 'ingredientMin' && ingredientMinTemplate) ||
                     (col.field === 'legacyItemNumbers' &&
                       legacyItemNumbersImportedTemplate) ||
-                    (col.field === 'pin' && pinProductListTemplate) ||
+                    //edit fields
                     (col.field === 'man' && manImportedTemplate) ||
+                    (col.field === 'description' &&
+                      descriptionImportedTemplate) ||
+                    (col.field === 'replaceMinDescription' &&
+                      replaceMinDescriptionImportedTemplate) ||
+                    (col.field === 'unitretailInc' &&
+                      unitretailIncImportedTemplate) ||
+                    (col.field === 'unitretailEx' &&
+                      unitretailExImportedTemplate) ||
+                    (col.field === 'unitcost' && unitCostImportedTemplate) ||
                     (col.field === 'casecost' && caseCostImportedTemplate) ||
                     (col.field === 'packquantity' &&
                       packQuantityImportedTemplate) ||
-                    (col.field === 'includeInClearancePricing' &&
-                      includeInClearancePricingTemplate) ||
-                    (col.field === 'ingredientMin' && ingredientMinTemplate) ||
-                    (col.field === 'noOfRecipeMin' && recipeMinTemplate) ||
-                    (col.field === 'clearDepotBy' && clearDepotByTemplate) ||
-                    (col.field === 'existingSupplier' &&
-                      existingSupplierProductListTemplate) ||
-                    (col.field === 'unitcost' && unitCostImportedTemplate) ||
+                    // (col.field === 'supplierId' &&
+                    //   supplierIdImportedTemplate) ||
+                    // (col.field === 'supplierSiteNameCode' &&
+                    //   supplierSiteNameCodeImportedTemplate) ||
                     (col.field === 'local' && localTemplate) ||
+                    (col.field === 'perStorepPerWeek' &&
+                      perStorepPerWeekImportedTemplate) ||
                     (col.field === 'onlineCFC' && onlineCFCTemplate) ||
+                    (col.field === 'wholesale' && wholesaleTemplate) ||
                     (col.field === 'onlineStorePick' &&
                       onlineStorePickTemplate) ||
-                    (col.field === 'wholesale' && wholesaleTemplate) ||
+                    (col.field === 'currentnoofrangedstores' &&
+                      currentNoOfRangeStoresTemplate) ||
+                    // (col.field === 'ownBrand' && ownBrandImportedTemplate) ||
+                    (col.field === 'includeInClearancePricing' &&
+                      includeInClearancePricingTemplate) ||
+                    (col.field === 'includeInStoreWastage' &&
+                      includeInStoreWastageTemplate) ||
+                    (col.field === 'clearDepotBy' && clearDepotByTemplate) ||
+                    (col.field === 'supplierCommitment' &&
+                      supplierCommitmentTemplate) ||
+                    //edit fields
+
+                    (col.field === 'noOfRecipeMin' && recipeMinTemplate) ||
+                    (col.field === 'existingSupplier' &&
+                      existingSupplierProductListTemplate) ||
                     (col.field === 'effectiveDateFrom' &&
                       effectiveDateFromProductTableTemplate) ||
                     (col.field === 'effectiveDateTo' &&
@@ -5222,13 +6281,17 @@ function DelistsAddedToRange(props: any) {
                     (col.field === 'systemSuggestedStopOrderDate' &&
                       systemGeneratedStopOrderDateTemplate) ||
                     (col.field === 'lastPoDate' && lastPoDateTemplate) ||
-                    (col.field === 'includeInStoreWastage' &&
-                      includeInStoreWastageTemplate) ||
-                    (col.field === 'supplierCommitment' &&
-                      supplierCommitmentTemplate) ||
-                    (col.field === 'currentnoofrangedstores' &&
-                      currentNoOfRangeStoresTemplate) ||
+                    (col.field === 'newnoofrangestores' &&
+                      newNoOfRangeStoresTemplate) ||
+                    (col.field === 'newShelfFill' &&
+                      newShelfFillImportedTemplate) ||
                     (col.field === 'depotStockUnit' && depotStockTemplate) ||
+                    (col.field === 'depotClearbyReservedQtyRetail' &&
+                      depotClearReservedQtyRetailImportedTemplate) ||
+                    (col.field === 'depotClearbyReservedQtyWholesale' &&
+                      depotClearReservedQtyWholesaleImportedTemplate) ||
+                    (col.field === 'depotClearbyReservedQtyOnline' &&
+                      depotClearReservedQtyOnlineImportedTemplate) ||
                     (col.field === 'comments' && commentsTemplate)
                   }
                   // style={{
@@ -5345,7 +6408,7 @@ function DelistsAddedToRange(props: any) {
           replace_min_pin: '148759650',
           effectiveDateFrom: null,
           effectiveDateTo: null,
-          comments: 'Hello',
+          comments: '',
         })
       }
 
@@ -5713,6 +6776,7 @@ function DelistsAddedToRange(props: any) {
           console.log(data)
           const data1 = xlsx.utils.sheet_to_json(ws, { header: 1 })
           const cols: any = data1[0]
+
           const json = JSON.parse(
             JSON.stringify(data).replace(/"\s+|\s+"/g, '"')
           )
@@ -5809,10 +6873,11 @@ function DelistsAddedToRange(props: any) {
           //     wholesale: d[cols[11]] ? d[cols[11]] : '',
           //   }
           // })
+
           newData.map((rowdata: any) => {
             return barcodetemplateCheck(rowdata, rowdata.barcode)
           })
-          console.log(newData)
+          console.log('handlePlaceholderFileUpload', newData)
           if (placeholderProducts && placeholderProducts.length > 0) {
             setPlaceholderProducts((prevState: any) => {
               return [...prevState, ...newData]
@@ -7197,6 +8262,7 @@ function DelistsAddedToRange(props: any) {
                 color="primary"
                 // onClick={removeReplaceAssociate}
                 onClick={removeReplacements}
+                disabled={selectedReplaceAssData.length > 0 ? false : true}
               >
                 Delete
               </Button>
@@ -7311,6 +8377,10 @@ function DelistsAddedToRange(props: any) {
         })
     }
   }
+
+  useEffect(() => {
+    console.log('actionType', actionType)
+  }, [actionType])
 
   return (
     <>
@@ -7463,6 +8533,11 @@ function DelistsAddedToRange(props: any) {
                   variant="contained"
                   color="primary"
                   onClick={handleActionTypeDialogOpen}
+                  disabled={
+                    actionType && actionType.value === 'Multiple Selection'
+                      ? true
+                      : false
+                  }
                 >
                   Add
                 </Button>
@@ -7513,14 +8588,24 @@ function DelistsAddedToRange(props: any) {
               </button>
             </Grid>
             <Grid item sm={4} xs={12}>
-              <button
-                className="backButton"
-                onClick={handleReplacemantAssociationDialogOpen}
+              <Tooltip
+                title={
+                  <Typography variant="caption">
+                    {`Replacement is not applicable for`}
+                    <br />
+                    {`New Product (MIN) & New Product (MIN) Placeholder`}
+                  </Typography>
+                }
               >
-                <Typography variant="body2" color="primary">
-                  Replacement Association
-                </Typography>
-              </button>
+                <button
+                  className="backButton"
+                  onClick={handleReplacemantAssociationDialogOpen}
+                >
+                  <Typography variant="body2" color="primary">
+                    Replacement Association
+                  </Typography>
+                </button>
+              </Tooltip>
             </Grid>
             <Grid item sm={4} xs={12}>
               <button
@@ -7599,8 +8684,8 @@ function DelistsAddedToRange(props: any) {
                 <Button
                   variant="contained"
                   color="primary"
-                  //onClick={handleProductListSave}
-                  disabled
+                  onClick={handleProductListEdit}
+                  disabled={editButtonSupply}
                 >
                   Edit
                 </Button>
@@ -7654,6 +8739,7 @@ function DelistsAddedToRange(props: any) {
       {recipeDialog}
       {depotStockUnitViewButtonsDialog}
       {pinDialogBox}
+      {storeViewDialog}
     </>
   )
 }
