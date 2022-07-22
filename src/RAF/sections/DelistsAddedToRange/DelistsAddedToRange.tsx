@@ -3582,7 +3582,8 @@ function DelistsAddedToRange(props: any) {
             replaceMin: item.replaceMin !== 'NA' ? item.replaceMin : null,
             effectiveFromDate: item.effectiveDateFrom
               ? item.effectiveDateFrom
-              : eventDetails[0].targetDate,
+              : '',
+            // : eventDetails[0].targetDate,
             effectiveToDate: item.effectiveDateTo ? item.effectiveDateTo : '',
             derangedLocations: item.storeNumbersForspecificStoreRange
               ? item.storeNumbersForspecificStoreRange
@@ -7609,6 +7610,12 @@ function DelistsAddedToRange(props: any) {
                   variant="contained"
                   color="primary"
                   //onClick={handleProductListSave}
+                  disabled={
+                    rafpendingActionDetailsCT06 &&
+                    rafpendingActionDetailsCT06.taskName === 'CT06'
+                      ? true
+                      : false
+                  }
                 >
                   Reject
                 </Button>
