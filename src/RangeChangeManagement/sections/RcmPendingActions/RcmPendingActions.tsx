@@ -776,7 +776,7 @@ function RcmPendingActions(props: any) {
               className={classes.linkButton}
               to={`${DEFAULT}${USERCONFIG_USERCREATE}`}
             >
-              go to user management
+              User Management App
             </Link>
             <AutocompleteSelect
               value={userAssigned}

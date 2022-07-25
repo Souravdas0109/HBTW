@@ -204,6 +204,7 @@ function DelistsAddedToRange(props: any) {
   const [selectedProductListItems, setSelectedProductListItems] = useState<any>(
     []
   )
+  const [replacementCheck, setReplacementCheck] = useState(false)
   const [bulkActions, setBulkActions] = useState<any>()
   const [openActionTypeDialog, setOpenActionTypeDialog] = useState(false)
 
@@ -1952,6 +1953,21 @@ function DelistsAddedToRange(props: any) {
     //   console.log("error store view")
     // })
   }
+
+  useEffect(() => {
+    if (selectedProductListItems.length > 0) {
+      for (let i = 0; i < selectedProductListItems.length; i++) {
+        if (selectedProductListItems[i].actionType === 'Delist Product (MIN)') {
+          console.log('goooooo')
+          setReplacementCheck(false)
+        } else {
+          console.log('passss')
+          setReplacementCheck(true)
+          break
+        }
+      }
+    }
+  }, [selectedProductListItems])
 
   useEffect(() => {
     console.log('storeViewApi', storeViewApi)
@@ -8597,21 +8613,23 @@ function DelistsAddedToRange(props: any) {
                   </Typography>
                 }
               >
-                <button
-                  className="backButton"
+                <Button
+                  // className="backButton"
+                  variant="contained"
                   onClick={handleReplacemantAssociationDialogOpen}
                   disabled={
-                    taskId === 'CT06'
-                      ? true
-                      : selectedProductListItems.length > 0
-                      ? false
+                    // taskId === 'CT06'
+                    //   ? true
+                    //   :
+                    selectedProductListItems.length > 0
+                      ? replacementCheck
                       : true
                   }
                 >
                   <Typography variant="body2" color="primary">
                     Replacement Association
                   </Typography>
-                </button>
+                </Button>
               </Tooltip>
             </Grid>
             <Grid item sm={4} xs={12}>
