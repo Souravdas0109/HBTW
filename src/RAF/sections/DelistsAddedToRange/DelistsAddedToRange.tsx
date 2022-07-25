@@ -201,8 +201,9 @@ function DelistsAddedToRange(props: any) {
   const [replacementAssociationProduct, setReplacementAssociationProduct] =
     useState<any>([])
   const [newProductId, setNewProductId] = useState<any>('')
-  const [selectedProductListItems, setSelectedProductListItems] =
-    useState<any>()
+  const [selectedProductListItems, setSelectedProductListItems] = useState<any>(
+    []
+  )
   const [bulkActions, setBulkActions] = useState<any>()
   const [openActionTypeDialog, setOpenActionTypeDialog] = useState(false)
 
@@ -3929,7 +3930,6 @@ function DelistsAddedToRange(props: any) {
   }
 
   const handleProductListSave = () => {
-    return console.log('handleProductListSave', importedData)
     console.log('handleProductListSave', importedData)
     const formdata = importedData &&
       eventDetails && {
@@ -8600,6 +8600,13 @@ function DelistsAddedToRange(props: any) {
                 <button
                   className="backButton"
                   onClick={handleReplacemantAssociationDialogOpen}
+                  disabled={
+                    taskId === 'CT06'
+                      ? true
+                      : selectedProductListItems.length > 0
+                      ? false
+                      : true
+                  }
                 >
                   <Typography variant="body2" color="primary">
                     Replacement Association

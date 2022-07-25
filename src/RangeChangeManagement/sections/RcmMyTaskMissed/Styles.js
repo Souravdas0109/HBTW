@@ -36,6 +36,16 @@ export const useStyles = makeStyles((theme) => ({
       cursor: 'default',
     },
   },
+  linkButton: {
+    border: 0,
+    color: theme.palette.secondary.main,
+    cursor: 'pointer',
+    fontSize: '15px',
+    // '&:disabled': {
+    //   color: 'grey',
+    //   cursor: 'default',
+    // },
+  },
   exploreButtonforid: {
     color: 'blue',
     cursor: 'pointer',

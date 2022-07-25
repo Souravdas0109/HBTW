@@ -12,7 +12,7 @@ import { DataTable } from 'primereact/datatable'
 import { Column } from 'primereact/column'
 import React, { useEffect, useState, useRef } from 'react'
 import { connect } from 'react-redux'
-import { useHistory } from 'react-router-dom'
+import { useHistory, Link } from 'react-router-dom'
 import { teal } from '@material-ui/core/colors'
 import { useStyles } from './Styles'
 import { Toast } from 'primereact/toast'
@@ -53,7 +53,8 @@ function RcmPendingActionsNextWeek(props: any) {
     reset_range_pendingAction,
     set_raf_pendingAction_CT06,
   } = props
-  const { DEFAULT, DASHBOARD, DASHBOARD_RAF_CT06 } = routes
+  const { DEFAULT, DASHBOARD, DASHBOARD_RAF_CT06, USERCONFIG_USERCREATE } =
+    routes
   const theme = useTheme()
   const active = useMediaQuery(theme.breakpoints.down(700))
   const active1 = useMediaQuery(theme.breakpoints.between(370, 700))
@@ -611,6 +612,12 @@ function RcmPendingActionsNextWeek(props: any) {
                 }
               />
             </Typography>
+            <Link
+              className={classes.linkButton}
+              to={`${DEFAULT}${USERCONFIG_USERCREATE}`}
+            >
+              User Management App
+            </Link>
             <AutocompleteSelect
               value={userAssigned}
               options={assigneeUsers}
