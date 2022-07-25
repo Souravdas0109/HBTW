@@ -421,16 +421,24 @@ function DelistsAddedToRange(props: any) {
                 : null,
               onlineCFC: item.rangestatus
                 ? item.rangestatus.online
-                  ? item.rangestatus.online[0].toLowerCase() === 'Online'
+                  ? item.rangestatus.online[1].toLowerCase() === 'OnlineCFC'
                     ? 'Y'
                     : 'N'
-                  : null
-                : null,
-              onlineStorePick: item.rangestatus
-                ? item.rangestatus.retail
-                  ? item.rangestatus.retail.join(',')
-                  : null
-                : null,
+                  : 'N'
+                : 'N',
+              onlineStorePick:
+                // item.rangestatus
+                //   ? item.rangestatus.retail
+                //     ? item.rangestatus.retail.join(',')
+                //     : null
+                //   : null,
+                item.rangestatus
+                  ? item.rangestatus.online
+                    ? item.rangestatus.online[0].toLowerCase() === 'Online'
+                      ? 'Y'
+                      : 'N'
+                    : 'N'
+                  : 'N',
               wholesale: item.rangestatus
                 ? item.rangestatus.wholesale
                   ? item.rangestatus.wholesale
@@ -499,9 +507,11 @@ function DelistsAddedToRange(props: any) {
                 item.storeNumbersForspecificStoreRange
                   ? item.storeNumbersForspecificStoreRange
                   : null,
-              forward_forecast_to_launch: item.frwdForecastToLaunch
-                ? item.frwdForecastToLaunch
-                : null,
+              forward_forecast_to_launch:
+                // item.frwdForecastToLaunch
+                //   ? item.frwdForecastToLaunch
+                //   : null,
+                item.totalSalesForecast ? item.totalSalesForecast : null,
               averageWeeklyVolume: item.total3MonthsPOHistory
                 ? item.total3MonthsPOHistory
                 : null,
@@ -610,18 +620,34 @@ function DelistsAddedToRange(props: any) {
                 perStorepPerWeek: item.hasOwnProperty('perStorepPerWeek')
                   ? item.perStorepPerWeek
                   : null,
-                onlineCFC: item.rangestatus
-                  ? item.rangestatus.online
-                    ? item.rangestatus.online[0].toLowerCase() === 'Online'
-                      ? 'Y'
+                onlineCFC:
+                  // item.rangestatus
+                  //   ? item.rangestatus.online
+                  //     ? item.rangestatus.online[0].toLowerCase() === 'Online'
+                  //       ? 'Y'
+                  //       : 'N'
+                  //     : null
+                  //   : null,
+                  item.rangestatus
+                    ? item.rangestatus.online
+                      ? item.rangestatus.online[1].toLowerCase() === 'OnlineCFC'
+                        ? 'Y'
+                        : 'N'
                       : 'N'
-                    : null
-                  : null,
-                onlineStorePick: item.rangestatus
-                  ? item.rangestatus.retail
-                    ? item.rangestatus.retail.join(',')
-                    : null
-                  : null,
+                    : 'N',
+                onlineStorePick:
+                  // item.rangestatus
+                  //   ? item.rangestatus.retail
+                  //     ? item.rangestatus.retail.join(',')
+                  //     : null
+                  //   : null,
+                  item.rangestatus
+                    ? item.rangestatus.online
+                      ? item.rangestatus.online[0].toLowerCase() === 'Online'
+                        ? 'Y'
+                        : 'N'
+                      : 'N'
+                    : 'N',
                 wholesale: item.rangestatus
                   ? item.rangestatus.wholesale
                     ? item.rangestatus.wholesale
@@ -690,9 +716,11 @@ function DelistsAddedToRange(props: any) {
                   item.storeNumbersForspecificStoreRange
                     ? item.storeNumbersForspecificStoreRange
                     : null,
-                forward_forecast_to_launch: item.frwdForecastToLaunch
-                  ? item.frwdForecastToLaunch
-                  : null,
+                forward_forecast_to_launch:
+                  // item.frwdForecastToLaunch
+                  //   ? item.frwdForecastToLaunch
+                  //   : null,
+                  item.totalSalesForecast ? item.totalSalesForecast : null,
                 averageWeeklyVolume: item.total3MonthsPOHistory
                   ? item.total3MonthsPOHistory
                   : null,
@@ -2185,6 +2213,63 @@ function DelistsAddedToRange(props: any) {
       return <>{rowData.depotClearbyReservedQtyOnline}</>
     }
   }
+  const newSupplierImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (
+      editClick &&
+      check.length > 0 &&
+      check[0].min === rowData.min &&
+      (rowData.actionType === placeholderMin ||
+        rowData.actionType === supplyChange)
+    ) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newSupplier'}
+        />
+      )
+    }
+    // else if (
+    //   rowData.actionType === newProductMin ||
+    //   rowData.actionType === supplyChange
+    // ) {
+    //   return <>{rowData.newSupplier}</>
+    // }
+    else {
+      return <>{rowData.newSupplier}</>
+    }
+  }
+  const newSupplierSiteImportedTemplate = (rowData: any) => {
+    const check = supplierSelected.filter((val: any) => rowData.min === val.min)
+    if (
+      editClick &&
+      check.length > 0 &&
+      check[0].min === rowData.min &&
+      (rowData.actionType === placeholderMin ||
+        rowData.actionType === supplyChange)
+    ) {
+      return (
+        <DelistInputEdit
+          rowData={rowData}
+          setImportedData={setImportedData}
+          onChangeProductTableFields={onChangeProductTableFields}
+          field={'newSupplierSite'}
+        />
+      )
+    }
+    // else if (
+    //   rowData.actionType === newProductMin ||
+    //   rowData.actionType === supplyChange
+    // )
+    // {
+    //   return <>{rowData.newSupplierSite}</>
+    // }
+    else {
+      return <>{rowData.newSupplierSite}</>
+    }
+  }
   const commentsTemplate = (rowData: any) => {
     const check = supplierSelected.filter((val: any) => rowData.min === val.min)
     if (editClick && check.length > 0 && check[0].min === rowData.min) {
@@ -3261,6 +3346,8 @@ function DelistsAddedToRange(props: any) {
       supplierNew_x,
       supplierSiteNew_x,
     ] = props
+
+    let updateFlag = 0
     var minVal = 1000000000000
     var max = 9999999999999
     var rand = Math.floor(minVal + Math.random() * (max - minVal))
@@ -3499,20 +3586,43 @@ function DelistsAddedToRange(props: any) {
     }
 
     if (importedData && importedData.length > 0) {
-      setImportedData((prevState: any) => {
-        return [...prevState, formData]
-      })
+      let minCheck = importedData.findIndex(
+        (data: any) => data.min === formData.min
+      )
+      console.log('mincheck1', minCheck)
+      if (minCheck !== -1) {
+        updateFlag = 1
+        let newData = importedData
+        let idCheck = importedData[minCheck]._idCheck
+        formData._idCheck = idCheck
+        newData[minCheck] = formData
+        setImportedData(newData)
+      } else {
+        setImportedData((prevState: any) => {
+          return [...prevState, formData]
+        })
+      }
     } else {
       setImportedData([formData])
     }
     console.log('formData', formData)
-    toast.current.show({
-      severity: 'success',
-      summary: 'Success',
-      detail: `${minValue} ${allMessages.success.itemIdSuccess}`,
-      life: life,
-      className: 'login-toast',
-    })
+    if (updateFlag === 1) {
+      toast.current.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: `${minValue} ${allMessages.success.itemIdUpdate}`,
+        life: life,
+        className: 'login-toast',
+      })
+    } else {
+      toast.current.show({
+        severity: 'success',
+        summary: 'Success',
+        detail: `${minValue} ${allMessages.success.itemIdSuccess}`,
+        life: life,
+        className: 'login-toast',
+      })
+    }
     setIsProgressLoader(false)
     setActionType('')
   }
@@ -6209,7 +6319,7 @@ function DelistsAddedToRange(props: any) {
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <DataTable
             value={importedData && importedData}
-            className="p-datatable-sm"
+            // className="p-datatable-sm"
             // paginator
             // rows={10}
             // alwaysShowPaginator={false}
@@ -6308,6 +6418,10 @@ function DelistsAddedToRange(props: any) {
                       depotClearReservedQtyWholesaleImportedTemplate) ||
                     (col.field === 'depotClearbyReservedQtyOnline' &&
                       depotClearReservedQtyOnlineImportedTemplate) ||
+                    (col.field === 'newSupplier' &&
+                      newSupplierImportedTemplate) ||
+                    (col.field === 'newSupplierSite' &&
+                      newSupplierSiteImportedTemplate) ||
                     (col.field === 'comments' && commentsTemplate)
                   }
                   // style={{
@@ -7999,7 +8113,9 @@ function DelistsAddedToRange(props: any) {
         format="dd/MM/yy"
         value={
           rowData &&
-          (rowData['effectiveDateFrom'] ? rowData['effectiveDateFrom'] : null)
+          (rowData['effectiveDateFrom']
+            ? rowData['effectiveDateFrom']
+            : eventDetails[0].targetDate)
         }
         onChange={(date: any) => {
           let newDate = date.toISOString().split('T')[0]
@@ -8112,6 +8228,9 @@ function DelistsAddedToRange(props: any) {
             (prod: any) => prod._idCheck === state._idCheck
           )
           if (singleData && singleData.length === 1) {
+            if (!singleData[0].effectiveDateFrom) {
+              singleData[0].effectiveDateFrom = eventDetails[0].targetDate
+            }
             console.log('singleData', singleData, state._idCheck)
             if (state._idCheck === singleData[0]._idCheck) {
               return {
@@ -8126,8 +8245,8 @@ function DelistsAddedToRange(props: any) {
           }
         })
       })
-      setReplacementAssociationProduct(null)
-      setSelectedProductListItems(null)
+      setReplacementAssociationProduct([])
+      setSelectedProductListItems([])
       setOpenReplacementAssDialog(false)
     } else {
       setReplaceError(true)
@@ -8594,14 +8713,15 @@ function DelistsAddedToRange(props: any) {
             style={{ textAlign: 'center' }}
           >
             <Grid item sm={4} xs={12}>
-              <button
-                className="backButton"
+              <Button
+                // className="backButton"
+                variant="contained"
+                color="primary"
+                size="small"
                 onClick={handlePlaceholderDialogOpen}
               >
-                <Typography variant="body2" color="primary">
-                  Add Placeholder MIN/PIN
-                </Typography>
-              </button>
+                <Typography variant="body2">Add Placeholder MIN/PIN</Typography>
+              </Button>
             </Grid>
             <Grid item sm={4} xs={12}>
               <Tooltip
@@ -8616,6 +8736,8 @@ function DelistsAddedToRange(props: any) {
                 <Button
                   // className="backButton"
                   variant="contained"
+                  color="primary"
+                  size="small"
                   onClick={handleReplacemantAssociationDialogOpen}
                   disabled={
                     // taskId === 'CT06'
@@ -8626,21 +8748,21 @@ function DelistsAddedToRange(props: any) {
                       : true
                   }
                 >
-                  <Typography variant="body2" color="primary">
+                  <Typography variant="body2">
                     Replacement Association
                   </Typography>
                 </Button>
               </Tooltip>
             </Grid>
             <Grid item sm={4} xs={12}>
-              <button
-                className="backButton"
+              <Button
+                // className="backButton"
                 // onClick={handlePlaceholderDialogOpen}
+                variant="contained"
+                color="primary"
               >
-                <Typography variant="body2" color="primary">
-                  Issue Delist Letter
-                </Typography>
-              </button>
+                <Typography variant="body2">Issue Delist Letter</Typography>
+              </Button>
             </Grid>
           </Grid>
         </Grid>
