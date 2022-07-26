@@ -15,7 +15,7 @@ export const delistAddedToRangeCols = [
     width: '150px',
   },
   {
-    field: 'status',
+    field: 'eventStatus',
     header: 'Status',
     width: '100px',
   },

@@ -421,8 +421,10 @@ function DelistsAddedToRange(props: any) {
                 : null,
               onlineCFC: item.rangestatus
                 ? item.rangestatus.online
-                  ? item.rangestatus.online[1].toLowerCase() === 'OnlineCFC'
-                    ? 'Y'
+                  ? item.rangestatus.online[1]
+                    ? item.rangestatus.online[1] === 'OnlineCFC'
+                      ? 'Y'
+                      : 'N'
                     : 'N'
                   : 'N'
                 : 'N',
@@ -630,8 +632,10 @@ function DelistsAddedToRange(props: any) {
                   //   : null,
                   item.rangestatus
                     ? item.rangestatus.online
-                      ? item.rangestatus.online[1].toLowerCase() === 'OnlineCFC'
-                        ? 'Y'
+                      ? item.rangestatus.online[1]
+                        ? item.rangestatus.online[1] === 'OnlineCFC'
+                          ? 'Y'
+                          : 'N'
                         : 'N'
                       : 'N'
                     : 'N',
@@ -643,7 +647,7 @@ function DelistsAddedToRange(props: any) {
                   //   : null,
                   item.rangestatus
                     ? item.rangestatus.online
-                      ? item.rangestatus.online[0].toLowerCase() === 'Online'
+                      ? item.rangestatus.online[0].toLowerCase() === 'online'
                         ? 'Y'
                         : 'N'
                       : 'N'
@@ -1184,7 +1188,14 @@ function DelistsAddedToRange(props: any) {
     // } else {
     //   return <>{rowData && rowData.legacyItemNumbers}</>
     // }
-
+    // let legacyArray=''
+    // if(rowData.length>0){
+    //    legacyArray = rowData && rowData.legacyItemNumbers.join()
+    //   console.log(legacyArray)
+    // }
+    // else{
+    //   legacyArray = rowData && rowData.legacyItemNumbers
+    // }
     if (
       rowData &&
       rowData.actionType !== placeholderMin &&
@@ -3456,8 +3467,12 @@ function DelistsAddedToRange(props: any) {
       //   productServieResponse1.value.data.packs[0].packQuantity
       // ) // Packquantity
       formData.description = productServieResponse1.value.data.itemDescription // itemDescription
-      formData.legacyItemNumbers =
-        productServieResponse1.value.data.legacyItemNumbers //legacyItemNumbers
+      // formData.legacyItemNumbers =
+      //   productServieResponse1.value.data.legacyItemNumbers //legacyItemNumbers
+      formData.legacyItemNumbers = productServieResponse1.value.data
+        .legacyItemNumbers
+        ? productServieResponse1.value.data.legacyItemNumbers.join()
+        : '' //legacyItemNumbers
       formData.depotShelfLifeMinimum =
         productServieResponse1.value.data.hasOwnProperty('productLife')
           ? productServieResponse1.value.data.productLife
@@ -4114,7 +4129,8 @@ function DelistsAddedToRange(props: any) {
             unitCost: item.unitcost,
             caseCost: item.casecost,
             caseSize: item.packquantity ? item.packquantity : null,
-            local: item.local,
+            itemLocal: item.local,
+            legacyCode: item.legacyItemNumbers ? item.legacyItemNumbers : '',
             onlineCfc: item.onlineCFC,
             onlineStorePick: item.onlineStorePick,
             wholesale: item.wholesale,
